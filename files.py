@@ -82,3 +82,9 @@ def top_files(path):
     paths=[ path+'/'+file_i for file_i in os.listdir(path)]
     paths=sorted(paths,key=natural_keys)
     return paths
+
+def save(out_path,obj):
+    import pickle 
+    with open(out_path,"wb") as out_file:   
+        pickle.dump(obj,out_file) 
+        out_file.close()

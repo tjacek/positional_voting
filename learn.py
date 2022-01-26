@@ -10,6 +10,9 @@ class Result(data_dict.DataDict):
         y_true=names.get_cats()
         y_pred=[np.argmax(self[name_i]) for name_i in names]
         return y_true,y_pred,names
+
+    def as_array(self,names):
+        return np.array([self[name_i] for name_i in names])
     
     def get_acc(self):
         y_true,y_pred,names=self.get_pred()
@@ -23,8 +26,14 @@ class Result(data_dict.DataDict):
         y_true,y_pred,names=self.get_pred()
         return precision_recall_fscore_support(y_true,y_pred,average='weighted')
 
+def make_result(y_pred,names):
+    result=[ (name_i,pred_i) 
+            for name_i,pred_i in zip(names,y_pred)]
+    return Result(result)    
+
 def train_model(data,clf_type="LR",selector=None,
                 model_only=False):
+    print(type(data))
     if(type(data)==str or type(data)==list):    
         data=feats.read(data)[0]
     data.norm()
@@ -34,11 +43,10 @@ def train_model(data,clf_type="LR",selector=None,
     model=make_model(train,clf_type)
     if(model_only):
         return model
+    names=data.names()
     X_test,y_true=data.get_X(),data.get_labels()
     y_pred=model.predict_proba(X_test)
-    result=[ (name_i,pred_i) 
-            for name_i,pred_i in zip(data.names(),y_pred)]
-    return Result(result)
+    return make_result(y_pred,names)
 
 def make_model(train,clf_type):
     model= clf.get_cls(clf_type)

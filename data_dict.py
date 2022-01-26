@@ -16,8 +16,10 @@ class DataDict(dict):
         keys=sorted(self.keys(),key=files.natural_keys) 
         return files.NameList(keys)
 
-    def split(self,selector=None):
+    def split(self,selector=None,names_only=False):
         train,test=split(self,selector)
+        if(names_only):
+            return train,test
         return self.__class__(train),self.__class__(test)
 
     def transform(self,fun,copy=False):
