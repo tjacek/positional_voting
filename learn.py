@@ -33,7 +33,6 @@ def make_result(y_pred,names):
 
 def train_model(data,clf_type="LR",selector=None,
                 model_only=False):
-    print(type(data))
     if(type(data)==str or type(data)==list):    
         data=feats.read(data)[0]
     data.norm()
