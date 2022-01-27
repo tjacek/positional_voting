@@ -3,7 +3,7 @@ import numpy as np
 from functools import wraps
 import files,ens
 
-def dir_function(args=None):
+def dir_function(recreate=True):
     def decor_fun(fun):
         @wraps(fun)
         def dir_decorator(*args, **kwargs):
@@ -42,15 +42,30 @@ def basic_exp(fun):
         result.report()
         print(result.get_acc())
     return helper
-    
-@dir_function(args=None)
-@dir_function(args=None)
+
+def multi_iter(n_iters=10):
+    def helper(fun):
+        @wraps(fun)
+        def decorator(*args, **kwargs):
+            files.make_dir(args[1])
+            output=[]
+            for i in range(n_iters):
+                in_i=f"{args[0]}/{i}"  
+                out_i=f"{args[1]}/{i}"
+                new_args=(in_i,out_i)
+                output.append(fun(*new_args,**kwargs))
+            return output
+        return decorator
+    return helper
+
+@dir_function(recreate=False)
+@dir_function(recreate=False)
 def ens_results(in_path,out_path=None,clf="LR"):
     paths=(f"{in_path}/common",f"{in_path}/binary")
     votes=ens.make_votes(paths,clf=clf)
     votes.save(out_path)
 
-@dir_function(args=None)
+@dir_function(recreate=False)
 @acc_exp
 def simple_acc(in_path):
     return ens.read_votes(in_path).voting() 
