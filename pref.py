@@ -12,6 +12,12 @@ class PrefDict(data_dict.DataDict):
         pref_ij=self[name_i]
         return pref_ij[:,k]      
 
+    def positional_voting(self,score):
+        names= self.names() 
+        y_pred=[ self.score_rule(name_i,score) 
+                for name_i in names]
+        return learn.make_result(y_pred,names)
+
     def score_rule(self,name_i,score):
         n_cand=self.n_cand()
         count=np.zeros((n_cand,))
@@ -27,11 +33,12 @@ def election(in_path:str):
     results=ens.read_votes(in_path).results
     pref_dict=to_pref(results)
     score=borda_weights(pref_dict.n_cand())
-    names= pref_dict.names()
-    y_true=names.get_cats()
-    y_pred=[ pref_dict.score_rule(name_i,score) 
-                for name_i in names]
-    return learn.make_result(y_pred,names)
+    return pref_dict.positional_voting(score)
+#    names= pref_dict.names()
+#    y_true=names.get_cats()
+#    y_pred=[ pref_dict.score_rule(name_i,score) 
+#                for name_i in names]
+#    return learn.make_result(y_pred,names)
 
 def to_pref(results):
     pref_dict=PrefDict()
@@ -49,6 +56,7 @@ def borda_weights(n_cand):
     return np.array([n_cand-j 
                 for j in range(n_cand)])
 
-in_path="B/results/"#wine/0"
-acc=election(in_path)
-print(acc)
+if __name__ == "__main__":
+    in_path="B/results/"#wine/0"
+    acc=election(in_path)
+    print(acc)

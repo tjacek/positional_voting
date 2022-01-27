@@ -11,9 +11,17 @@ class Result(data_dict.DataDict):
         y_pred=[np.argmax(self[name_i]) for name_i in names]
         return y_true,y_pred,names
 
-    def as_array(self,names):
+    def as_array(self,names=None):
+        if(names is None):
+            names=self.names()
         return np.array([self[name_i] for name_i in names])
     
+    def true_one_hot(self):
+        names=self.names()
+        n_cats=names.n_cats()
+        y_true=names.get_cats()
+        return to_one_hot(y_true,n_cats)
+
     def get_acc(self):
         y_true,y_pred,names=self.get_pred()
         return accuracy_score(y_true,y_pred)
