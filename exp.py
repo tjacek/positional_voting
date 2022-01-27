@@ -24,6 +24,25 @@ def dir_function(args=None):
         return dir_decorator
     return decor_fun
 
+def acc_exp(fun):
+    @wraps(fun)
+    def dir_decorator(in_path):
+        results=[fun(path_i) #ens.read_votes(path_i).voting()
+        for path_i in files.top_files(in_path)]
+        acc=[result_i.get_acc() for result_i in results]
+        mean_acc,std_acc=np.mean(acc),np.std(acc)
+        name_i=in_path.split("/")[-1] 
+        return (name_i,mean_acc,std_acc)
+    return dir_decorator
+
+def basic_exp(fun):
+    @wraps(fun)
+    def helper(in_path):
+        result=fun(in_path)
+        result.report()
+        print(result.get_acc())
+    return helper
+    
 @dir_function(args=None)
 @dir_function(args=None)
 def ens_results(in_path,out_path=None,clf="LR"):
@@ -32,14 +51,10 @@ def ens_results(in_path,out_path=None,clf="LR"):
     votes.save(out_path)
 
 @dir_function(args=None)
-def acc_exp(in_path):
-    results=[ens.read_votes(path_i).voting()
-        for path_i in files.top_files(in_path)]
-    acc=[result_i.get_acc() for result_i in results]
-    mean_acc,std_acc=np.mean(acc),np.std(acc)
-    name_i=in_path.split("/")[-1] 
-    return (name_i,mean_acc,std_acc)
+@acc_exp
+def simple_acc(in_path):
+    return ens.read_votes(in_path).voting() 
 
 if __name__ == "__main__":
-    acc=acc_exp("B/results")
+    acc=simple_acc("B/results")
     print(acc)   

@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from sklearn.metrics import classification_report,accuracy_score
-import data_dict,feats,clf
+import data_dict,feats,clf,files
 
 class Result(data_dict.DataDict):
     def get_pred(self):
@@ -27,7 +27,12 @@ class Result(data_dict.DataDict):
         return precision_recall_fscore_support(y_true,y_pred,average='weighted')
 
 def make_result(y_pred,names):
-    result=[ (name_i,pred_i) 
+    if(type(y_pred)!=np.ndarray):
+        y_pred=np.array(y_pred)
+    if(len(y_pred.shape)==1):
+        n_cats=np.amax(y_pred)+1
+        y_pred=to_one_hot(y_pred,n_cats)
+    result=[(name_i,pred_i) 
             for name_i,pred_i in zip(names,y_pred)]
     return Result(result)    
 
@@ -52,6 +57,13 @@ def make_model(train,clf_type):
     X_train,y_train= train.get_X(),train.get_labels()
     model.fit(X_train,y_train)
     return model
+
+def to_one_hot(y,n_cats):
+    one_hot=[]
+    for y_i in y:
+        one_hot.append(np.zeros((n_cats,)))
+        one_hot[-1][y_i]=1.0
+    return np.array(one_hot)
 
 if __name__ == "__main__":
     in_path="../ml_utils/gen/B/common/wine"#dermatology"
