@@ -43,14 +43,17 @@ def basic_exp(fun):
         print(result.get_acc())
     return helper
 
-def multi_iter(n_iters=10):
+def multi_iter(n_iters=10,in_iter=False):
     def helper(fun):
         @wraps(fun)
         def decorator(*args, **kwargs):
             files.make_dir(args[1])
             output=[]
             for i in range(n_iters):
-                in_i=f"{args[0]}/{i}"  
+                if(in_iter):
+                    in_i=f"{args[0]}/{i}"  
+                else:
+                    in_i=args[0]
                 out_i=f"{args[1]}/{i}"
                 new_args=(in_i,out_i)
                 output.append(fun(*new_args,**kwargs))
@@ -71,5 +74,5 @@ def simple_acc(in_path):
     return ens.read_votes(in_path).voting() 
 
 if __name__ == "__main__":
-    acc=simple_acc("B/results")
+    acc=simple_acc("B/boost")
     print(acc)   

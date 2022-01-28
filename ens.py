@@ -39,9 +39,17 @@ def read_dataset(paths):
             binary_i+=common[0]
         datasets.append(binary_i)
     return datasets
-     
+
+def read_votes(votes_path:str):
+    import pickle
+    with open(votes_path, 'rb') as votes_file:
+        votes=pickle.load(votes_file)
+        if(len(votes)==0):
+            raise Exception(votes_path)
+        return votes
+
 if __name__ == "__main__":
-    in_path="../ml_utils/gen/B/ensembles/wine/0"
+    in_path="B/ensembles/wine/0"
     common_path=f"{in_path}/common"
     binary_path=f"{in_path}/binary"
     votes=make_votes((common_path,binary_path))

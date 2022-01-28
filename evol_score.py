@@ -15,24 +15,27 @@ class AucLoss(object):
         self.n_calls+=1
         return -1.0*auc_ovo
 
+class EvolScore(object):
+    def __init__(self,init="borda"):
+        self.alg_optim=optim.GenAlg(init_type=init)
 
-@exp.dir_function(args=None)
-@exp.acc_exp
+    @exp.dir_function(args=None)
+    @exp.acc_exp
 #@exp.basic_exp
-def evol(in_path):
-    print(in_path)
-    votes=ens.read_votes(in_path)
-    pref_dict=pref.to_pref(votes.results)
-    train,test=pref_dict.split()
+    def __call__(self,in_path):
+        print(in_path)
+        votes=ens.read_votes(in_path)
+        pref_dict=pref.to_pref(votes.results)
+        train,test=pref_dict.split()
 
-    loss_fun=AucLoss(train) 
-    n_cand=train.n_cand()
-    alg_optim=optim.GenAlg()
-    score=alg_optim(loss_fun,n_cand)
-    print(score)
-    result=test.positional_voting(score)
-    return result
+        loss_fun=AucLoss(train) 
+        n_cand=train.n_cand()
+        alg_optim=optim.GenAlg()
+        score=alg_optim(loss_fun,n_cand)
+        print(score)
+        result=test.positional_voting(score)
+        return result
 
-in_path="B/results/"#wine/0"
+in_path="B/boost/"#wine/0"
 acc_dict=evol(in_path)
 print(acc_dict)
