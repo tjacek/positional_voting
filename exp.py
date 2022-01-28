@@ -3,36 +3,49 @@ import numpy as np
 from functools import wraps
 import files,ens
 
-def dir_function(recreate=True):
+def dir_function(recreate=True,clf_decor=False):
     def decor_fun(fun):
         @wraps(fun)
         def dir_decorator(*args, **kwargs):
-            out_dir=(len(args)>1)
+            in_path,out_path=get_args(args,clf_decor) 
+            if(out_path):
+            	files.make_dir(out_path)
             output=[]
-            if(out_dir):
-            	files.make_dir(args[1])
-            for path_i in files.top_files(args[0]): 
-                if(out_dir):
+            for path_i in files.top_files(in_path): 
+                new_args=[path_i]                 
+                if(out_path):
                     name_i=path_i.split("/")[-1]
-                    out_i=f"{args[1]}/{name_i}"
-                    new_args=(path_i,out_i)	
-                else:
-                	new_args=(path_i,)
+                    out_i=f"{out_path}/{name_i}"
+                    new_args.append(out_i)	
+                if(clf_decor):
+                    new_args=[args[0]]+new_args
+                new_args=tuple(new_args)
                 print(new_args)
-                output.append( fun(*new_args,**kwargs))
+                output.append(fun(*new_args,**kwargs))
             return output
         return dir_decorator
     return decor_fun
 
+def get_args(args,clf_decor:bool):
+    x,y=0+int(clf_decor),1+int(clf_decor)
+    in_path=args[x]
+    out_path= args[y] if(len(args)>y) else None
+    return in_path,out_path
+
 def acc_exp(fun):
     @wraps(fun)
-    def dir_decorator(in_path):
-        results=[fun(path_i) #ens.read_votes(path_i).voting()
-        for path_i in files.top_files(in_path)]
+    def dir_decorator(*args, **kwargs):
+        in_path= args[0]  if(len(args)==1) else args[1]
+        results=[]
+        for path_i in files.top_files(in_path):
+            if(len(args)==1):
+                results.append(fun(path_i))
+            else:
+                results.append(fun(*(args[0],path_i)))
         acc=[result_i.get_acc() for result_i in results]
-        mean_acc,std_acc=np.mean(acc),np.std(acc)
+        stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
         name_i=in_path.split("/")[-1] 
-        return (name_i,mean_acc,std_acc)
+        return (name_i,stats)
     return dir_decorator
 
 def basic_exp(fun):
