@@ -19,10 +19,12 @@ class EvolScore(object):
     def __init__(self,init="borda"):
         self.alg_optim=optim.GenAlg(init_type=init)
 
-    @exp.dir_function(args=None)
+    def __str__(self):
+        return str(self.alg_optim)
+
+    @exp.dir_function(recreate=False,clf_decor=True)
     @exp.acc_exp
-#@exp.basic_exp
-    def __call__(self,in_path):
+    def __call__(self,in_path:str):
         print(in_path)
         votes=ens.read_votes(in_path)
         pref_dict=pref.to_pref(votes.results)
@@ -30,12 +32,24 @@ class EvolScore(object):
 
         loss_fun=AucLoss(train) 
         n_cand=train.n_cand()
-        alg_optim=optim.GenAlg()
-        score=alg_optim(loss_fun,n_cand)
+        score=self.alg_optim(loss_fun,n_cand)
         print(score)
         result=test.positional_voting(score)
         return result
 
-in_path="B/boost/"#wine/0"
-acc_dict=evol(in_path)
-print(acc_dict)
+def evol_exp(in_path:str):
+    algs=[exp.simple_acc,EvolScore('borda'),EvolScore('latin')]
+    alg_dict={ str(alg_i):dict(alg_i(in_path)) 
+                   for alg_i in algs}
+    dataset=list(alg_dict.values())[0].keys()
+    lines=[]
+    for data_i in dataset:
+        for vote_j,alg_j in alg_dict.items():
+            print(data_i)
+            stat_j=",".join(["%.4f" % stat 
+                    for stat in alg_j[data_i]])
+            lines.append(f"{data_i},{vote_j},{stat_j}")
+    print(lines)
+
+in_path="B/results/"#wine/0"
+evol_exp(in_path)
