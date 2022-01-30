@@ -15,13 +15,10 @@ class AucLoss(object):
 
         y_true=result.true_one_hot()
         y_pred=result.as_array()
-#        print(result.dim())
-#        print(y_true.shape)
-#        print(y_pred.shape)
 
-        auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
+#        auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
 
-        return -1.0* auc_ovo#accuracy_score(y_true,y_pred)
+        return -1.0* accuracy_score(y_true,y_pred)
 #        return -1.0*auc_ovo
 
 class EvolScore(object):
@@ -46,9 +43,19 @@ class EvolScore(object):
         result=test.positional_voting(score)
         return result
 
+@exp.dir_function(recreate=False,clf_decor=False)
+@exp.acc_exp
+def borda_count(in_path:str):
+    votes=ens.read_votes(in_path)
+    pref_dict=pref.to_pref(votes.results)
+    train,test=pref_dict.split()
+    score=pref.borda_weights(test.n_cand())
+    result=test.positional_voting(score)
+    return result
+
 def evol_exp(in_path:str):
 #    algs=[exp.simple_acc,EvolScore('borda')]#,
-    algs=[EvolScore('latin')]
+    algs=[exp.simple_acc,borda_count]#EvolScore('latin')]
     alg_dict={ str(alg_i):dict(alg_i(in_path)) 
                    for alg_i in algs}
     dataset=list(alg_dict.values())[0].keys()
@@ -61,5 +68,5 @@ def evol_exp(in_path:str):
             lines.append(f"{data_i},{vote_j},{stat_j}")
     print(lines)
 
-in_path="D/results/"#wine/0"
+in_path="D/boost/"#wine/0"
 evol_exp(in_path)
