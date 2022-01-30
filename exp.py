@@ -1,4 +1,4 @@
-import os
+import os.path
 import numpy as np
 from functools import wraps
 import files,ens
@@ -48,6 +48,13 @@ def acc_exp(fun):
         return (name_i,stats)
     return dir_decorator
 
+def if_exist(fun):
+    @wraps(fun)
+    def helper(in_path,out_path):
+        if(not os.path.exists(out_path)):
+            fun(in_path,out_path)
+    return helper
+
 def basic_exp(fun):
     @wraps(fun)
     def helper(in_path):
@@ -87,5 +94,6 @@ def simple_acc(in_path):
     return ens.read_votes(in_path).voting() 
 
 if __name__ == "__main__":
-    acc=simple_acc("B/boost")
+#    ens_results("A/one_vs_all","A/results")
+    acc=simple_acc("A/boost")
     print(acc)   

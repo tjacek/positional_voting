@@ -6,6 +6,7 @@ import exp,feats,learn,ens
 @exp.dir_function()
 @exp.dir_function()
 #@exp.multi_iter(n_iters=10,in_iter=False)
+@exp.if_exist
 def boost_clf(in_path,out_path):
     print(in_path)
     print(out_path)
@@ -14,6 +15,7 @@ def boost_clf(in_path,out_path):
 
 def train_boost(in_path):
     data_i=feats.read(in_path)[0]
+    print(len(data_i))
     data_i.norm()
     train_i,test_i=data_i.split()
     train_tuple=train_i.as_dataset()
@@ -47,4 +49,4 @@ def get_boost_votes(result_tuple,clf_i):
         results.append(result_j)
     return ens.Votes(results)
 
-results=boost_clf("C/one_vs_all","C/boost")
+results=boost_clf("A/one_vs_all","A/boost")

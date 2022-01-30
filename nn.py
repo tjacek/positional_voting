@@ -7,6 +7,7 @@ from tensorflow.keras.layers import Dense,BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
+import os.path
 import exp,feats,files,learn
 
 class SimpleNN(object):
@@ -54,19 +55,20 @@ def simple_ensemble(dataset,out_path,
         feats_i.save(out_i)
     return accuracy
 
-@exp.dir_function()
+@exp.dir_function(recreate=False)
 @exp.multi_iter(n_iters=10,in_iter=False)
-def random_ensemble(in_path,out_path,n_epochs=150):
+def random_ensemble(in_path,out_path,n_epochs=10):
     print(in_path)
     print(out_path)
-    files.make_dir(out_path)
-    data_i=feats.read(in_path)[0]
-    random_data=data_i.balanced_split()
-    random_data.save(f"{out_path}/common")
-    n_hidden=min( (30,random_data.dim()[0]))   
-    simple_ensemble(random_data,f"{out_path}/binary",
+    if(not os.path.exists(out_path)):
+        files.make_dir(out_path)
+        data_i=feats.read(in_path)[0]
+        random_data=data_i.balanced_split()
+        random_data.save(f"{out_path}/common")
+        n_hidden=30#min( (30,random_data.dim()[0]))   
+        simple_ensemble(random_data,f"{out_path}/binary",
             n_hidden=n_hidden,batch_size=1,n_epochs=n_epochs)
 
 if __name__ == "__main__":
 #    dataset=convert.txt_dataset("penglung/raw.data")
-    random_ensemble("B/common","B/one_vs_all")
+    random_ensemble("A/common","A/one_vs_all")
