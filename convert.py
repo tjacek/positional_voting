@@ -1,4 +1,6 @@
 import numpy as np
+import re
+import scipy.io
 import exp,feats
 
 @exp.dir_function()
@@ -10,14 +12,18 @@ def from_arff(in_path:str,out_path:str):
     	tuple_i=list(tuple_i)
     	X.append(tuple_i[:-1])
     	y.append(tuple_i[-1])
+    feat_dict=to_feats(X,y)
+    print(feat_dict.n_cats())
+    print(str(feat_dict))
+    feat_dict.save(out_path) 
+
+def to_feats(X,y):
     y=norm_cat(y)
     feat_dict=feats.Feats()
     for i,(X_i,y_i) in enumerate(zip(X,y)):
         name_i=f"{y_i}_{i%2}_{i}"
         feat_dict[name_i]=np.array(X_i)
-    print(feat_dict.n_cats())
-    print(str(feat_dict))
-    feat_dict.save(out_path) 
+    return feat_dict
 
 def norm_cat(labels):
     unique=set(labels)
@@ -25,4 +31,20 @@ def norm_cat(labels):
         for i,cat_i in enumerate(list(unique))}
     return [cat_dict[y_j] for y_j in labels]
 
-from_arff("A/arff","A/common")
+@exp.dir_function()
+def from_keel(in_path:str,out_path:str):
+    samples = [sample_i.strip()#.split() 
+         for sample_i in open(in_path).readlines()]
+    samples=[sample_i.replace('<null>','0')
+                for sample_i in samples
+                    if(not '@' in sample_i) ]
+    X,y=[],[]
+    for sample_i in samples:
+    	sample_i=[ float(cord_j)
+                    for cord_j in sample_i.split(',')]
+    	X.append(sample_i[:-1])
+    	y.append(sample_i[-1])
+    feat_dict=to_feats(X,y)
+    feat_dict.save(out_path)
+
+from_keel("A/keel","A/common")
