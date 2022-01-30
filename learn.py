@@ -18,9 +18,13 @@ class Result(data_dict.DataDict):
     
     def true_one_hot(self):
         names=self.names()
-        n_cats=names.n_cats()
         y_true=names.get_cats()
+#        n_cats= np.amax(y_true)+1
+        n_cats=names.n_cats()
         return to_one_hot(y_true,n_cats)
+
+    def dim(self):
+        return list(self.values())[0].shape
 
     def get_acc(self):
         y_true,y_pred,names=self.get_pred()
@@ -34,11 +38,18 @@ class Result(data_dict.DataDict):
         y_true,y_pred,names=self.get_pred()
         return precision_recall_fscore_support(y_true,y_pred,average='weighted')
 
+    def add_column(self):
+        for name_i,value_i in self.items():
+            vect_i=self[name_i]
+            self[name_i]=np.insert(value_i,value_i.shape[0],0,axis=0)
+
 def make_result(y_pred,names):
+    if(type(names)!=files.NameList):
+        names=files.NameList(names)
     if(type(y_pred)!=np.ndarray):
         y_pred=np.array(y_pred)
     if(len(y_pred.shape)==1):
-        n_cats=np.amax(y_pred)+1
+        n_cats=names.n_cats()#np.amax(y_pred)+1
         y_pred=to_one_hot(y_pred,n_cats)
     result=[(name_i,pred_i) 
             for name_i,pred_i in zip(names,y_pred)]

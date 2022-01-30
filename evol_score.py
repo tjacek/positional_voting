@@ -1,4 +1,4 @@
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score,accuracy_score
 import exp,ens,pref,optim
 
 class AucLoss(object):
@@ -6,14 +6,23 @@ class AucLoss(object):
         self.train_dict=train_dict
         self.n_calls=0
 
+
     def __call__(self,score):
+        self.n_calls+=1
         result=self.train_dict.positional_voting(score)
+        if(result.dim()[0]!=result.n_cats()):
+            result.add_column()
+
         y_true=result.true_one_hot()
         y_pred=result.as_array()
-        n_cats=result.n_cats()
+#        print(result.dim())
+#        print(y_true.shape)
+#        print(y_pred.shape)
+
         auc_ovo = roc_auc_score(y_true,y_pred,multi_class="ovo")
-        self.n_calls+=1
-        return -1.0*auc_ovo
+
+        return -1.0* auc_ovo#accuracy_score(y_true,y_pred)
+#        return -1.0*auc_ovo
 
 class EvolScore(object):
     def __init__(self,init="borda"):
@@ -38,7 +47,8 @@ class EvolScore(object):
         return result
 
 def evol_exp(in_path:str):
-    algs=[exp.simple_acc,EvolScore('borda'),EvolScore('latin')]
+#    algs=[exp.simple_acc,EvolScore('borda')]#,
+    algs=[EvolScore('latin')]
     alg_dict={ str(alg_i):dict(alg_i(in_path)) 
                    for alg_i in algs}
     dataset=list(alg_dict.values())[0].keys()
@@ -51,5 +61,5 @@ def evol_exp(in_path:str):
             lines.append(f"{data_i},{vote_j},{stat_j}")
     print(lines)
 
-in_path="B/results/"#wine/0"
+in_path="D/results/"#wine/0"
 evol_exp(in_path)

@@ -4,11 +4,12 @@ from sklearn.model_selection import GridSearchCV
 import exp,feats,learn,ens
 
 @exp.dir_function()
-@exp.multi_iter(n_iters=10,in_iter=False)
+@exp.dir_function()
+#@exp.multi_iter(n_iters=10,in_iter=False)
 def boost_clf(in_path,out_path):
     print(in_path)
     print(out_path)
-    votes_i=train_boost(in_path)
+    votes_i=train_boost(f"{in_path}/common")
     votes_i.save(out_path)
 
 def train_boost(in_path):
@@ -46,4 +47,4 @@ def get_boost_votes(result_tuple,clf_i):
         results.append(result_j)
     return ens.Votes(results)
 
-results=boost_clf("B/common","B/boost")
+results=boost_clf("C/one_vs_all","C/boost")
