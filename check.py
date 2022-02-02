@@ -4,9 +4,14 @@ import exp,feats
 def check(in_path):
     data_i=feats.read(in_path)[0]
     name_i=in_path.split('/')[-1]
+    name_i=name_i.split('.')[0]
     names=data_i.names()
-    cats=list(names.unique_cats())
-    print(f"{data_i.n_cats()},{len(data_i)},{data_i.dim()[0]}")
-    print(cats)
+    ratio=class_ratio(names)
+    print(f"{name_i},{data_i.n_cats()},{str(data_i)},{ratio}")
 
-check("B/common")
+def class_ratio(names):
+    stats=names.cats_stats()
+    class_size=list(stats.values())
+    return min(class_size)/max(class_size)
+
+check("A/common")
