@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from sklearn.metrics import classification_report,accuracy_score
+from sklearn.metrics import roc_auc_score
 import data_dict,feats,clf,files
 
 class Result(data_dict.DataDict):
@@ -29,6 +30,11 @@ class Result(data_dict.DataDict):
     def get_acc(self):
         y_true,y_pred,names=self.get_pred()
         return accuracy_score(y_true,y_pred)
+
+    def get_auc(self):
+        y_true=self.true_one_hot()
+        y_pred=self.as_array()
+        return roc_auc_score(y_true,y_pred)
 
     def report(self):
         y_true,y_pred,names=self.get_pred()

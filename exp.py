@@ -3,7 +3,7 @@ import numpy as np
 from functools import wraps
 import files,ens
 
-def dir_function(recreate=True,clf_decor=False):
+def dir_function(clf_decor=False,show=True):
     def decor_fun(fun):
         @wraps(fun)
         def dir_decorator(*args, **kwargs):
@@ -20,7 +20,8 @@ def dir_function(recreate=True,clf_decor=False):
                 if(clf_decor):
                     new_args=[args[0]]+new_args
                 new_args=tuple(new_args)
-                print(new_args)
+                if(show):
+                    print(new_args)
                 output.append(fun(*new_args,**kwargs))
             return output
         return dir_decorator
@@ -32,21 +33,36 @@ def get_args(args,clf_decor:bool):
     out_path= args[y] if(len(args)>y) else None
     return in_path,out_path
 
-def acc_exp(fun):
-    @wraps(fun)
-    def dir_decorator(*args, **kwargs):
-        in_path= args[0]  if(len(args)==1) else args[1]
-        results=[]
-        for path_i in files.top_files(in_path):
-            if(len(args)==1):
-                results.append(fun(path_i))
-            else:
-                results.append(fun(*(args[0],path_i)))
-        acc=[result_i.get_acc() for result_i in results]
-        stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
-        name_i=in_path.split("/")[-1] 
-        return (name_i,stats)
-    return dir_decorator
+class ResultExp(object):
+    def __init__(self,stats_fun=None):
+        if(stats_fun is None):
+            stats_fun=acc_stats
+        self.stats_fun=stats_fun
+
+    def __call__(self,fun):
+        @wraps(fun)
+        def helper(*args, **kwargs):
+            in_path= args[0] if(len(args)==1) else args[1]
+            results=[]
+            for path_i in files.top_files(in_path):
+                if(len(args)==1):
+                    results.append(fun(path_i))
+                else:
+                    results.append(fun(*(args[0],path_i)))
+            stats=self.stats_fun(results)
+            name_i=in_path.split("/")[-1] 
+            return (name_i,stats)
+        return helper
+
+def acc_stats(results):
+    acc=[result_i.get_acc() for result_i in results]
+    stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
+    return stats
+
+def auc_stats(results):
+    acc=[result_i.get_auc() for result_i in results]
+    stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
+    return stats
 
 def if_exist(fun):
     @wraps(fun)
@@ -81,19 +97,19 @@ def multi_iter(n_iters=10,in_iter=False):
         return decorator
     return helper
 
-@dir_function(recreate=False)
-@dir_function(recreate=False)
+@dir_function()
+@dir_function()
 def ens_results(in_path,out_path=None,clf="LR"):
     paths=(f"{in_path}/common",f"{in_path}/binary")
     votes=ens.make_votes(paths,clf=clf)
     votes.save(out_path)
 
-@dir_function(recreate=False)
-@acc_exp
-def simple_acc(in_path):
+@dir_function()
+@ResultExp(auc_stats)
+def simple_auc(in_path):
     return ens.read_votes(in_path).voting() 
 
 if __name__ == "__main__":
 #    ens_results("A/one_vs_all","A/results")
-    acc=simple_acc("A/boost")
+    acc=simple_auc("A/bag")
     print(acc)   
