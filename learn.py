@@ -48,6 +48,9 @@ class Result(data_dict.DataDict):
         for name_i,value_i in self.items():
             vect_i=self[name_i]
             self[name_i]=np.insert(value_i,value_i.shape[0],0,axis=0)
+    
+    def save(self,out_path):
+        files.save(out_path,self)
 
 def make_result(y_pred,names):
     if(type(names)!=files.NameList):
