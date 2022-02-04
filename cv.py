@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn import ensemble
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RepeatedStratifiedKFold
+from skopt import BayesSearchCV
 import exp,feats,learn,ens,files
 
 class ClfCV(object):
@@ -36,23 +38,44 @@ class GridOptim(object):
         best_params=clf_i.cv_results_['params'][0]
         return clf_i.best_estimator_,best_params
 
-def gs_rf():
+class BayesOptim(object):
+    def __init__(self,clf,params):
+        self.clf=clf
+        self.params=params
+
+    def __call__(self,X_train,y_train):
+        cv_gen=RepeatedStratifiedKFold(n_splits=5, 
+                n_repeats=3, random_state=1)
+        search = BayesSearchCV(estimator=self.clf(), 
+        	search_spaces=self.params,n_jobs=-1,cv=cv_gen)
+        search.fit(X_train,y_train) 
+#        clf_i = GridSearchCV(self.clf(),self.params,
+#                    verbose=1,
+#                    scoring='neg_log_loss')
+#        clf_i.fit(X_train,y_train)    
+        best_params=search.cv_results_['params'][0]
+        return search.best_estimator_,best_params    	
+
+def rf_clf(bayes=True):
     params={'max_depth': [3, 5, 10],
             'min_samples_split': [2, 5, 10]}
     clf = ensemble.RandomForestClassifier
-    grid=GridOptim(clf,params)
+    search_alg= BayesOptim if(bayes) else GridOptim
+    grid=search_alg(clf,params)
     return ClfCV(grid,get_votes)
 
-def gs_bag():
+def bag_clf(bayes=True):
     params={'n_estimators': [5,10,15,20]}
     clf = ensemble.BaggingClassifier
-    grid=GridOptim(clf,params)
+    search_alg= BayesOptim if(bayes) else GridOptim
+    grid=search_alg(clf,params)
     return ClfCV(grid,get_votes)
 
-def gs_boost():
+def boost_clf(bayes=True):
     params={'max_depth': [2,4,6],'n_estimators': [5,10,15,20]}
     clf = ensemble.GradientBoostingClassifier
-    grid=GridOptim(clf,params)
+    search_alg= BayesOptim if(bayes) else GridOptim
+    grid=search_alg(clf,params)
     return ClfCV(grid,get_boost_votes)
 
 def get_boost_votes(result_tuple,clf_i):
@@ -81,9 +104,9 @@ def get_votes(result_tuple,clf_i):
 
 def clf_exp(in_path,out_path):
     files.make_dir(out_path)
-    algs={"RF":gs_rf(),
-          "BAG":gs_bag(),
-          "BOOST":gs_boost()}
+    algs={"RF":rf_clf(),
+          "BAG":bag_clf(),
+          "BOOST":boost_clf()}
     for name_i,alg_i in algs.items():
         out_i=f"{out_path}/{name_i}"
         alg_i(in_path,out_i)
