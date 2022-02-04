@@ -6,7 +6,6 @@ class AucLoss(object):
         self.train_dict=train_dict
         self.n_calls=0
 
-
     def __call__(self,score):
         self.n_calls+=1
         result=self.train_dict.positional_voting(score)
@@ -22,16 +21,18 @@ class AucLoss(object):
 #        return -1.0*auc_ovo
 
 class EvolScore(object):
-    def __init__(self,init="borda"):
+    def __init__(self,init="latin"):
         self.alg_optim=optim.GenAlg(init_type=init)
 
     def __str__(self):
-        return "OPV"#str(self.alg_optim)
+        return "OPV"
 
-    @exp.dir_function()#recreate=False,clf_decor=True)
-#    @exp.acc_exp
-    def __call__(self,in_path:str):
+    @exp.dir_function(clf_decor=True)
+    @exp.dir_function(clf_decor=True)
+    def __call__(self,in_path:str,out_path:str):
         print(in_path)
+        print(out_path)
+
         votes=ens.read_votes(in_path)
         pref_dict=pref.to_pref(votes.results)
         train,test=pref_dict.split()
@@ -41,10 +42,9 @@ class EvolScore(object):
         score=self.alg_optim(loss_fun,n_cand)
         print(score)
         result=test.positional_voting(score)
-        return result
+        result.save(out_path)
+        return (out_path,score)
 
-#@exp.dir_function(recreate=False,clf_decor=False)
-#@exp.acc_exp
 @exp.dir_function(clf_decor=False)
 @exp.dir_function(clf_decor=False)
 def borda_count(in_path:str,out_path:str):
@@ -55,11 +55,6 @@ def borda_count(in_path:str,out_path:str):
     result=test.positional_voting(score)
     result.save(out_path)
     return (out_path,score)
-
-#def get_name(obj):
-#    if(type(obj)==EvolScore):
-#        return str(obj)
-#    return obj.__name__
 
 #def evol_exp(in_path:str):
 #    algs=[exp.simple_acc,borda_count]
@@ -76,6 +71,14 @@ def borda_count(in_path:str,out_path:str):
 #            lines.append(f"{data_i},{vote_j},{stat_j}")
 #    print(lines)
 
-in_path="B/BAG/raw"#wine/0"
-output=borda_count(in_path,"B/BAG/borda")
-print(output)
+def evol_exp(in_path):
+    paths=[f"{in_path}/{path_i}" 
+        for path_i in ["BAG","RF","BOOST"]]
+    evol_score= EvolScore()
+    output=[]
+    for path_i in paths:
+        in_i,out_i=f"{path_i}/raw",f"{path_i}/opv"
+        output.append(evol_score(in_i,out_i))
+    print(output)
+
+evol_exp("C")
