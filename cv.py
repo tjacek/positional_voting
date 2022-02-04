@@ -49,10 +49,6 @@ class BayesOptim(object):
         search = BayesSearchCV(estimator=self.clf(), 
         	search_spaces=self.params,n_jobs=-1,cv=cv_gen)
         search.fit(X_train,y_train) 
-#        clf_i = GridSearchCV(self.clf(),self.params,
-#                    verbose=1,
-#                    scoring='neg_log_loss')
-#        clf_i.fit(X_train,y_train)    
         best_params=search.cv_results_['params'][0]
         return search.best_estimator_,best_params    	
 

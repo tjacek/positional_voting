@@ -107,9 +107,12 @@ def ens_results(in_path,out_path=None,clf="LR"):
 @dir_function()
 @ResultExp(auc_stats)
 def simple_auc(in_path):
-    return ens.read_votes(in_path).voting() 
+    result=ens.read_votes(in_path) 
+    if(type(result)==ens.Votes):
+        result=result.voting()
+    return result
 
 if __name__ == "__main__":
 #    ens_results("A/one_vs_all","A/results")
-    acc=simple_auc("A/bag")
+    acc=simple_auc("B/BAG/borda")
     print(acc)   

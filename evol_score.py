@@ -26,10 +26,10 @@ class EvolScore(object):
         self.alg_optim=optim.GenAlg(init_type=init)
 
     def __str__(self):
-        return str(self.alg_optim)
+        return "OPV"#str(self.alg_optim)
 
-    @exp.dir_function(recreate=False,clf_decor=True)
-    @exp.acc_exp
+    @exp.dir_function()#recreate=False,clf_decor=True)
+#    @exp.acc_exp
     def __call__(self,in_path:str):
         print(in_path)
         votes=ens.read_votes(in_path)
@@ -43,30 +43,39 @@ class EvolScore(object):
         result=test.positional_voting(score)
         return result
 
-@exp.dir_function(recreate=False,clf_decor=False)
-@exp.acc_exp
-def borda_count(in_path:str):
+#@exp.dir_function(recreate=False,clf_decor=False)
+#@exp.acc_exp
+@exp.dir_function(clf_decor=False)
+@exp.dir_function(clf_decor=False)
+def borda_count(in_path:str,out_path:str):
     votes=ens.read_votes(in_path)
     pref_dict=pref.to_pref(votes.results)
     train,test=pref_dict.split()
     score=pref.borda_weights(test.n_cand())
     result=test.positional_voting(score)
-    return result
+    result.save(out_path)
+    return (out_path,score)
 
-def evol_exp(in_path:str):
-#    algs=[exp.simple_acc,EvolScore('borda')]#,
-    algs=[exp.simple_acc,borda_count]#EvolScore('latin')]
-    alg_dict={ str(alg_i):dict(alg_i(in_path)) 
-                   for alg_i in algs}
-    dataset=list(alg_dict.values())[0].keys()
-    lines=[]
-    for data_i in dataset:
-        for vote_j,alg_j in alg_dict.items():
-            print(data_i)
-            stat_j=",".join(["%.4f" % stat 
-                    for stat in alg_j[data_i]])
-            lines.append(f"{data_i},{vote_j},{stat_j}")
-    print(lines)
+#def get_name(obj):
+#    if(type(obj)==EvolScore):
+#        return str(obj)
+#    return obj.__name__
 
-in_path="D/boost/"#wine/0"
-evol_exp(in_path)
+#def evol_exp(in_path:str):
+#    algs=[exp.simple_acc,borda_count]
+#    algs=[exp.simple_acc,borda_count, EvolScore('latin')]
+#    alg_dict={ get_name(alg_i):dict(alg_i(in_path)) 
+#                   for alg_i in algs}
+#    dataset=list(alg_dict.values())[0].keys()
+#    lines=[]
+#    for data_i in dataset:
+#        for vote_j,alg_j in alg_dict.items():
+#            print(data_i)
+#            stat_j=",".join(["%.4f" % stat 
+#                    for stat in alg_j[data_i]])
+#            lines.append(f"{data_i},{vote_j},{stat_j}")
+#    print(lines)
+
+in_path="B/BAG/raw"#wine/0"
+output=borda_count(in_path,"B/BAG/borda")
+print(output)

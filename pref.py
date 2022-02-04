@@ -26,19 +26,14 @@ class PrefDict(data_dict.DataDict):
                 count[vote_k]+=score[j]
         return np.argmax(count)
 
-@exp.dir_function(args=None)
-@exp.acc_exp
+@exp.dir_function()#recreate=False)
+#@exp.acc_exp
 #@exp.basic_exp
 def election(in_path:str):
     results=ens.read_votes(in_path).results
     pref_dict=to_pref(results)
     score=borda_weights(pref_dict.n_cand())
     return pref_dict.positional_voting(score)
-#    names= pref_dict.names()
-#    y_true=names.get_cats()
-#    y_pred=[ pref_dict.score_rule(name_i,score) 
-#                for name_i in names]
-#    return learn.make_result(y_pred,names)
 
 def to_pref(results):
     pref_dict=PrefDict()
