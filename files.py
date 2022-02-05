@@ -83,6 +83,13 @@ def top_files(path):
     paths=sorted(paths,key=natural_keys)
     return paths
 
+def find_paths(in_path,cond):
+    paths=[]
+    for root, subdirs, files in os.walk(in_path):
+        if(cond(root)):
+            paths.append(root)
+    return paths
+
 def save(out_path,obj):
     import pickle 
     with open(out_path,"wb") as out_file:   
