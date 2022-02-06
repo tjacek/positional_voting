@@ -49,10 +49,19 @@ class ResultExp(object):
                     results.append(fun(path_i))
                 else:
                     results.append(fun(*(args[0],path_i)))
-            stats=self.stats_fun(results)
+            stats=self.get_stats(results) #self.stats_fun(results)
             name_i=in_path.split("/")[-1] 
             return (name_i,stats)
         return helper
+
+    def get_stats(self,results):
+        if(type(self.stats_fun)==list):
+            stats=[]
+            for fun_i in self.stats_fun:
+                stats+=fun_i(results)
+            return stats
+        else:
+            return self.stats_fun(results)
 
 def acc_stats(results):
     acc=[result_i.get_acc() for result_i in results]
@@ -105,8 +114,8 @@ def ens_results(in_path,out_path=None,clf="LR"):
     votes.save(out_path)
 
 @dir_function()
-@ResultExp(auc_stats)
-def simple_auc(in_path):
+@ResultExp([acc_stats, auc_stats])
+def simple_exp(in_path):
     result=ens.read_votes(in_path) 
     if(type(result)==ens.Votes):
         result=result.voting()
@@ -114,5 +123,5 @@ def simple_auc(in_path):
 
 if __name__ == "__main__":
 #    ens_results("A/one_vs_all","A/results")
-    acc=simple_auc("B/BAG/borda")
+    acc=simple_exp("B/BAG/borda")
     print(acc)   
