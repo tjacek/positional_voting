@@ -1,11 +1,13 @@
 import files,exp
 
-def gen_csv(in_path,cond):
+def gen_csv(in_path,cond,out_path):
     stats_dict=get_stats_dict(in_path,cond)
     dataset_dicts=by_dataset(stats_dict)
-    for name_i,dict_i in dataset_dicts.items():
-        txt_i=dict_to_txt(name_i,dict_i)
-        print(txt_i)	
+    with open(out_path, 'w') as f:
+        for name_i,dict_i in dataset_dicts.items():
+            txt_i=dict_to_txt(name_i,dict_i)
+            f.write(txt_i)
+            f.write('\n')
 
 def by_dataset(stats_dict):
     names=list(stats_dict.values())[0].keys()
@@ -41,4 +43,4 @@ def stats_to_txt(stats):
     return ",".join(["%.4f" % stat_j 
                 for stat_j in stats])
 
-gen_csv("B",['raw','opv'])
+gen_csv("B",['raw','borda','opv'],"bayes.csv")
