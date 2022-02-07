@@ -24,9 +24,6 @@ class EvolScore(object):
     def __init__(self,init="latin"):
         self.alg_optim=optim.GenAlg(init_type=init)
 
-    def __str__(self):
-        return "OPV"
-
     @exp.dir_function(clf_decor=True)
     @exp.dir_function(clf_decor=True)
     def __call__(self,in_path:str,out_path:str):
@@ -55,21 +52,6 @@ def borda_count(in_path:str,out_path:str):
     result=test.positional_voting(score)
     result.save(out_path)
     return (out_path,score)
-
-#def evol_exp(in_path:str):
-#    algs=[exp.simple_acc,borda_count]
-#    algs=[exp.simple_acc,borda_count, EvolScore('latin')]
-#    alg_dict={ get_name(alg_i):dict(alg_i(in_path)) 
-#                   for alg_i in algs}
-#    dataset=list(alg_dict.values())[0].keys()
-#    lines=[]
-#    for data_i in dataset:
-#        for vote_j,alg_j in alg_dict.items():
-#            print(data_i)
-#            stat_j=",".join(["%.4f" % stat 
-#                    for stat in alg_j[data_i]])
-#            lines.append(f"{data_i},{vote_j},{stat_j}")
-#    print(lines)
 
 def evol_exp(in_path):
     paths=[f"{in_path}/{path_i}" 

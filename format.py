@@ -43,4 +43,13 @@ def stats_to_txt(stats):
     return ",".join(["%.4f" % stat_j 
                 for stat_j in stats])
 
-gen_csv("B",['raw','borda','opv'],"bayes.csv")
+def to_csv(lines,out_path):
+    if(not ".csv" in out_path):
+        out_path=f"{out_path}.csv"
+    with open(out_path,'w') as f:
+        for line_i in lines:
+            f.write(line_i)
+            f.write('\n')
+
+if __name__ == "__main__":
+    gen_csv("B",['raw','borda','opv'],"bayes.csv")

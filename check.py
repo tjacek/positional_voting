@@ -1,5 +1,5 @@
 import numpy as np
-import exp,feats
+import exp,feats,format
 
 @exp.dir_function(show=False)
 def check(in_path):
@@ -23,9 +23,12 @@ def class_cumul(in_path):
     cat_sizes.sort()
     cat_sizes.reverse()
     cat_sizes=np.array(cat_sizes)/sum(cat_sizes)
-    cumul_dist=np.cumsum(cat_sizes)
+    cumul_dist=cat_sizes#np.cumsum(cat_sizes)
     name_i=in_path.split('/')[-1]
-    str_cumul=",".join([f"{dist:.2f}" for dist in cumul_dist ])    
-    print(f"{name_i},{str_cumul}")
+    str_cumul=",".join([f"{100*dist:.2f}" for dist in cumul_dist ])    
+    line_i=f"{name_i},{str_cumul}"
+    print(line_i)
+    return line_i
 
-class_cumul("A/common")
+output=class_cumul("A/common")
+format.to_csv(output,"imbal")
