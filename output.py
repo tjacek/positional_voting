@@ -20,7 +20,13 @@ def to_dict(data,key_names):
         data_dict[key_i]=row
     return data_dict
 
+def compare_output(pair,attr,vote_dicts):
+    base,diff=vote_dicts[pair[0]],vote_dicts[pair[1]]
+    for name_i in base.keys():
+    	base_attr=base[name_i][attr]
+    	diff_attr=diff[name_i][attr]
+    	print( diff_attr-base_attr)
+
 vote_dicts=by_voting(['bayes.csv','auc.csv'])
 print(vote_dicts.keys())
-#data_dict=to_dict(data,)
-#print(data_dict.keys())
+compare_output(['raw','opv'],'acc_mean',vote_dicts)
