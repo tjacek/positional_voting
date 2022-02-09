@@ -1,3 +1,4 @@
+import numpy as np
 import pandas
 
 def by_voting(paths):
@@ -21,12 +22,16 @@ def to_dict(data,key_names):
     return data_dict
 
 def compare_output(pair,attr,vote_dicts):
-    base,diff=vote_dicts[pair[0]],vote_dicts[pair[1]]
-    for name_i in base.keys():
-    	base_attr=base[name_i][attr]
-    	diff_attr=diff[name_i][attr]
-    	print( diff_attr-base_attr)
+    old,new=vote_dicts[pair[0]],vote_dicts[pair[1]]
+    all_diff=[]
+    for name_i in old.keys():
+    	old_attr=old[name_i][attr]
+    	new_attr=new[name_i][attr]
+    	diff= new_attr-old_attr
+    	print(f"{name_i},{diff/old_attr}")
+    	all_diff.append( diff)
+    print(np.median(all_diff))
 
-vote_dicts=by_voting(['bayes.csv','auc.csv'])
+vote_dicts=by_voting(['bayes.csv','auc2.csv'])
 print(vote_dicts.keys())
-compare_output(['raw','opv'],'acc_mean',vote_dicts)
+compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)

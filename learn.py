@@ -34,7 +34,7 @@ class Result(data_dict.DataDict):
     def get_auc(self):
         y_true=self.true_one_hot()
         y_pred=self.as_array()
-        return roc_auc_score(y_true,y_pred)
+        return roc_auc_score(y_true,y_pred,multi_class="ovo")
 
     def report(self):
         y_true,y_pred,names=self.get_pred()
