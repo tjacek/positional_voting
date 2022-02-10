@@ -32,6 +32,28 @@ def compare_output(pair,attr,vote_dicts):
     	all_diff.append( diff)
     print(np.median(all_diff))
 
-vote_dicts=by_voting(['bayes.csv','auc2.csv'])
-print(vote_dicts.keys())
-compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)
+def to_doc(in_path,out_path):
+    from docx import Document
+    exp_output = pandas.read_csv(in_path)
+    col_names= exp_output.columns
+    document = Document()
+    dataset_dict={ name_i:[]
+       for name_i in exp_output.dataset.unique()}
+    for i, row_i in exp_output.iterrows():
+        dataset_dict[row_i['dataset']].append(row_i)
+    for name_i,lines_i in dataset_dict.items():
+        table_i=document.add_table(rows=len(lines_i)+1,
+            cols=len(col_names))
+        cells = table_i.rows[0].cells
+        for i,name_i in enumerate(col_names):
+            cells[i].text=name_i
+        for line_j in lines_i:
+            print(line_j[0])
+        document.add_paragraph()
+    print(col_names)
+    document.save(out_path)
+
+to_doc('bayes.csv','test.doc')
+#vote_dicts=by_voting(['bayes.csv','auc2.csv'])
+#print(vote_dicts.keys())
+#compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)
