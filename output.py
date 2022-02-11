@@ -32,10 +32,20 @@ def compare_output(pair,attr,vote_dicts):
     	all_diff.append( diff)
     print(np.median(all_diff))
 
+def best_attr(in_path,attr='auc_mean'):
+    exp_output = pandas.read_csv(in_path)
+    show_attr=['dataset','clf','voting']
+    for name_i in exp_output.dataset.unique():
+        sub=exp_output[exp_output.dataset==name_i]
+        index=sub[attr].idxmax()
+        row_i= exp_output.iloc[[index]]
+        desc_i=[row_i[attr_i].values[0]  
+                   for attr_i in show_attr]
+        print( desc_i)
+
 def to_doc(in_path,out_path):
     from docx import Document
     exp_output = pandas.read_csv(in_path)
-#    exp_output=exp_output.sort_values(by='clf')    
     cols= exp_output.columns
     col_names=list(cols[:3]) + list(cols[6:]) + list(cols[3:6])
     exp_output=exp_output[col_names]
@@ -59,7 +69,7 @@ def fill_rows(table_i,j,values):
     for i,value_i in enumerate(values):
         cells[i].text=str(value_i)    
 
-to_doc('bayes.csv','bayes.doc')
+best_attr('bayes.csv',attr='auc_mean')
 #vote_dicts=by_voting(['bayes.csv','auc2.csv'])
 #print(vote_dicts.keys())
 #compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)
