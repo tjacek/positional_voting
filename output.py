@@ -35,7 +35,11 @@ def compare_output(pair,attr,vote_dicts):
 def to_doc(in_path,out_path):
     from docx import Document
     exp_output = pandas.read_csv(in_path)
-    col_names= exp_output.columns
+#    exp_output=exp_output.sort_values(by='clf')    
+    cols= exp_output.columns
+    col_names=list(cols[:3]) + list(cols[6:]) + list(cols[3:6])
+    exp_output=exp_output[col_names]
+
     document = Document()
     dataset_dict={ name_i:[]
        for name_i in exp_output.dataset.unique()}
@@ -43,17 +47,19 @@ def to_doc(in_path,out_path):
         dataset_dict[row_i['dataset']].append(row_i)
     for name_i,lines_i in dataset_dict.items():
         table_i=document.add_table(rows=len(lines_i)+1,
-            cols=len(col_names))
-        cells = table_i.rows[0].cells
-        for i,name_i in enumerate(col_names):
-            cells[i].text=name_i
-        for line_j in lines_i:
-            print(line_j[0])
+            cols=len(col_names))        
+        fill_rows(table_i,0,col_names)
+        for j,line_j in enumerate(lines_i):
+            fill_rows(table_i,j+1,line_j)
         document.add_paragraph()
-    print(col_names)
     document.save(out_path)
 
-to_doc('bayes.csv','test.doc')
+def fill_rows(table_i,j,values):
+    cells = table_i.rows[j].cells
+    for i,value_i in enumerate(values):
+        cells[i].text=str(value_i)    
+
+to_doc('bayes.csv','bayes.doc')
 #vote_dicts=by_voting(['bayes.csv','auc2.csv'])
 #print(vote_dicts.keys())
 #compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)
