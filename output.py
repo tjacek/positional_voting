@@ -69,7 +69,7 @@ def fill_rows(table_i,j,values):
     for i,value_i in enumerate(values):
         cells[i].text=str(value_i)    
 
-best_attr('bayes.csv',attr='auc_mean')
-#vote_dicts=by_voting(['bayes.csv','auc2.csv'])
-#print(vote_dicts.keys())
-#compare_output(['raw','opv_auc2'],'auc_mean',vote_dicts)
+#best_attr('bayes.csv',attr='auc_mean')
+vote_dicts=by_voting(['one_vs_all.csv'])
+print(vote_dicts.keys())
+compare_output(['raw','opv_acc'],'auc_mean',vote_dicts)

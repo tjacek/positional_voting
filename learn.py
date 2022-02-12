@@ -15,14 +15,19 @@ class Result(data_dict.DataDict):
     def as_array(self,names=None):
         if(names is None):
             names=self.names()
-        return np.array([self[name_i] for name_i in names])
+        return np.array([self[name_i] for name_i in names]) 
     
     def true_one_hot(self):
         names=self.names()
         y_true=names.get_cats()
-#        n_cats= np.amax(y_true)+1
         n_cats=names.n_cats()
         return to_one_hot(y_true,n_cats)
+
+    def pred_one_hot(self):
+        names=self.names()
+        y_pred=[np.argmax(self[name_i]) for name_i in names]
+        n_cats=names.n_cats()
+        return to_one_hot(y_pred,n_cats)
 
     def dim(self):
         return list(self.values())[0].shape
@@ -32,9 +37,10 @@ class Result(data_dict.DataDict):
         return accuracy_score(y_true,y_pred)
 
     def get_auc(self):
-        y_true=self.true_one_hot()
-        y_pred=self.as_array()
-        return roc_auc_score(y_true,y_pred,multi_class="ovo")
+        train,test=self.split()
+        y_true=test.true_one_hot()
+        y_pred=test.pred_one_hot()
+        return roc_auc_score(y_true,y_pred,multi_class="ovo")#,average='weighted')
 
     def report(self):
         y_true,y_pred,names=self.get_pred()
