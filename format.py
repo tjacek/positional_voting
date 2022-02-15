@@ -1,13 +1,14 @@
 import files,exp
 
-def gen_csv(in_path,cond,out_path):
+def gen_csv(in_path,cond,out_path,cols):
     stats_dict=get_stats_dict(in_path,cond)
     dataset_dicts=by_dataset(stats_dict)
     with open(out_path, 'w') as f:
+        f.write(cols)
         for name_i,dict_i in dataset_dicts.items():
             txt_i=dict_to_txt(name_i,dict_i)
-            f.write(txt_i)
             f.write('\n')
+            f.write(txt_i)
 
 def by_dataset(stats_dict):
     names=list(stats_dict.values())[0].keys()
@@ -51,5 +52,11 @@ def to_csv(lines,out_path):
             f.write(line_i)
             f.write('\n')
 
+def stats(name:str):
+    return ",".join([f"{name}_{s}" 
+                for s in ["mean","std","max"]])
+
 if __name__ == "__main__":
-    gen_csv("B",['raw','borda','opv'],"bayes.csv")
+    voting=['raw','borda','opv_auc','opv_acc','opv_f1'] 
+    cols=f"Dataset,Clf,Voting,{stats('Acc')},{stats('Auc')}"
+    gen_csv("B/BAG",voting,"full.csv",cols)
