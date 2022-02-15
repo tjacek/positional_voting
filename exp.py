@@ -49,7 +49,7 @@ class ResultExp(object):
                     results.append(fun(path_i))
                 else:
                     results.append(fun(*(args[0],path_i)))
-            stats=self.get_stats(results) #self.stats_fun(results)
+            stats=self.get_stats(results) 
             name_i=in_path.split("/")[-1] 
             return (name_i,stats)
         return helper
@@ -63,15 +63,18 @@ class ResultExp(object):
         else:
             return self.stats_fun(results)
 
-def acc_stats(results):
-    acc=[result_i.get_acc() for result_i in results]
-    stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
-    return stats
+class MetricStats(object):
+    def __init__(self, fun):
+        self.fun =fun
+        self.stats=[np.mean,np.std,np.amax]
 
-def auc_stats(results):
-    acc=[result_i.get_auc() for result_i in results]
-    stats=[fun(acc) for fun in [np.mean,np.std,np.amax]]
-    return stats
+    def __call__(self,results):
+        acc=[self.fun(result_i) for result_i in results]
+        return[fun(acc) for fun in [np.mean,np.std,np.amax]]
+
+def base_metrics():
+    funcs=[lambda r:r.get_acc(),lambda r:r.get_auc(),lambda r:r.get_f1()]
+    return [MetricStats(fun) for fun in funcs]
 
 def if_exist(fun):
     @wraps(fun)
@@ -114,7 +117,7 @@ def ens_results(in_path,out_path=None,clf="LR"):
     votes.save(out_path)
 
 @dir_function()
-@ResultExp([acc_stats, auc_stats])
+@ResultExp(base_metrics())#[acc_stats, auc_stats])
 def simple_exp(in_path):
     result=ens.read_votes(in_path) 
     if(type(result)==ens.Votes):
@@ -122,6 +125,6 @@ def simple_exp(in_path):
     return result
 
 if __name__ == "__main__":
-#    ens_results("A/one_vs_all","A/results")
-    acc=simple_exp("B/BAG/borda")
+#    ens_results("B/one_vs_all/data","B/one_vs_all/raw")
+    acc=simple_exp("B/one_vs_all/raw")
     print(acc)   

@@ -58,5 +58,5 @@ def stats(name:str):
 
 if __name__ == "__main__":
     voting=['raw','borda','opv_auc','opv_acc','opv_f1'] 
-    cols=f"Dataset,Clf,Voting,{stats('Acc')},{stats('Auc')}"
+    cols=f"Dataset,Clf,Voting,{stats('Acc')},{stats('Auc')},{stats('F1-score')}"
     gen_csv("B/BAG",voting,"full.csv",cols)
