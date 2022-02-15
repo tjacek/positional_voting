@@ -1,7 +1,7 @@
 from sklearn.metrics import roc_auc_score,accuracy_score,f1_score
 import exp,ens,pref,optim
 
-class AucLoss(object):
+class LossFun(object):
     def __init__(self,train_dict,metric=None):
         if(metric is None):
             metric=acc_metric
@@ -21,10 +21,10 @@ def auc_metric(y_true,y_pred):
     return -1.0*auc_ovo
 
 def acc_metric(y_true,y_pred):
-    return accuracy_score(y_true,y_pred)
+    return -1.0*accuracy_score(y_true,y_pred)
 
 def f1_metric(y_true,y_pred):
-    return f1_score(y_true,y_pred,average='macro')
+    return -1.0*f1_score(y_true,y_pred,average='macro')
 
 class EvolScore(object):
     def __init__(self,init="latin",metric=None):
@@ -41,7 +41,7 @@ class EvolScore(object):
         pref_dict=pref.to_pref(votes.results)
         train,test=pref_dict.split()
 
-        loss_fun=AucLoss(train,metric=self.metric) 
+        loss_fun=LossFun(train,metric=self.metric) 
         n_cand=train.n_cand()
         score=self.alg_optim(loss_fun,n_cand)
         print(score)
