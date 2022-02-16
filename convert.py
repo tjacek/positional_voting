@@ -47,4 +47,16 @@ def from_keel(in_path:str,out_path:str):
     feat_dict=to_feats(X,y)
     feat_dict.save(out_path)
 
-from_keel("A/keel","A/common")
+def from_data(in_path,out_path):
+    import csv
+    X,y=[],[]
+    with open(in_path, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            line_i=[float(cord_j) for cord_j in row]
+            X.append(line_i[:-1])
+            y.append(int(line_i[-1]))
+    feat_dict=to_feats(X,y)
+    feat_dict.save(out_path)        
+
+from_data("A/raw/glass/glass.data","A/datasets/glass")
