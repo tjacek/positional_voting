@@ -43,43 +43,52 @@ def best_attr(in_path,attr='auc_mean'):
                    for attr_i in show_attr]
         print( desc_i)
 
-def to_doc(in_path,out_path):
+def to_doc(in_path,out_path,group_size=3):
     from docx import Document
     exp_output = pandas.read_csv(in_path)
     cols= exp_output.columns
-    col_names=list(cols[:3]) + list(cols[6:]) + list(cols[3:6])
-    exp_output=exp_output[col_names]
-
+    n_groups=int(len(cols)/group_size)
+    groups= [cols[(i*group_size):(i+1)*group_size]  
+                for i in range(n_groups)]
+    start,metrics=groups[0],groups[1:]
+    
     document = Document()
+    dataset_dict=by_dataset(exp_output)
+ 
+    for name_i,lines_i in dataset_dict.items():
+        by_metric=[[] for _  in metrics]
+        for line_j in lines_i:
+            for k,m_k in enumerate(metrics):
+                unifed=list(line_j[start])+list(line_j[m_k])
+                by_metric[k].append(unifed)
+        for j,group_j in enumerate(by_metric):
+            col_names_j=list(start)+list(metrics[j])
+            table_i=document.add_table(rows=len(group_j)+1,
+                  cols=len(col_names_j))
+            fill_rows(table_i,0,col_names_j)
+            for t,line_t in enumerate(group_j):
+#                key_t=get_key(line_t)
+                fill_rows(table_i,t+1,line_t)
+            document.add_paragraph()   
+    document.save(out_path)
+
+def by_dataset(exp_output):
     dataset_dict={ name_i:[]
        for name_i in exp_output.Dataset.unique()}
     for i, row_i in exp_output.iterrows():
         dataset_dict[row_i['Dataset']].append(row_i)
-    for name_i,lines_i in dataset_dict.items():
-        table_i=document.add_table(rows=len(lines_i)+1,
-            cols=len(col_names))        
-        fill_rows(table_i,0,col_names)
-        
-        line_dict={get_key(line_j):line_j 
-            for line_j in lines_i}
-        keys=list(line_dict.keys())
-        keys.sort()
-        for j,key_j in enumerate(keys):
-            line_j=line_dict[key_j]
-            fill_rows(table_i,j+1,line_j)
-        document.add_paragraph()
-    document.save(out_path)
+    return dataset_dict
 
-def get_key(line_j):
-    return "_".join([line_j['Clf'],line_j['Voting']])
-
+#def get_key(line_j):
+    return "_".join([line_j[1],line_j[2]])
+#
 def fill_rows(table_i,j,values):
     cells = table_i.rows[j].cells
     for i,value_i in enumerate(values):
         cells[i].text=str(value_i)    
 
-best_attr('full.csv',attr='Acc_mean')
+#best_attr('full.csv',attr='Acc_mean')
 #vote_dicts=by_voting(['full.csv'])
 #print(vote_dicts.keys())
 #compare_output(['raw','opv_auc'],'auc_mean',vote_dicts)
-#to_doc('full.csv','full.doc')
+to_doc('final/raw.csv','final/wyniki.doc')
