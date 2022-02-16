@@ -39,12 +39,13 @@ class GridOptim(object):
         return clf_i.best_estimator_,best_params
 
 class BayesOptim(object):
-    def __init__(self,clf,params):
+    def __init__(self,clf,params,n_split=5):
         self.clf=clf
         self.params=params
+        self.n_split=n_split
 
     def __call__(self,X_train,y_train):
-        cv_gen=RepeatedStratifiedKFold(n_splits=5, 
+        cv_gen=RepeatedStratifiedKFold(n_splits=self.n_split, 
                 n_repeats=3, random_state=1)
         search = BayesSearchCV(estimator=self.clf(), 
         	search_spaces=self.params,n_jobs=-1,cv=cv_gen)
@@ -107,4 +108,4 @@ def clf_exp(in_path,out_path):
         out_i=f"{out_path}/{name_i}"
         alg_i(in_path,out_i)
 
-clf_exp("B/one_vs_all","B/cv")
+clf_exp("A/one_vs_all","A/cv")
