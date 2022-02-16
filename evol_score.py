@@ -60,14 +60,19 @@ def borda_count(in_path:str,out_path:str):
     result.save(out_path)
     return (out_path,score)
 
-def evol_exp(in_path,name="opv"):
+def all_voting(in_path:str,dirs:list):
+    metrics={"acc":acc_metric,"auc":auc_metric,"f1":f1_metric}
+    evol_funcs={ f'opv_{name_i}':EvolScore(metric=metric_i) 
+                    for name_i,metric_i in metrics.items()}
+    evol_funcs["borda"]=borda_count
     paths=[f"{in_path}/{path_i}" 
-        for path_i in ["BAG","RF","BOOST"]]
-    evol_score= EvolScore(metric=f1_metric)
+            for path_i in dirs]
     output=[]
     for path_i in paths:
-        in_i,out_i=f"{path_i}/raw",f"{path_i}/{name}"
-        output.append(evol_score(in_i,out_i))
+        for name_j,fun_j in evol_funcs.items():
+            in_j,out_j=f"{path_i}/raw",f"{path_i}/{name_j}"
+            print(out_j)
+            output.append(fun_j(in_j,out_j))
     print(output)
 
 def single_exp(in_path,out_path=None):  
@@ -77,7 +82,5 @@ def single_exp(in_path,out_path=None):
     evol_score= EvolScore()
     evol_score(in_path,out_path)
 
-evol_exp("B",name="opv_f1")
-#in_path= "B/one_vs_all/"
-#borda_count("B/one_vs_all/raw","B/one_vs_all/borda")
-#single_exp(in_path)
+dirs=["one_vs_all","BAG","RF","BOOST"]
+all_voting("A/cv",dirs)
