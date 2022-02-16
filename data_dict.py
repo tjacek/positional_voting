@@ -38,7 +38,7 @@ class DataDict(dict):
         return sub_dict 
 
     def rename(self,name_dict):
-        new_feats= self.__class__()#Feats()
+        new_feats= self.__class__()
         for name_i,name_j in name_dict.items():
             new_feats[files.Name(name_j)]=self[name_i]
         return new_feats
@@ -62,6 +62,16 @@ class DataDict(dict):
         rename_dict={
            name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
                 for i,name_i in enumerate(names)}
+        return self.rename(rename_dict)
+
+    def balanced_split(self):
+        names=self.names()
+        rename_dict={}
+        for cat_i,names_i in names.by_cat().items():
+            names_i.shuffle()
+            for j,name_j in enumerate(names_i):
+                new_name_j=f"{cat_i+1}_{j%2}_{len(rename_dict)}"
+                rename_dict[name_j]=new_name_j
         return self.rename(rename_dict)
 
 def split(data_dict,selector=None,pairs=True):
