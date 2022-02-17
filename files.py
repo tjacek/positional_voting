@@ -95,3 +95,9 @@ def save(out_path,obj):
     with open(out_path,"wb") as out_file:   
         pickle.dump(obj,out_file) 
         out_file.close()
+
+def read_csv(in_path):
+    import csv
+    with open(in_path, newline='\n') as csvfile:
+        csv_reader = csv.reader(csvfile, delimiter=',')
+        return list(csv_reader)
