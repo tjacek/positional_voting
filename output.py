@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np,files
 import pandas
 
 def by_voting(paths):
@@ -38,10 +38,11 @@ def best_attr(in_path,attr='auc_mean'):
     for name_i in exp_output.Dataset.unique():
         sub=exp_output[exp_output.Dataset==name_i]
         index=sub[attr].idxmax()
+        max_value=sub[attr].max()
         row_i= exp_output.iloc[[index]]
         desc_i=[row_i[attr_i].values[0]  
                    for attr_i in show_attr]
-        print( desc_i)
+        print(f"{desc_i},{max_value}")
 
 def to_doc(in_path,out_path,group_size=3):
     from docx import Document
@@ -67,7 +68,6 @@ def to_doc(in_path,out_path,group_size=3):
                   cols=len(col_names_j))
             fill_rows(table_i,0,col_names_j)
             for t,line_t in enumerate(group_j):
-#                key_t=get_key(line_t)
                 fill_rows(table_i,t+1,line_t)
             document.add_paragraph()   
     document.save(out_path)
@@ -79,16 +79,29 @@ def by_dataset(exp_output):
         dataset_dict[row_i['Dataset']].append(row_i)
     return dataset_dict
 
-#def get_key(line_j):
-    return "_".join([line_j[1],line_j[2]])
-#
 def fill_rows(table_i,j,values):
     cells = table_i.rows[j].cells
     for i,value_i in enumerate(values):
         cells[i].text=str(value_i)    
 
-#best_attr('full.csv',attr='Acc_mean')
-#vote_dicts=by_voting(['full.csv'])
+def find_best(in_path,comp_path):
+#    exp_output = pandas.read_csv(in_path)
+#    compare_output= pandas.read_csv(comp_path,dtype=str)
+    df=as_dataframe(comp_path)
+    print(df)
+
+def as_dataframe(in_path):
+    raw=files.read_csv(in_path)
+    cols,rows=raw[0],raw[1:]
+    lines=[[row_i[0].lower()]+
+           [float(cord_j.split('±')[0]) 
+                for cord_j in row_i[1:]] 
+                    for row_i in rows]
+    return pandas.DataFrame(lines,columns = cols)
+
+find_best("final/raw.csv","final/pruning.csv")
+#best_attr('final/raw.csv',attr='F1-score_mean')
+#vote_dicts=by_voting(['final/full.csv'])
 #print(vote_dicts.keys())
 #compare_output(['raw','opv_auc'],'auc_mean',vote_dicts)
-to_doc('final/raw.csv','final/wyniki.doc')
+#to_doc('final/raw.csv','final/wyniki.doc')

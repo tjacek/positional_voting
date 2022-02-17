@@ -100,4 +100,5 @@ def read_csv(in_path):
     import csv
     with open(in_path, newline='\n') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
-        return list(csv_reader)
+        return [[row.strip() for row in line]
+                    for line in csv_reader]
