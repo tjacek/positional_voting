@@ -85,10 +85,27 @@ def fill_rows(table_i,j,values):
         cells[i].text=str(value_i)    
 
 def find_best(in_path,comp_path):
-#    exp_output = pandas.read_csv(in_path)
-#    compare_output= pandas.read_csv(comp_path,dtype=str)
-    df=as_dataframe(comp_path)
-    print(df)
+    base_df = pandas.read_csv(in_path)
+    comp_df =as_dataframe(comp_path)
+    best_result={}
+    for i,row_i in comp_df.iterrows():
+        dataset_i=row_i[0]
+        row_i=pandas.to_numeric(row_i[1:])
+        arg_i=row_i.argmax()
+        clf_i=comp_df.columns[arg_i]
+        best_result[dataset_i]=(clf_i,row_i[arg_i])
+    s_cols=['Clf','Voting','Acc_mean']
+    for dataset_i,(clf_i,value) in best_result.items():
+        df_i=base_df[base_df.Dataset==dataset_i]
+        if(len(df_i)>0):
+            arg_max= df_i.Acc_mean.argmax()
+            row_i=df_i.iloc[arg_max]
+            acc_i=100*row_i['Acc_mean']
+            base_i=",".join([str(row_i[col_j]) 
+                        for col_j in s_cols])
+            comp_i=f"{dataset_i},{clf_i},{value}"
+            line_i=f"{comp_i},{base_i},{acc_i>value}"
+            print(line_i)
 
 def as_dataframe(in_path):
     raw=files.read_csv(in_path)
