@@ -107,13 +107,20 @@ def find_best(in_path,comp_path):
             line_i=f"{comp_i},{base_i},{acc_i>value}"
             print(line_i)
 
-def as_dataframe(in_path):
-    raw=files.read_csv(in_path)
+def as_dataframe(raw,fun=None):
+    if(type(raw)==str):
+        raw=files.read_csv(raw)
+    if(fun is None):
+        def fun(cord_j):
+            cord_j=cord_j.split('±')[0]
+            try:
+               return float(cord_j)
+            except ValueError:
+                cord_j=cord_j.lower()
+                return cord_j
     cols,rows=raw[0],raw[1:]
-    lines=[[row_i[0].lower()]+
-           [float(cord_j.split('±')[0]) 
-                for cord_j in row_i[1:]] 
-                    for row_i in rows]
+    lines=[[fun(cord_j) for cord_j in row_i]
+                for row_i in rows]
     return pandas.DataFrame(lines,columns = cols)
 
 find_best("final/raw.csv","final/pruning.csv")
