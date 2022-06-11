@@ -3,9 +3,13 @@ import os.path
 from sklearn import preprocessing
 import files,data_dict
 
-class Feats(data_dict.DataDict):#dict):
+class Feats(data_dict.DataDict):
     def dim(self):
-        return list(self.values())[0].shape
+        return list(self.values())[0].shape        
+
+    def n_cats(self):
+        y=self.get_labels()
+        return len(set(y))
 
     def as_dataset(self):
         names=self.names()
@@ -38,7 +42,6 @@ class Feats(data_dict.DataDict):#dict):
             self[name_i]=new_X[i]
 
     def save(self,out_path,decimals=10):
- #   np.set_printoptions(threshold=3000)
         lines=[]
         for name_i,x_i in self.items():
             str_i=np.array2string(x_i,separator=",",precision=decimals)
