@@ -91,7 +91,10 @@ def train_model(data,clf_type="LR",selector=None,
     return make_result(y_pred,names)
 
 def make_model(train,clf_type):
-    model= clf.get_cls(clf_type)
+    if(type(clf_type)==str):
+        model= clf.get_cls(clf_type)
+    else:
+        model=clf_type
     X_train,y_train= train.get_X(),train.get_labels()
     model.fit(X_train,y_train)
     return model
