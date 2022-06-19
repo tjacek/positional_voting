@@ -36,7 +36,7 @@ def get_args(args,clf_decor:bool):
 class ResultExp(object):
     def __init__(self,stats_fun=None):
         if(stats_fun is None):
-            stats_fun=acc_stats
+            stats_fun=MetricStats()
         self.stats_fun=stats_fun
 
     def __call__(self,fun):
@@ -64,17 +64,15 @@ class ResultExp(object):
             return self.stats_fun(results)
 
 class MetricStats(object):
-    def __init__(self, fun):
+    def __init__(self, fun=None):
+        if(fun is None):
+            fun=lambda result_i:result_i.get_acc()
         self.fun =fun
         self.stats=[np.mean,np.std,np.amax]
 
     def __call__(self,results):
         acc=[self.fun(result_i) for result_i in results]
         return[fun(acc) for fun in [np.mean,np.std,np.amax]]
-
-def base_metrics():
-    funcs=[lambda r:r.get_acc(),lambda r:r.get_auc(),lambda r:r.get_f1()]
-    return [MetricStats(fun) for fun in funcs]
 
 def if_exist(fun):
     @wraps(fun)
@@ -117,12 +115,16 @@ def ens_results(in_path,out_path=None,clf="LR"):
     votes.save(out_path)
 
 @dir_function()
-@ResultExp(base_metrics())#[acc_stats, auc_stats])
+@ResultExp()#base_metrics())
 def simple_exp(in_path):
     result=ens.read_votes(in_path) 
     if(type(result)==ens.Votes):
         result=result.voting()
     return result
+
+#def base_metrics(r):
+#    funcs=[lambda r:r.get_acc(),lambda r:r.get_auc(),lambda r:r.get_f1()]
+#    return [MetricStats(fun) for fun in funcs]
 
 if __name__ == "__main__":
 #    ens_results("B/one_vs_all/data","B/one_vs_all/raw")

@@ -1,9 +1,16 @@
 import numpy as np
 from sklearn import neighbors
-import format,exp,ens,learn
+import format,exp,ens,learn,files
+
+def inliner_stats(results):
+    old,new=list(zip(*results))
+    metric_fun=exp.MetricStats()
+    stats= metric_fun(old)
+    stats+=metric_fun(new)
+    return stats
 
 @exp.dir_function(clf_decor=False)
-@exp.dir_function(clf_decor=False)
+@exp.ResultExp(inliner_stats)
 def inliner_voting(in_path):
     paths=(f"{in_path}/common",f"{in_path}/binary")
     votes=ens.make_votes(paths,clf="LR")
@@ -20,12 +27,10 @@ def inliner_voting(in_path):
         	        if(inliner_i[j])]
         else:
             s_votes_i=votes_i
-        preds.append( np.sum(s_votes_i,axis=0))	
-    acc=votes.voting().get_acc()
-    inliner_acc=learn.make_result(preds,names).get_acc()
-    diff=inliner_acc-acc
-    print(diff)
-    return (in_path,diff)	
+        preds.append( np.sum(s_votes_i,axis=0))
+    old_results=votes.voting()
+    new_results=learn.make_result(preds,names)
+    return old_results,new_results
 
 def get_knn(data_i,k=3):
     clf= neighbors.KNeighborsClassifier(k)
@@ -51,6 +56,7 @@ def count_improv(output):
 
 in_path= "data"
 output=inliner_voting(in_path)
-count_improv(output)
+print(output)
+#count_improv(output)
 #paths=format.find_result(in_path,lambda x:False)
 #print(paths)
