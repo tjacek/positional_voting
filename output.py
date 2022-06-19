@@ -1,5 +1,5 @@
 import numpy as np,files
-import pandas
+import pandas as pd
 
 def by_voting(paths):
     dataset=[pandas.read_csv(path_i)
@@ -107,25 +107,11 @@ def find_best(in_path,comp_path):
             line_i=f"{comp_i},{base_i},{acc_i>value}"
             print(line_i)
 
-def as_dataframe(raw,fun=None):
-    if(type(raw)==str):
-        raw=files.read_csv(raw)
-    if(fun is None):
-        def fun(cord_j):
-            cord_j=cord_j.split('±')[0]
-            try:
-               return float(cord_j)
-            except ValueError:
-                cord_j=cord_j.lower()
-                return cord_j
-    cols,rows=raw[0],raw[1:]
-    lines=[[fun(cord_j) for cord_j in row_i]
-                for row_i in rows]
-    return pandas.DataFrame(lines,columns = cols)
+def as_dataframe(output,cols=None):
+    lines=[]
+    for name_i,stats_i in output:
+        lines.append( [name_i] + stats_i)
+    return pd.DataFrame(lines,columns=cols)
 
-find_best("final/raw.csv","final/pruning.csv")
-#best_attr('final/raw.csv',attr='F1-score_mean')
-#vote_dicts=by_voting(['final/full.csv'])
-#print(vote_dicts.keys())
-#compare_output(['raw','opv_auc'],'auc_mean',vote_dicts)
-#to_doc('final/raw.csv','final/wyniki.doc')
+if __name__ == "__main__":
+    find_best("final/raw.csv","final/pruning.csv")

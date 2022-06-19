@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn import neighbors
-import format,exp,ens,learn,files
+import exp,ens,learn,output
 
 def count_improv(results):
     sucess,neutral=[],[]
@@ -56,8 +56,8 @@ def get_row(name_i,dicts):
     return [dict_i[name_i] for dict_i in dicts]
 
 in_path= "data"
-output=inliner_voting(in_path)
-print(output)
-#count_improv(output)
-#paths=format.find_result(in_path,lambda x:False)
-#print(paths)
+stats=inliner_voting(in_path)
+cols=['Dataset','sucess','neutral','fail']
+df=output.as_dataframe(stats,cols=cols)
+print(df)
+print(dir(df))
