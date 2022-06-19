@@ -102,3 +102,9 @@ def read_csv(in_path):
         csv_reader = csv.reader(csvfile, delimiter=',')
         return [[row.strip() for row in line]
                     for line in csv_reader]
+
+def rec_type(obj):
+    if(type(obj)==list):
+        return [rec_type(obj_i) 
+                    for obj_i in obj]
+    return str(type(obj))
