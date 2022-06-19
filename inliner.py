@@ -2,6 +2,16 @@ import numpy as np
 from sklearn import neighbors
 import format,exp,ens,learn,files
 
+def count_improv(results):
+    sucess,neutral=[],[]
+    for old_i,new_i in results:
+        diff_i=  new_i.get_acc()-old_i.get_acc()
+        sucess.append(int(diff_i>0))
+        neutral.append(int(diff_i==0))
+    sucess,neutral=np.sum(sucess),np.sum(neutral)
+    fail= len(results)-sucess-neutral
+    return [sucess,neutral,fail]
+
 def inliner_stats(results):
     old,new=list(zip(*results))
     metric_fun=exp.MetricStats()
@@ -10,7 +20,7 @@ def inliner_stats(results):
     return stats
 
 @exp.dir_function(clf_decor=False)
-@exp.ResultExp(inliner_stats)
+@exp.ResultExp(count_improv)
 def inliner_voting(in_path):
     paths=(f"{in_path}/common",f"{in_path}/binary")
     votes=ens.make_votes(paths,clf="LR")
@@ -44,15 +54,6 @@ def get_knn(data_i,k=3):
 
 def get_row(name_i,dicts):
     return [dict_i[name_i] for dict_i in dicts]
-
-def count_improv(output):
-    for dataset_i in output:
-        name_i=dataset_i[0][0]
-        n_neutral=sum([ int(exp_j==0) 
-            for name_i,exp_j in dataset_i])
-        n_pos=sum([ int(exp_j>0) 
-            for name_i,exp_j in dataset_i])
-        print(f"{name_i},{n_pos},{n_neutral}")
 
 in_path= "data"
 output=inliner_voting(in_path)
