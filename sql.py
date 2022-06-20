@@ -6,10 +6,14 @@ def as_latex(in_path,cols):
     new_cols={}
     for col_i in cols:
         if(type(col_i)==tuple):
-            new_cols[col_i]=df[col_i[0]]-df[col_i[1]]
+            ts_i=df[col_i[0]]-df[col_i[1]]
+#            raise Exception(f"diff_{col_i[0]}")
+            name_i=f"diff_{col_i[0]}"
+            new_cols[name_i]= ts_i
         else:
             new_cols[col_i]=df[col_i]
-    print(files.rec_type(new_cols))
+    final = pd.DataFrame(new_cols)
+    print(final.to_latex())
 
 def by_voting(in_path):
     df=pd.read_csv(in_path)
@@ -29,7 +33,9 @@ def dataset_stats(in_path):
     cols=['Dataset','Samples','Feats','Cats' ]
     return pd.DataFrame(raw,columns=cols)
 
-cols=["Dataset","old_mean","old_std","old_max","new_mean","new_std","new_max"]
+cols=["Dataset","new_std",("new_mean","old_mean")]
+
+#"old_mean","old_std","old_max","new_mean",,"new_max"]
 as_latex("knn/stats.csv",cols)
 #by_voting('full.csv')
 #df=dataset_stats("A/datasets")
