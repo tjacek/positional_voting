@@ -104,7 +104,13 @@ def read_csv(in_path):
                     for line in csv_reader]
 
 def rec_type(obj):
-    if(type(obj)==list):
+    type_i=type(obj)
+    if(type_i==list or type_i==tuple):
         return [rec_type(obj_i) 
                     for obj_i in obj]
+    if(type_i==dict):
+        return {name_i:rec_type(data_i)
+          for name_i,data_i in obj.items()}
+    if(type_i==str):
+        return obj
     return str(type(obj))

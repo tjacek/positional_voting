@@ -1,26 +1,7 @@
 import numpy as np
 from sklearn import neighbors
-import exp,ens,learn,output
+import exp,ens,learn,output,files
 
-def count_improv(results):
-    sucess,neutral=[],[]
-    for old_i,new_i in results:
-        diff_i=  new_i.get_acc()-old_i.get_acc()
-        sucess.append(int(diff_i>0))
-        neutral.append(int(diff_i==0))
-    sucess,neutral=np.sum(sucess),np.sum(neutral)
-    fail= len(results)-sucess-neutral
-    return [sucess,neutral,fail]
-
-def inliner_stats(results):
-    old,new=list(zip(*results))
-    metric_fun=exp.MetricStats()
-    stats= metric_fun(old)
-    stats+=metric_fun(new)
-    return stats
-
-@exp.dir_function(clf_decor=False)
-@exp.ResultExp(count_improv)
 def inliner_voting(in_path):
     paths=(f"{in_path}/common",f"{in_path}/binary")
     votes=ens.make_votes(paths,clf="LR")
@@ -55,9 +36,37 @@ def get_knn(data_i,k=3):
 def get_row(name_i,dicts):
     return [dict_i[name_i] for dict_i in dicts]
 
+def exp_template(in_path,metric,cols):
+    fun=exp.ResultExp(metric)(inliner_voting)
+    fun=exp.dir_function(clf_decor=False)(fun)
+    stats=fun(in_path)
+    return output.as_dataframe(stats,cols=cols)
+
+def count_improv(in_path):
+    def helper(results):    
+        sucess,neutral=[],[]
+        for old_i,new_i in results:
+            diff_i=  new_i.get_acc()-old_i.get_acc()
+            sucess.append(int(diff_i>0))
+            neutral.append(int(diff_i==0))
+        sucess,neutral=np.sum(sucess),np.sum(neutral)
+        fail= len(results)-sucess-neutral
+        return [sucess,neutral,fail]
+    cols=['Dataset','sucess','neutral','fail']
+    return exp_template(in_path,helper,cols)
+
+def inliner_stats(in_path):
+    def helper(results):
+        old,new=list(zip(*results))
+        metric_fun=exp.MetricStats()
+        stats= metric_fun(old)
+        stats+=metric_fun(new)
+        return stats
+    cols=['Dataset','old_mean','old_std','old_max',
+        'new_mean','new_std','new_max']
+    return exp_template(in_path,helper,cols)
+
 in_path= "data"
-stats=inliner_voting(in_path)
-cols=['Dataset','sucess','neutral','fail']
-df=output.as_dataframe(stats,cols=cols)
-print(df)
-print(dir(df))
+df=inliner_stats(in_path)
+df=df.round(4)
+print(df.to_csv())
