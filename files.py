@@ -88,6 +88,9 @@ def find_paths(in_path,cond):
     for root, subdirs, files in os.walk(in_path):
         if(cond(root)):
             paths.append(root)
+        for file_i in files:
+            if(cond(file_i)):
+                paths.append(f"{root}/{file_i}")            
     return paths
 
 def save(out_path,obj):

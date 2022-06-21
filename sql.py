@@ -1,5 +1,5 @@
 import pandas as pd
-import exp,feats,files
+import exp,feats,files,format
 
 def as_latex(in_path,cols):
     df=pd.read_csv(in_path)
@@ -7,7 +7,6 @@ def as_latex(in_path,cols):
     for col_i in cols:
         if(type(col_i)==tuple):
             ts_i=df[col_i[0]]-df[col_i[1]]
-#            raise Exception(f"diff_{col_i[0]}")
             name_i=f"diff_{col_i[0]}"
             new_cols[name_i]= ts_i
         else:
@@ -22,21 +21,22 @@ def by_voting(in_path):
                for vote_i in voting_type}
     print(df_dict['borda']['Dataset'].unique())
 
-
 def dataset_stats(in_path):
-    @exp.dir_function()
-    def helper(in_path):
-	    name=in_path.split("/")[-1]
-	    data=feats.read(in_path)[0]
-	    return [name,len(data),data.dim()[0],data.n_cats()]
-    raw=helper(in_path)
+    paths=format.find_result(in_path,"common")
+    dataset_dict={}
+    for path_i in paths:
+        dataset_dict[path_i.split("/")[-3]]=path_i
+    raw=[]
+    for name_i,path_i in dataset_dict.items():
+        data=feats.read(path_i)[0]
+        raw.append([name_i,len(data),data.dim()[0],data.n_cats()])
     cols=['Dataset','Samples','Feats','Cats' ]
     return pd.DataFrame(raw,columns=cols)
 
-cols=["Dataset","new_std",("new_mean","old_mean")]
+cols=["Dataset","sucess","neutral","fail"]
 
 #"old_mean","old_std","old_max","new_mean",,"new_max"]
-as_latex("knn/stats.csv",cols)
+#as_latex("knn/succ.csv",cols)
 #by_voting('full.csv')
-#df=dataset_stats("A/datasets")
-#print(df)
+df=dataset_stats("data")
+print(df.to_csv())
