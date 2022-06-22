@@ -14,8 +14,15 @@ def as_latex(in_path,cols):
     final = pd.DataFrame(new_cols)
     print(final.to_csv())
 
-#def by_voting(in_path):
-#    df=pd.read_csv(in_path)
+def by_voting(in_path):
+    df=pd.read_csv(in_path)
+    ens_desc={ name_i:df[name_i].unique() 
+       for name_i in ['Dataset', 'Clf', 'Voting'] }
+    rows_id=[ (data_i,clf_j) 
+                for data_i in ens_desc['Dataset']
+                    for clf_j in ens_desc['Clf'] ]
+    for row_i in rows_id:
+        print(df.query(f"Dataset=='{row_i[0]}' and Clf=='{row_i[1]}' ") )
 #    voting_type=['borda','opv_acc','opv_auc','opv_f1','raw']
 #    df_dict={vote_i:df[df['Voting']==vote_i]
 #               for vote_i in voting_type}
@@ -49,6 +56,7 @@ def attr_corel(paths,pairs):
 #cols=["Dataset",("new_mean","old_mean")]
 #as_latex("knn/stats.csv",cols)
 #df=dataset_stats("data")
-pairs=("diff_new_mean",["Samples","Feats","Cats"])
-df=attr_corel(["knn/datasets.csv","knn/diff.csv"],pairs)
-print(df)
+by_voting("full.csv" )
+#pairs=("diff_new_mean",["Samples","Feats","Cats"])
+#df=attr_corel(["knn/datasets.csv","knn/diff.csv"],pairs)
+#print(df.to_latex())
