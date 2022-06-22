@@ -16,17 +16,27 @@ def as_latex(in_path,cols):
 
 def by_voting(in_path):
     df=pd.read_csv(in_path)
-    ens_desc={ name_i:df[name_i].unique() 
-       for name_i in ['Dataset', 'Clf', 'Voting'] }
-    rows_id=[ (data_i,clf_j) 
-                for data_i in ens_desc['Dataset']
-                    for clf_j in ens_desc['Clf'] ]
-    for row_i in rows_id:
-        print(df.query(f"Dataset=='{row_i[0]}' and Clf=='{row_i[1]}' ") )
-#    voting_type=['borda','opv_acc','opv_auc','opv_f1','raw']
-#    df_dict={vote_i:df[df['Voting']==vote_i]
-#               for vote_i in voting_type}
-#    print(df_dict['borda']['Dataset'].unique())
+    ens_desc=value_dict(df,['Dataset', 'Clf', 'Voting'])
+    rows=[]
+    for data_i in ens_desc['Dataset']:
+        for clf_j in ens_desc['Clf']:
+            cond_i=f"Dataset=='{data_i}' and Clf=='{clf_j}' "
+            df_i=df.query(cond_i)
+            base_acc= df_i[ df_i['Voting']=='raw']['Acc_mean'].to_list()[0]
+            pairs=zip(df_i['Voting'].to_list(), df_i['Acc_mean'].to_list())
+            row_ij=[]
+            for name,acc in pairs:
+                if(name=='raw'):
+                    row_ij.append(acc)
+                else:
+                    row_ij.append(acc-base_acc)
+            rows.append([data_i,clf_j]+row_ij)
+    new_cols=['Dataset', 'Clf']+ ens_desc['Voting']
+    return pd.DataFrame(rows,columns=new_cols)
+
+def value_dict(df,cols):
+    return { name_i:list(df[name_i].unique()) 
+               for name_i in cols }
 
 def dataset_stats(in_path):
     paths=format.find_result(in_path,"common")
@@ -56,7 +66,7 @@ def attr_corel(paths,pairs):
 #cols=["Dataset",("new_mean","old_mean")]
 #as_latex("knn/stats.csv",cols)
 #df=dataset_stats("data")
-by_voting("full.csv" )
+df=by_voting("full.csv" )
 #pairs=("diff_new_mean",["Samples","Feats","Cats"])
 #df=attr_corel(["knn/datasets.csv","knn/diff.csv"],pairs)
-#print(df.to_latex())
+print(df.to_latex())
