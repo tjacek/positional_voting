@@ -93,3 +93,16 @@ def from_array(X,y):
         name_i=f"{y_i}_{i%2}_{i}"
         dataset[name_i]=x_i
     return dataset
+
+def to_json(data_dict,out_path ):
+    raw_dict={}
+    for name_i,data_i in data_dict.items():
+        raw_dict[str(name_i)]=list(data_i)
+    import json
+    with open(out_path, 'w') as f:
+        json.dump(raw_dict, f)
+
+if __name__ == "__main__":
+   data_i= read('simple/cleveland')[0]
+   to_json(data_i,'cleveland.json')
+#   print(len(data_i))
