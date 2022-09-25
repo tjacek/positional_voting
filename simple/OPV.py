@@ -1,9 +1,46 @@
 import numpy as np
+from sklearn import preprocessing
 import json,random,os.path
 
 class DataDict(dict):
     def __init__(self, arg=[]):
         super(DataDict, self).__init__(arg)
+
+    def names(self):
+        return list(self.keys())
+
+    def norm(self):
+        names=list(self.keys())
+        X=np.array([self[name_i] for name_i in names])
+        new_X=preprocessing.scale(X)
+        for i,name_i in enumerate(names):
+            self[name_i]=new_X[i]
+
+    def as_dataset(self):
+        names=self.names()
+        return self.get_X(names),self.get_labels(names),names
+    
+    def get_X(self,names=None):
+        if(names is None):
+            names=self.names()
+        return np.array([self[name_i] for name_i in names])
+
+    def get_labels(self,names=None):
+        if(names is None):
+            names=self.names()
+        return [ name_i.get_cat() for name_i in names]
+
+    def split(self,selector=None):
+        if(selector is None):
+            selector=lambda name_i: name_i[1]==0
+        train,test=[],[]
+        for name_i in self.keys():
+            pair_i=(name_i,self[name_i])
+            if(selector(name_i)):
+                train.append(pair_i)
+            else:
+                test.append(pair_i)
+        return DataDict(train),DataDict(test)
 
     def save(self,out_path):
         raw_dict={}
@@ -21,6 +58,9 @@ class Name(str):
     
     def get_cat(self):
         return int(self.split('_')[0])-1
+
+    def __getitem__(self,i):
+        return int(self.split('_')[i])
 
     def set_train(self,trainset:bool):
         raw=self.split('_')
@@ -50,5 +90,6 @@ def gen_split(data_dict,out_path,n=10):
         DataDict(dict_i).save(f'{out_path}/{i}')
         print(names[:10])
 
-gen_split('cleveland.json','splits')
+if __name__ == "__main__":
+    gen_split('cleveland.json','splits')
 #print(data_dict)
