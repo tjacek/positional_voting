@@ -1,7 +1,8 @@
+import numpy as np
 from sklearn import ensemble
 from sklearn.model_selection import RepeatedStratifiedKFold
 from skopt import BayesSearchCV
-import OPV
+import data,learn
 
 class ClfCV(object):
     def __init__(self,find_hyper,get_votes):
@@ -11,7 +12,7 @@ class ClfCV(object):
 #    @exp.dir_function(clf_decor=True)
 #    @exp.dir_function(clf_decor=True)
     def __call__(self,in_path,out_path):
-        data_i=OPV.read_data(in_path)
+        data_i=data.read_data(in_path)
         print(len(data_i))
         data_i.norm()
         train_i,test_i=data_i.split()
@@ -23,7 +24,7 @@ class ClfCV(object):
 
 class BayesOptim(object):
     def __init__(self,clf,params,n_split=5):
-        self.clf=clf
+        self.clf=clf 
         self.params=params
         self.n_split=n_split
 
@@ -41,9 +42,10 @@ def get_votes(result_tuple,clf_i):
     results=[]
     for est_j in clf_i.estimators_:
         y_pred=est_j.predict_proba(X)
-        result_j=make_result(y_pred,names)
+        result_j=learn.make_result(y_pred,names)
+        print(result_j.get_acc())
         results.append(result_j)
-    return ens.Votes(results)
+    return learn.Votes(results)
 
 def get_boost_votes(result_tuple,clf_i):
     X,y_true,names=result_tuple
@@ -58,7 +60,7 @@ def get_boost_votes(result_tuple,clf_i):
             y_pred= y_pred.ravel()
         result_j=learn.make_result(y_pred,names)
         results.append(result_j)
-    return ens.Votes(results)
+    return learn.Votes(results)
 
 def rf_clf():
     params={'max_depth': [3, 5, 10],
@@ -81,7 +83,7 @@ def boost_clf():
     return ClfCV(grid,get_boost_votes)
 
 def clf_exp(in_path,out_path):
-    OPV.make_dir(out_path)
+    data.make_dir(out_path)
     algs={"RF":rf_clf(),
           "BAG":bag_clf(),
           "BOOST":boost_clf()}
