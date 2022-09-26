@@ -9,12 +9,19 @@ class PrefDict(data.DataDict):
         pref_ij=self[name_i]
         return pref_ij[:,k] 
 
-    def positional_voting(self,score=None):
-        if(score is None):
-            score=np.flip(np.arange(self.n_cand()))
-        for name_i,pref_i in self.items():
-        	print(pref_i)
-        print(score)
+    def positional_voting(self,weights=None):
+        n_cand=self.n_cand()
+        if(weights is None):
+            weights=np.flip(np.arange(n_cand))
+        y_pred,names=[],[]
+        for name_i,ballot_i in self.items():
+            score_i=np.zeros((n_cand,))
+            for vote_j in ballot_i: 
+                for k,cand in enumerate(vote_j):
+                    score_i[cand]+= (n_cand-k)
+            names.append(name_i)
+            y_pred.append(np.argmax(score_i))
+        return learn.make_result(y_pred,names)
 
 def make_pref(votes:learn.Votes):
     pref=PrefDict()
@@ -28,4 +35,5 @@ def make_pref(votes:learn.Votes):
 
 votes=learn.read_votes('0/RF')
 pref=make_pref(votes)
-print(pref.positional_voting())
+result=pref.positional_voting()
+print(result.get_acc())
