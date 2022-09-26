@@ -15,7 +15,6 @@ class Votes(object):
             result_i.save(f'{out_path}/{i}')
 
 def read_votes(in_path):
-#    with open(in_path, 'r') as f:
     paths=[f'{in_path}/{path_i}' 
         for path_i in os.listdir(in_path)]
     results=[]
@@ -23,8 +22,7 @@ def read_votes(in_path):
         with open(path_i, 'r') as f:
              result_i=learn.Result(data.read_data(path_i))
              results.append(result_i)
-    return Votes(results)   #print(type(result_i))
-#        data_dict = json.load(f)
+    return Votes(results)
 
 class Result(data.DataDict):
     def get_pred(self):
