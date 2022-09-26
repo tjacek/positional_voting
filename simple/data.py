@@ -7,7 +7,9 @@ class DataDict(dict):
         super(DataDict, self).__init__(arg)
 
     def names(self):
-        return list(self.keys())
+        keys=list(self.keys())
+        keys.sort()
+        return keys
 
     def norm(self):
         names=list(self.keys())
