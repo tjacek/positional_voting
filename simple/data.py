@@ -36,13 +36,13 @@ class DataDict(dict):
         if(selector is None):
             selector=lambda name_i: name_i[1]==0
         train,test=[],[]
-        for name_i in self.keys():
+        for name_i in self.names():#keys():
             pair_i=(name_i,self[name_i])
             if(selector(name_i)):
                 train.append(pair_i)
             else:
                 test.append(pair_i)
-        return DataDict(train),DataDict(test)
+        return self.__class__(train),self.__class__(test)
 
     def save(self,out_path):
         raw_dict={}
@@ -68,10 +68,6 @@ class Name(str):
         raw=self.split('_')
         raw[1]=str(int(trainset))
         return Name('_'.join(raw))	
-
-def make_dir(path):
-    if(not os.path.isdir(path)):
-        os.mkdir(path)
 
 def read_data(in_path):
     with open(in_path, 'r') as f:

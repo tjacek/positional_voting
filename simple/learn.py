@@ -3,14 +3,20 @@ from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from sklearn.metrics import classification_report,accuracy_score,f1_score
 from sklearn.metrics import roc_auc_score
 import json,os
-import data,learn
+import data,learn,utils
 
 class Votes(object):
     def __init__(self,results):
+        if(type(results)==int):
+            results=[Result() 
+                for _ in range(results) ] 
         self.results=results
 
+    def __len__(self):
+        return len(self.results)
+
     def save(self,out_path):
-        data.make_dir(out_path)
+        utils.make_dir(out_path)
         for i,result_i in enumerate(self.results):
             result_i.save(f'{out_path}/{i}')
 
@@ -26,14 +32,15 @@ def read_votes(in_path):
 
 class Result(data.DataDict):
     def get_pred(self):
-        train,test=self.split()
-        names=test.names()
+#        train,test=self.split()
+        names=self.names() #test.names()
         y_true=[name_i.get_cat() for name_i in names]
         y_pred=[np.argmax(self[name_i]) for name_i in names]
         return y_true,y_pred,names
 
     def get_acc(self):
         y_true,y_pred,names=self.get_pred()
+#        print(y_pred)
         return accuracy_score(y_true,y_pred)
 
 def make_result(y_pred,names):
