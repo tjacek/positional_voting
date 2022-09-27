@@ -50,7 +50,7 @@ def optim(pref,maxiter=100):
     opt_result=pref.positional_voting(weights)
     print(opt_result.get_acc())
 
-votes=learn.read_votes('0/RF')
+votes=learn.read_votes('0_cv')
 pref=make_pref(votes)
 optim(pref)
 #result=pref.positional_voting()
