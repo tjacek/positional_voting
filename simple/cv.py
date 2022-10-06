@@ -1,20 +1,18 @@
 import numpy as np
-from sklearn import ensemble
 from sklearn.model_selection import RepeatedStratifiedKFold
 from skopt import BayesSearchCV
 import data,learn,utils
 
 class BayesOptim(object):
-    def __init__(self,clf,params,n_split=5):
-        self.clf=clf 
-        self.params=params
+    def __init__(self,clf_alg,n_split=5):
+        self.clf_alg=clf_alg 
         self.n_split=n_split
 
     def __call__(self,X_train,y_train):
         cv_gen=RepeatedStratifiedKFold(n_splits=self.n_split, 
                 n_repeats=3, random_state=1)
-        search = BayesSearchCV(estimator=self.clf(), 
-            search_spaces=self.params,n_jobs=-1,cv=cv_gen)
+        search = BayesSearchCV(estimator=self.clf_alg.alg(), 
+            search_spaces=self.clf_alg.hyperparams,n_jobs=-1,cv=cv_gen)
         search.fit(X_train,y_train) 
         best_params=search.cv_results_['params'][0]
         return search.best_estimator_,best_params
@@ -30,18 +28,7 @@ class SplitSelector(object):
         self.i+=1
         return select
 
-def bag_clf():
-    params={'n_estimators': [5,10,15,20]}
-    clf = ensemble.BaggingClassifier
-    return clf,params 
-
-def rf_clf():
-    params={'max_depth': [3, 5, 10],
-            'min_samples_split': [2, 5, 10]}
-    clf = ensemble.RandomForestClassifier
-    return clf,params    
-
-#@utils.dir_exp
+@utils.dir_exp
 def gen_votes(in_path,out_path,n_split=5):
     data_i=data.read_data(in_path)
     data_i.norm()
@@ -73,4 +60,4 @@ def gen_votes(in_path,out_path,n_split=5):
     votes.save(out_path)     
 
 if __name__ == "__main__":
-    gen_votes("splits/0",'RF')#,"0")
+    gen_votes("splits",'RF')#,"0")
