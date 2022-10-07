@@ -9,7 +9,7 @@ class DataDict(dict):
     def names(self):
         keys=list(self.keys())
         keys.sort()
-        return keys
+        return NameList(keys)
 
     def norm(self):
         names=list(self.keys())
@@ -50,6 +50,37 @@ class DataDict(dict):
             raw_dict[str(name_i)]=list(data_i)
         with open(out_path, 'w') as f:
             json.dump(raw_dict, f)
+
+class NameList(list):
+    def __new__(cls, name_list=None):
+        if(name_list is None):
+            name_list=[]
+        return list.__new__(cls,name_list)
+
+    def n_cats(self):
+        return len(self.unique_cats())
+
+    def unique_cats(self):
+        return set(self.get_cats())
+
+    def get_cats(self):
+        return [name_i.get_cat() for name_i in self]     
+
+    def binarize(self,j):
+        return [ int(cat_i==0) for cat_i in self.get_cats()]
+
+    def by_cat(self):
+        cat_dict={cat_j:NameList() 
+                for cat_j in self.unique_cats()}
+        for name_i in self:
+            cat_dict[name_i.get_cat()].append(name_i)
+        return cat_dict
+
+    def cats_stats(self):
+        stats_dict={ cat_i:0 for cat_i in self.unique_cats()}
+        for cat_i in self.get_cats():
+            stats_dict[cat_i]+=1
+        return stats_dict
 
 class Name(str):
     def __new__(cls, p_string):
