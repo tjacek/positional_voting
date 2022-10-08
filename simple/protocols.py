@@ -1,10 +1,10 @@
 import cv,data,clfs
 
-def train_ensemble(train,clf_alg):
-    bayes_cf=cv.BayesOptim(clf_alg)
+def find_hyperparams(train,clf_alg):
+    bayes_cf=cv.BayesOptim(clf_alg,n_split=2)
     train_tuple=train.as_dataset()[:2]
     best_estm,best_params= bayes_cf(*train_tuple)
-    print(best_params)
+    return best_params
 
 def gen_splits(data_i,n_splits=10):
     if(type(data_i)==str):
@@ -22,5 +22,5 @@ if __name__ == "__main__":
 #        print(len(out_k))
         names= in_k.names()
         print(names.cats_stats())
-        train_ensemble(in_k,clf_alg)
+        hyper= find_hyperparams(in_k,clf_alg)
         raise Exception('Ok')

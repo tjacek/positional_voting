@@ -5,7 +5,11 @@ class ClfAlg(object):
         self.alg=alg
         self.hyperparams=hyperparams
 
-#    def __call__(self):
+    def fit(self,data,hyper):
+        clf_k=self.alg(**hyper)
+        data_tuple=data.as_dataset()
+        clf_k.fit(*data_tuple[:2])
+        return clf_k
 
 def bag_clf():
     clf = ensemble.BaggingClassifier    
