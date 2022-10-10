@@ -36,12 +36,10 @@ def make_pref(votes:learn.Votes):
 
 def optim(pref,maxiter=100):
     test,train=pref.split()
-#    raise Exception((len(train),len(test)))
     n_cand=pref.n_cand()
     bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
     init= 'latinhypercube'
     def loss_fun(score):
-#        print(score)
         result=train.positional_voting(score)
         acc=result.get_acc()
         print(acc)
@@ -49,17 +47,12 @@ def optim(pref,maxiter=100):
     result = differential_evolution(loss_fun, bound_w, 
             init=init,maxiter=maxiter, tol=1e-7)	
     weights= result['x']
-    score= np.zeros((n_cand,))
-    score[0]=1
+    return weights
+    
 
-    print(f'base:{train.positional_voting(score).get_acc()}')
-    print(f'base:{test.positional_voting(score).get_acc()}')
-    opt_result=test.positional_voting(weights)
-    print(weights)
-    print(f'opv:{opt_result.get_acc()}')
-
-votes=learn.read_votes('RF')
-pref=make_pref(votes)
-optim(pref)
+if __name__ == "__main__":
+    votes=learn.read_votes('cleveland_RF')
+    pref=make_pref(votes)
+    optim(pref)
 #result=pref.positional_voting()
 #print(result.get_acc())
