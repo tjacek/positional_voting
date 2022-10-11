@@ -14,7 +14,9 @@ def find_opv(in_i,clf_alg):
 def evaluate_opv(weights,ens_i,out_i):
     votes=predict_votes(ens_i,out_i)
     pref=OPV.make_pref(votes)
-    return pref.positional_voting(weights)
+    opv_result= pref.positional_voting(weights)
+    base_results = votes.voting()
+    return base_results,opv_result 
 
 def predict_votes(ens_i,data_i):
     data_tuple= data_i.as_dataset()
@@ -42,16 +44,15 @@ def gen_splits(data_i,n_splits=10):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    partial=[]
+    partial_base,partial_opv=[],[]
     for k,(in_k,out_k) in enumerate(gen_splits("cleveland")):
         weights,ens_i=find_opv(in_k,clf_alg)  
-        out_votes_i=evaluate_opv(weights,ens_i,out_k)
-        partial.append(out_votes_i)
-        print(f'Ok{len(out_votes_i)}')
-        print((len(in_k),len(out_k)))
+        base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
+        partial_base.append(base_results)
+        partial_opv.append(opv_result)
         if(k>2):
             break
-#        raise Exception('Ok')
-    result=learn.unify_results(partial)
-    print(len(result))
-    print(result.get_acc())
+    result_base=learn.unify_results(partial_base)
+    print(result_base.get_acc())
+    result_opv=learn.unify_results(partial_opv)
+    print(result_opv.get_acc())
