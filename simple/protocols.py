@@ -1,4 +1,4 @@
-import cv,data,clfs,OPV,learn
+import cv,data,clfs,opv,learn
 
 def find_opv(in_i,clf_alg):
     selector=cv.SplitSelector(0,3)
@@ -6,8 +6,8 @@ def find_opv(in_i,clf_alg):
     hyper_i=find_hyperparams(train_i,clf_alg)
     ens_i=clf_alg.fit(train_i,hyper_i)
     votes=predict_votes(ens_i,valid_i)
-    pref=OPV.make_pref(votes)
-    weights=OPV.optim(pref,maxiter=100)
+    pref=opv.make_pref(votes)
+    weights=opv.optim(pref,maxiter=100)
     print(weights)
     return weights,ens_i
 
