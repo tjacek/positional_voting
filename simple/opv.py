@@ -35,14 +35,15 @@ def make_pref(votes:learn.Votes):
     return pref
 
 class OPV(object):
-    def __init__(self,loss_fun=None,maxiter=100):
+    def __init__(self,loss_fun=None,maxiter=100,
+           init='latinhypercube'):
         if(loss_fun is None):
-            loss_fun=acc_fun
-        self.loss_fun=loss_fun
+            loss_fun=acc_metric
+        self.loss_fun= LossFun(loss_fun)
         self.maxiter=maxiter
-        self.init='latinhypercube'
+        self.init=init#'latinhypercube'
 
-    def __call__(self,pref):#,maxiter=100):
+    def __call__(self,pref):
         test,train=pref.split()
         n_cand=pref.n_cand()
         bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
@@ -52,11 +53,30 @@ class OPV(object):
         weights= result['x']
         return weights
 
-def acc_fun(score):
-    result=train.positional_voting(score)
-    acc=result.get_acc()
-    print(acc)
-    return -1.0*acc 
+class LossFun(object):
+    def __init__(self,train_dict,metric=None):
+        if(metric is None):
+            metric=acc_metric
+        self.train_dict=train_dict
+        self.metric=metric
+        self.n_calls=0
+
+    def __call__(self,score):
+        self.n_calls+=1
+        result=self.train_dict.positional_voting(score)
+        y_true=result.true_one_hot()
+        y_pred=result.as_array()
+        return self.metric(y_true,y_pred)
+
+def auc_metric(y_true,y_pred):
+    auc_ovo=roc_auc_score(y_true,y_pred,multi_class="ovo")
+    return -1.0*auc_ovo
+
+def acc_metric(y_true,y_pred):
+    return -1.0*accuracy_score(y_true,y_pred)
+
+def f1_metric(y_true,y_pred):
+    return -1.0*f1_score(y_true,y_pred,average='macro')
 
 if __name__ == "__main__":
     votes=learn.read_votes('cleveland_RF')
