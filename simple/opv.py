@@ -41,7 +41,7 @@ class OPV(object):
             loss_fun=acc_metric
         self.loss_fun= LossFun(loss_fun)
         self.maxiter=maxiter
-        self.init=init#'latinhypercube'
+        self.init=init
 
     def __call__(self,pref):
         test,train=pref.split()
@@ -78,9 +78,11 @@ def acc_metric(y_true,y_pred):
 def f1_metric(y_true,y_pred):
     return -1.0*f1_score(y_true,y_pred,average='macro')
 
+def to_opv(loss,maxiter=100,init='latinhypercube'):
+    return [ OPV(loss_i,maxiter,init) for loss_i in loss]
+
 if __name__ == "__main__":
-    votes=learn.read_votes('cleveland_RF')
-    pref=make_pref(votes)
-    optim(pref)
-#result=pref.positional_voting()
-#print(result.get_acc())
+#    votes=learn.read_votes('cleveland_RF')
+#    pref=make_pref(votes)
+#    optim(pref)
+    to_opv([acc_metric,acc_metric,f1_metric])
