@@ -1,19 +1,19 @@
 import cv,data,clfs,opv,learn
 
-def find_opv(in_i,clf_alg):
+def find_opv(in_i,clf_alg,loss_fun=None):
     selector=cv.SplitSelector(0,3)
     train_i,valid_i=in_i.split(selector)
     hyper_i=find_hyperparams(train_i,clf_alg)
     ens_i=clf_alg.fit(train_i,hyper_i)
     votes=predict_votes(ens_i,valid_i)
     pref=opv.make_pref(votes)
-    weights=opv.optim(pref,maxiter=100)
+    weights=opv.OPV()(pref) #opv.optim(pref,maxiter=100)
     print(weights)
     return weights,ens_i
 
 def evaluate_opv(weights,ens_i,out_i):
     votes=predict_votes(ens_i,out_i)
-    pref=OPV.make_pref(votes)
+    pref=opv.make_pref(votes)
     opv_result= pref.positional_voting(weights)
     base_results = votes.voting()
     return base_results,opv_result 
