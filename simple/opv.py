@@ -1,4 +1,7 @@
 import numpy as np
+from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
+from sklearn.metrics import classification_report,accuracy_score,f1_score
+from sklearn.metrics import roc_auc_score
 from scipy.optimize import differential_evolution
 import data,learn
 
@@ -35,19 +38,21 @@ def make_pref(votes:learn.Votes):
     return pref
 
 class OPV(object):
-    def __init__(self,loss_fun=None,maxiter=100,
+    def __init__(self,metric=None,maxiter=100,
            init='latinhypercube'):
-        if(loss_fun is None):
-            loss_fun=acc_metric
-        self.loss_fun= LossFun(loss_fun)
+        if(metric is None):
+            metric=acc_metric
+#        self.loss_fun=loss_fun
+        self.metric=metric
         self.maxiter=maxiter
         self.init=init
 
     def __call__(self,pref):
         test,train=pref.split()
+        loss_fun= LossFun(pref,self.metric)
         n_cand=pref.n_cand()
         bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
-        result = differential_evolution(self.loss_fun, 
+        result = differential_evolution(loss_fun, 
             bound_w, init=self.init,
             maxiter=self.maxiter, tol=1e-7)	
         weights= result['x']
@@ -64,8 +69,9 @@ class LossFun(object):
     def __call__(self,score):
         self.n_calls+=1
         result=self.train_dict.positional_voting(score)
-        y_true=result.true_one_hot()
-        y_pred=result.as_array()
+        y_true,y_pred,names=result.get_pred()
+#        y_true=result.true_one_hot()
+#        y_pred=result.as_array()
         return self.metric(y_true,y_pred)
 
 def auc_metric(y_true,y_pred):
