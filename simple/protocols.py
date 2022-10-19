@@ -7,8 +7,7 @@ def find_opv(in_i,clf_alg,metric=None):
     ens_i=clf_alg.fit(train_i,hyper_i)
     votes=predict_votes(ens_i,valid_i)
     pref=opv.make_pref(votes)
-#    loss_fun=opv.LossFun(pref,metric)
-    weights=opv.OPV(metric)(pref) #opv.optim(pref,maxiter=100)
+    weights=opv.OPV(metric)(pref)
     print(weights)
     return weights,ens_i
 
@@ -43,17 +42,29 @@ def gen_splits(data_i,n_splits=10):
         out_k,in_k=data_i.split(selector_k)
         yield in_k,out_k
 
-if __name__ == "__main__":
-    clf_alg=clfs.rf_clf()
+def metric_exp(in_path,clf_alg):
+    all_metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
+    pair=[exp(in_path,clf_alg,metric_i) 
+            for metric_i in all_metrics]
+
+#=opv.to_opv(all_metrics,maxiter=100,init='latinhypercube')
+
+def exp(in_path,clf_alg,metric=None):
     partial_base,partial_opv=[],[]
-    for k,(in_k,out_k) in enumerate(gen_splits("cleveland")):
-        weights,ens_i=find_opv(in_k,clf_alg)  
+    for k,(in_k,out_k) in enumerate(gen_splits(in_path)):
+        weights,ens_i=find_opv(in_k,clf_alg,metric)  
         base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
         partial_base.append(base_results)
         partial_opv.append(opv_result)
         if(k>2):
             break
     result_base=learn.unify_results(partial_base)
-    print(result_base.get_acc())
     result_opv=learn.unify_results(partial_opv)
-    print(result_opv.get_acc())
+    return result_base,result_opv
+
+if __name__ == "__main__":
+    clf_alg=clfs.rf_clf()
+    metric_exp( "cleveland",clf_alg)
+#    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
+#    print(result_base.get_acc())
+#    print(result_opv.get_acc())
