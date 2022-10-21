@@ -64,7 +64,7 @@ def exp(in_path,clf_alg,metric=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    metric_exp( "cleveland",clf_alg)
-#    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
-#    print(result_base.get_acc())
-#    print(result_opv.get_acc())
+#    metric_exp( "cleveland",clf_alg)
+    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
+    print(result_base.get_acc())
+    print(result_opv.get_acc())

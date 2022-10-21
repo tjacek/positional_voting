@@ -59,7 +59,7 @@ class OPV(object):
         return weights
 
 class LossFun(object):
-    def __init__(self,train_dict,metric=None,cum=True):
+    def __init__(self,train_dict,metric=None,cum=False):
         if(metric is None):
             metric=acc_metric
         self.train_dict=train_dict
@@ -70,6 +70,9 @@ class LossFun(object):
     def __call__(self,score):
         if(self.cum):
             score=np.cumsum(score)
+            score=np.flip(score)
+#            score.reverse()
+#            raise Exception(score)
         self.n_calls+=1
         result=self.train_dict.positional_voting(score)
         y_true,y_pred,names=result.get_pred()
