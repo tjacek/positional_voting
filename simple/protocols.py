@@ -47,8 +47,6 @@ def metric_exp(in_path,clf_alg):
     pair=[exp(in_path,clf_alg,metric_i) 
             for metric_i in all_metrics]
 
-#=opv.to_opv(all_metrics,maxiter=100,init='latinhypercube')
-
 def exp(in_path,clf_alg,metric=None):
     partial_base,partial_opv=[],[]
     for k,(in_k,out_k) in enumerate(gen_splits(in_path)):
@@ -62,9 +60,14 @@ def exp(in_path,clf_alg,metric=None):
     result_opv=learn.unify_results(partial_opv)
     return result_base,result_opv
 
+def show_result(result_base,result_opv=None):
+    if(result_opv is None):
+        result_base,result_opv=result_base
+    result_base.get_acc(),result_opv.get_acc()
+
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-#    metric_exp( "cleveland",clf_alg)
-    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
-    print(result_base.get_acc())
-    print(result_opv.get_acc())
+    metric_exp( "cleveland",clf_alg)
+#    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
+#    print(result_base.get_acc())
+#    print(result_opv.get_acc())
