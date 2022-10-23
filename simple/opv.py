@@ -52,6 +52,7 @@ class OPV(object):
         loss_fun= LossFun(pref,self.metric)
         n_cand=pref.n_cand()
         bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
+#        raise Exception(type(loss_fun))
         result = differential_evolution(loss_fun, 
             bound_w, init=self.init,
             maxiter=self.maxiter, tol=1e-7)	
@@ -71,8 +72,6 @@ class LossFun(object):
         if(self.cum):
             score=np.cumsum(score)
             score=np.flip(score)
-#            score.reverse()
-#            raise Exception(score)
         self.n_calls+=1
         result=self.train_dict.positional_voting(score)
         y_true,y_pred,names=result.get_pred()

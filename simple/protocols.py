@@ -63,11 +63,13 @@ def exp(in_path,clf_alg,metric=None):
 def show_result(result_base,result_opv=None):
     if(result_opv is None):
         result_base,result_opv=result_base
-    result_base.get_acc(),result_opv.get_acc()
+    base_acc,opv_acc=result_base.get_acc(),result_opv.get_acc()
+    print(f"base:{base_acc} opv:{opv_acc} diff:{opv_acc-base_acc}")
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    metric_exp( "cleveland",clf_alg)
-#    result_base,result_opv=exp("cleveland",clf_alg,metric=None)
+#    metric_exp( "cleveland",clf_alg)
+    result=exp("cleveland",clf_alg,metric=None)
+    show_result(result)
 #    print(result_base.get_acc())
 #    print(result_opv.get_acc())
