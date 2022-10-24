@@ -78,6 +78,9 @@ class LossFun(object):
         return self.metric(y_true,y_pred)
 
 def auc_metric(y_true,y_pred):
+#    raise Exception((y_true,y_pred))
+    y_true= learn.to_one_hot(y_true,n_cats=None)
+    y_pred= learn.to_one_hot(y_pred,n_cats=None)
     auc_ovo=roc_auc_score(y_true,y_pred,multi_class="ovo")
     return -1.0*auc_ovo
 
