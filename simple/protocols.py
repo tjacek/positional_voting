@@ -46,6 +46,8 @@ def metric_exp(in_path,clf_alg):
     all_metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
     pair=[exp(in_path,clf_alg,metric_i) 
             for metric_i in all_metrics]
+    for pair_i in pair:
+        show_result(*pair_i)
 
 def exp(in_path,clf_alg,metric=None):
     partial_base,partial_opv=[],[]
