@@ -1,5 +1,14 @@
 import cv,data,clfs,opv,learn
 
+class ExpOutput(object):
+    def __init__(self,base_results,opv_results):
+        self.base_results=base_results
+        self.opv_results=opv_results
+
+    def diff(self):
+        return [ (base_i.get_acc() - opv_i.get_acc()) 
+           for base_i,opv_i in zip(self.base_results,self.opv_results)]
+
 def find_opv(in_i,clf_alg,metric=None):
     selector=cv.SplitSelector(0,3)
     train_i,valid_i=in_i.split(selector)
@@ -49,14 +58,15 @@ def metric_exp(in_path,clf_alg):
     for pair_i in pair:
         show_result(*pair_i)
 
-def exp(in_path,clf_alg,metric=None):
+def exp(in_path,clf_alg,metric=None,n_splits=10):
     partial_base,partial_opv=[],[]
-    for k,(in_k,out_k) in enumerate(gen_splits(in_path)):
+    split_gen=gen_splits(in_path)
+    for k,(in_k,out_k) in enumerate(split_gen,n_splits):
         weights,ens_i=find_opv(in_k,clf_alg,metric)  
         base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
         partial_base.append(base_results)
         partial_opv.append(opv_result)
-        if(k>2):
+        if(k>1):
             break
     result_base=learn.unify_results(partial_base)
     result_opv=learn.unify_results(partial_opv)
@@ -66,7 +76,7 @@ def show_result(result_base,result_opv=None):
     if(result_opv is None):
         result_base,result_opv=result_base
     base_acc,opv_acc=result_base.get_acc(),result_opv.get_acc()
-    print("base:{base_acc} opv:{opv_acc} diff:{opv_acc-base_acc}")
+    print(f"base:{base_acc} opv:{opv_acc} diff:{opv_acc-base_acc}")
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
