@@ -1,18 +1,26 @@
 import json
-import cv,data,clfs,opv,learn
+import cv,data,clfs,opv,learn,utils
 
 class ExpOutput(object):
     def __init__(self,base_results,opv_results):
         self.base_results=base_results
         self.opv_results=opv_results
 
+    def __len__(self):
+        return len(self.base_results)
+    
     def diff(self):
         return [ (base_i.get_acc() - opv_i.get_acc()) 
            for base_i,opv_i in zip(self.base_results,self.opv_results)]
 
-    def save(self,out_path): 
-        with open(out_path, 'w') as f:
-            json.dump(self,f)
+    def save(self,out_path):
+        utils.make_dir(out_path)
+        gen=zip(self.base_results,self.opv_results)
+        for i,(base_i,opv_i) in enumerate(gen):
+            base_i.save(f'{out_path}/base_{i}')
+            opv_i.save(f'{out_path}/opv_{i}')
+#        with open(out_path, 'w') as f:
+#            json.dump(self,f)
 
 def find_opv(in_i,clf_alg,metric=None):
     selector=cv.SplitSelector(0,3)
