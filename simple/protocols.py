@@ -1,3 +1,4 @@
+import json
 import cv,data,clfs,opv,learn
 
 class ExpOutput(object):
@@ -8,6 +9,10 @@ class ExpOutput(object):
     def diff(self):
         return [ (base_i.get_acc() - opv_i.get_acc()) 
            for base_i,opv_i in zip(self.base_results,self.opv_results)]
+
+    def save(self,out_path): 
+        with open(out_path, 'w') as f:
+            json.dump(self,f)
 
 def find_opv(in_i,clf_alg,metric=None):
     selector=cv.SplitSelector(0,3)
@@ -58,7 +63,15 @@ def metric_exp(in_path,clf_alg):
     for pair_i in pair:
         show_result(*pair_i)
 
-def exp(in_path,clf_alg,metric=None,n_splits=10):
+def multi_exp(in_path,clf_alg,metric=None,n_iters=2,n_splits=10):
+    all_base,all_opv=[],[]
+    for i in range(n_iters):
+        base_i,opv_i=single_exp(in_path,clf_alg,metric,n_splits)
+        all_base.append(base_i)
+        all_opv.append(opv_i)
+    return ExpOutput(all_base,all_opv)
+
+def single_exp(in_path,clf_alg,metric=None,n_splits=10):
     partial_base,partial_opv=[],[]
     split_gen=gen_splits(in_path)
     for k,(in_k,out_k) in enumerate(split_gen,n_splits):
@@ -80,8 +93,6 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    metric_exp( "cleveland",clf_alg)
-#    result=exp("cleveland",clf_alg,metric=None)
-#    show_result(result)
-#    print(result_base.get_acc())
-#    print(result_opv.get_acc())
+#    metric_exp( "cleveland",clf_alg)
+    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2,n_splits=10)
+    output.save('mult_test')
