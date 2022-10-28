@@ -19,8 +19,18 @@ class ExpOutput(object):
         for i,(base_i,opv_i) in enumerate(gen):
             base_i.save(f'{out_path}/base_{i}')
             opv_i.save(f'{out_path}/opv_{i}')
-#        with open(out_path, 'w') as f:
-#            json.dump(self,f)
+
+def read_output(in_path):
+    paths=utils.get_paths(in_path)
+    base,opv=[],[]
+    for path_i in paths:
+        result_i=learn.read_result(path_i)
+        if('base' in path_i):
+            base.append(result_i)
+        if('opv' in path_i):
+            opv.append(result_i)
+    return ExpOutput(base,opv)
+#    print(paths)
 
 def find_opv(in_i,clf_alg,metric=None):
     selector=cv.SplitSelector(0,3)
@@ -101,6 +111,7 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-#    metric_exp( "cleveland",clf_alg)
-    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2,n_splits=10)
-    output.save('mult_test')
+#    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2,n_splits=10)
+#    output.save('mult_test')
+    output=read_output('mult_test')
+    print( output.diff())

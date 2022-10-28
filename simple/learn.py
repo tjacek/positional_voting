@@ -56,6 +56,9 @@ class Result(data.DataDict):
         y_true,y_pred,names=self.get_pred()
         return accuracy_score(y_true,y_pred)
 
+def read_result(in_path):
+    return Result(data.read_data(in_path)) 
+
 def make_result(y_pred,names):
     y_pred=np.array(y_pred)
     if( y_pred.ndim<2 or y_pred.shape[1]==1):

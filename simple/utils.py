@@ -6,8 +6,10 @@ def make_dir(path):
         os.mkdir(path)
 
 def get_paths(in_path):
-    return [f'{in_path}/{path_i}' 
+    paths=[f'{in_path}/{path_i}' 
         for path_i in os.listdir(in_path)]
+    paths.sort()
+    return paths
 
 def dir_exp(fun):
     @wraps(fun)
