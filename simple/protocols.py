@@ -30,10 +30,9 @@ def read_output(in_path):
         if('opv' in path_i):
             opv.append(result_i)
     return ExpOutput(base,opv)
-#    print(paths)
 
-def find_opv(in_i,clf_alg,metric=None):
-    selector=cv.SplitSelector(0,3)
+def find_opv(in_i,clf_alg,metric=None,selector=None):
+#    selector=cv.SplitSelector(0,3)
     train_i,valid_i=in_i.split(selector)
     hyper_i=find_hyperparams(train_i,clf_alg)
     ens_i=clf_alg.fit(train_i,hyper_i)
@@ -81,27 +80,37 @@ def metric_exp(in_path,clf_alg):
     for pair_i in pair:
         show_result(*pair_i)
 
-def multi_exp(in_path,clf_alg,metric=None,n_iters=2,n_splits=10):
+def multi_exp(in_path,clf_alg,metric=None,n_iters=2,opv_exp=None):
+    if(opv_exp is None):
+        opv_exp=OPVExp()
     all_base,all_opv=[],[]
     for i in range(n_iters):
-        base_i,opv_i=single_exp(in_path,clf_alg,metric,n_splits)
+        base_i,opv_i=opv_exp(in_path,clf_alg,metric)
         all_base.append(base_i)
         all_opv.append(opv_i)
     return ExpOutput(all_base,all_opv)
 
-def single_exp(in_path,clf_alg,metric=None,n_splits=10):
-    partial_base,partial_opv=[],[]
-    split_gen=gen_splits(in_path)
-    for k,(in_k,out_k) in enumerate(split_gen,n_splits):
-        weights,ens_i=find_opv(in_k,clf_alg,metric)  
-        base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
-        partial_base.append(base_results)
-        partial_opv.append(opv_result)
-        if(k>1):
-            break
-    result_base=learn.unify_results(partial_base)
-    result_opv=learn.unify_results(partial_opv)
-    return result_base,result_opv
+class OPVExp(object):
+    def __init__(self,n_splits=10,limit=1,selector=None):
+        if(selector is None):
+            selector=cv.SplitSelector(0,3)
+        self.n_splits=n_splits
+        self.selector=selector
+        self.limit=limit
+
+    def __call__(self,in_path,clf_alg,metric=None):
+        partial_base,partial_opv=[],[]
+        split_gen=gen_splits(in_path)
+        for k,(in_k,out_k) in enumerate(split_gen,self.n_splits):
+            weights,ens_i=find_opv(in_k,clf_alg,metric,self.selector)  
+            base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
+            partial_base.append(base_results)
+            partial_opv.append(opv_result)
+            if(k>self.limit):
+                break
+        result_base=learn.unify_results(partial_base)
+        result_opv=learn.unify_results(partial_opv)
+        return result_base,result_opv
 
 def show_result(result_base,result_opv=None):
     if(result_opv is None):
@@ -111,7 +120,7 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-#    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2,n_splits=10)
-#    output.save('mult_test')
-    output=read_output('mult_test')
-    print( output.diff())
+    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2)
+    output.save('mult_test')
+#    output=read_output('mult_test')
+#    print( output.diff())

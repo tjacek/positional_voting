@@ -42,7 +42,6 @@ class OPV(object):
            init='latinhypercube'):
         if(metric is None):
             metric=acc_metric
-#        self.loss_fun=loss_fun
         self.metric=metric
         self.maxiter=maxiter
         self.init=init
@@ -52,7 +51,6 @@ class OPV(object):
         loss_fun= LossFun(pref,self.metric)
         n_cand=pref.n_cand()
         bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
-#        raise Exception(type(loss_fun))
         result = differential_evolution(loss_fun, 
             bound_w, init=self.init,
             maxiter=self.maxiter, tol=1e-7)	
@@ -78,7 +76,6 @@ class LossFun(object):
         return self.metric(y_true,y_pred)
 
 def auc_metric(y_true,y_pred):
-#    raise Exception((y_true,y_pred))
     y_true= learn.to_one_hot(y_true,n_cats=None)
     y_pred= learn.to_one_hot(y_pred,n_cats=None)
     auc_ovo=roc_auc_score(y_true,y_pred,multi_class="ovo")
