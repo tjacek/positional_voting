@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import cv,data,clfs,opv,learn,utils
 
@@ -12,6 +13,13 @@ class ExpOutput(object):
     def diff(self):
         return [ (base_i.get_acc() - opv_i.get_acc()) 
            for base_i,opv_i in zip(self.base_results,self.opv_results)]
+
+    def mean(self):
+        base_acc=[base_i.get_acc() 
+            for base_i in self.base_results]
+        opv_acc=[opv_i.get_acc() 
+            for opv_i in self.opv_results]
+        return np.mean(base_acc),np.mean(opv_acc)
 
     def save(self,out_path):
         utils.make_dir(out_path)
@@ -120,7 +128,7 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2)
-    output.save('mult_test')
-#    output=read_output('mult_test')
-#    print( output.diff())
+#    output=multi_exp("cleveland",clf_alg,metric=None,n_iters=2)
+#    output.save('mult_test')
+    output=read_output('mult_test')
+    print( output.mean())
