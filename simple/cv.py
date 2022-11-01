@@ -28,6 +28,19 @@ class SplitSelector(object):
         self.i+=1
         return select
 
+class BalancedSelector(object):
+    def __init__(self,k,n_split):
+        self.k=k 
+        self.n_split=n_split 
+        self.class_counter={}
+
+    def __call__(self,name_i):
+        cat_i=name_i.get_cat()
+        select=(self.class_counter[cat_i] % self.n_split)
+        select= (select==self.k)
+        self.class_counter[cat_i]+=1
+        return select
+
 @utils.dir_exp
 def gen_votes(in_path,out_path,n_split=5):
     data_i=data.read_data(in_path)

@@ -9,11 +9,7 @@ class ExpOutput(object):
 
     def __len__(self):
         return len(self.base_results)
-    
-    def diff(self):
-        return [ (base_i.get_acc() - opv_i.get_acc()) 
-           for base_i,opv_i in zip(self.base_results,self.opv_results)]
-    
+
     def get_acc(self):
         base_acc=[base_i.get_acc() 
             for base_i in self.base_results]
@@ -25,9 +21,11 @@ class ExpOutput(object):
         base_acc,opv_acc=self.get_acc()
         return np.mean(base_acc),np.mean(opv_acc)
     
-    def diff(self):
+    def diff(self,max=False):
         base_acc,opv_acc=self.get_acc()
         diff=[ opv_i-base_i for base_i,opv_i in zip(base_acc,opv_acc)]
+        if(max):
+            return np.amax(diff)
         return diff
 
     def save(self,out_path):
@@ -36,6 +34,28 @@ class ExpOutput(object):
         for i,(base_i,opv_i) in enumerate(gen):
             base_i.save(f'{out_path}/base_{i}')
             opv_i.save(f'{out_path}/opv_{i}')
+
+class OPVExp(object):
+    def __init__(self,n_splits=10,limit=1,selector=None):
+        if(selector is None):
+            selector=cv.SplitSelector(0,3)
+        self.n_splits=n_splits
+        self.selector=selector
+        self.limit=limit
+
+    def __call__(self,in_path,clf_alg,metric=None):
+        partial_base,partial_opv=[],[]
+        split_gen=gen_splits(in_path)
+        for k,(in_k,out_k) in enumerate(split_gen,self.n_splits):
+            weights,ens_i=find_opv(in_k,clf_alg,metric,self.selector)  
+            base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
+            partial_base.append(base_results)
+            partial_opv.append(opv_result)
+            if(k>self.limit):
+                break
+        result_base=learn.unify_results(partial_base)
+        result_opv=learn.unify_results(partial_opv)
+        return result_base,result_opv
 
 def read_output(in_path):
     paths=utils.get_paths(in_path)
@@ -107,28 +127,6 @@ def multi_exp(in_path,clf_alg,metric=None,n_iters=2,opv_exp=None):
         all_opv.append(opv_i)
     return ExpOutput(all_base,all_opv)
 
-class OPVExp(object):
-    def __init__(self,n_splits=10,limit=1,selector=None):
-        if(selector is None):
-            selector=cv.SplitSelector(0,3)
-        self.n_splits=n_splits
-        self.selector=selector
-        self.limit=limit
-
-    def __call__(self,in_path,clf_alg,metric=None):
-        partial_base,partial_opv=[],[]
-        split_gen=gen_splits(in_path)
-        for k,(in_k,out_k) in enumerate(split_gen,self.n_splits):
-            weights,ens_i=find_opv(in_k,clf_alg,metric,self.selector)  
-            base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
-            partial_base.append(base_results)
-            partial_opv.append(opv_result)
-            if(k>self.limit):
-                break
-        result_base=learn.unify_results(partial_base)
-        result_opv=learn.unify_results(partial_opv)
-        return result_base,result_opv
-
 def show_result(result_base,result_opv=None):
     if(result_opv is None):
         result_base,result_opv=result_base
@@ -137,9 +135,11 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    opv_exp=OPVExp(limit=12)
+    selector=cv.SplitSelector(0,2)
+
+    opv_exp=OPVExp(limit=12,selector=selector)
 #    output=multi_exp("cleveland",clf_alg,metric=None,
 #        n_iters=10,opv_exp=opv_exp)
-#    output.save('mult_test_full')
-    output=read_output('mult_test_full')
-    print( output.diff())
+#    output.save('mult_test_full_4')
+    output=read_output('mult_test_full_4')
+    print( output.diff(True))
