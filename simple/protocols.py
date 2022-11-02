@@ -135,11 +135,11 @@ def show_result(result_base,result_opv=None):
 
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
-    selector=cv.SplitSelector(0,2)
-
+#    selector=cv.SplitSelector(0,2)
+    selector=cv.BalancedSelector(0,2)
     opv_exp=OPVExp(limit=12,selector=selector)
-#    output=multi_exp("cleveland",clf_alg,metric=None,
-#        n_iters=10,opv_exp=opv_exp)
-#    output.save('mult_test_full_4')
-    output=read_output('mult_test_full_4')
-    print( output.diff(True))
+    output=multi_exp("cleveland",clf_alg,metric=None,
+        n_iters=10,opv_exp=opv_exp)
+    output.save('balanced/2')
+#    output=read_output('mult_test_full_4')
+#    print( output.diff(True))

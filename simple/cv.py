@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.model_selection import RepeatedStratifiedKFold
 from skopt import BayesSearchCV
+from collections import defaultdict
 import data,learn,utils
 
 class BayesOptim(object):
@@ -32,7 +33,7 @@ class BalancedSelector(object):
     def __init__(self,k,n_split):
         self.k=k 
         self.n_split=n_split 
-        self.class_counter={}
+        self.class_counter=defaultdict(lambda :0)
 
     def __call__(self,name_i):
         cat_i=name_i.get_cat()
