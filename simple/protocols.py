@@ -57,6 +57,19 @@ class OPVExp(object):
         result_opv=learn.unify_results(partial_opv)
         return result_base,result_opv
 
+class Protocol(object):
+    def __init__(self,clf_algs,metrics,opv_exp=None):
+        if(opv_exp is None):
+            opv_exp=OPVExp()
+        self.clf_algs=clf_algs
+        self.metrics=metrics
+        self.opv_exp=opv_exp
+        
+    def  __call__(self,in_path,n_iters=2):
+        for clf_i in self.clf_algs:
+            for metric_j in self.metrics:
+                output_ij=multi_exp(in_path,clf_i,metric_j,n_iters,self.opv_exp)
+
 def read_output(in_path):
     paths=utils.get_paths(in_path)
     base,opv=[],[]
@@ -69,7 +82,6 @@ def read_output(in_path):
     return ExpOutput(base,opv)
 
 def find_opv(in_i,clf_alg,metric=None,selector=None):
-#    selector=cv.SplitSelector(0,3)
     train_i,valid_i=in_i.split(selector)
     hyper_i=find_hyperparams(train_i,clf_alg)
     ens_i=clf_alg.fit(train_i,hyper_i)
@@ -110,12 +122,12 @@ def gen_splits(data_i,n_splits=10):
         out_k,in_k=data_i.split(selector_k)
         yield in_k,out_k
 
-def metric_exp(in_path,clf_alg):
-    all_metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
-    pair=[exp(in_path,clf_alg,metric_i) 
-            for metric_i in all_metrics]
-    for pair_i in pair:
-        show_result(*pair_i)
+#def metric_exp(in_path,clf_alg):
+#    all_metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
+#    pair=[exp(in_path,clf_alg,metric_i) 
+#            for metric_i in all_metrics]
+#    for pair_i in pair:
+#        show_result(*pair_i)
 
 def multi_exp(in_path,clf_alg,metric=None,n_iters=2,opv_exp=None):
     if(opv_exp is None):

@@ -42,36 +42,32 @@ class BalancedSelector(object):
         self.class_counter[cat_i]+=1
         return select
 
-@utils.dir_exp
-def gen_votes(in_path,out_path,n_split=5):
-    data_i=data.read_data(in_path)
-    data_i.norm()
-    train_i,test_i=data_i.split()
-    
-    train_tuple=train_i.as_dataset()
-#    clf,params=bag_clf()
-    clf,params=rf_clf()
-    bayes_cf=BayesOptim(clf,params)
-    best_estm,best_params= bayes_cf(*train_tuple[:2])
-#    n_clfs=best_params['n_estimators'] #best_estm.estimators_)
-
-    votes=learn.Votes([])#n_clfs)
-    for k in range(n_split):
-        selector_k=SplitSelector(k, n_split)
-        in_k,out_k=data_i.split(selector_k)
-        in_tuple=in_k.as_dataset()         
-        clf_k=clf(**best_params)
-        clf_k.fit(*in_tuple[:2])
-        out_tuple=out_k.as_dataset() 
-        for j,estm_j in enumerate(clf_k.estimators_):
-            if(len(votes)<(j+1)):
-                votes.results.append(learn.Result())
-            y_pred_j=estm_j.predict_proba(out_tuple[0])
-            for name_t,pred_t in zip(out_tuple[-1],y_pred_j):
-           	    votes.results[j][name_t]=pred_t
-    votes.results=[result_j for result_j in votes.results
-                    if(len(result_j)>0)]
-    votes.save(out_path)     
+#@utils.dir_exp
+#def gen_votes(in_path,out_path,n_split=5):
+#    data_i=data.read_data(in_path)
+#    data_i.norm()
+#    train_i,test_i=data_i.split()
+#    train_tuple=train_i.as_dataset()
+#    clf,params=rf_clf()
+#    bayes_cf=BayesOptim(clf,params)
+#    best_estm,best_params= bayes_cf(*train_tuple[:2])
+#    votes=learn.Votes([])#n_clfs)
+#    for k in range(n_split):
+#        selector_k=SplitSelector(k, n_split)
+#        in_k,out_k=data_i.split(selector_k)
+#        in_tuple=in_k.as_dataset()         
+#        clf_k=clf(**best_params)
+#        clf_k.fit(*in_tuple[:2])
+#        out_tuple=out_k.as_dataset() 
+#        for j,estm_j in enumerate(clf_k.estimators_):
+#            if(len(votes)<(j+1)):
+#                votes.results.append(learn.Result())
+#            y_pred_j=estm_j.predict_proba(out_tuple[0])
+#            for name_t,pred_t in zip(out_tuple[-1],y_pred_j):
+#           	    votes.results[j][name_t]=pred_t
+#    votes.results=[result_j for result_j in votes.results
+#                    if(len(result_j)>0)]
+#    votes.save(out_path)     
 
 if __name__ == "__main__":
     gen_votes("splits",'RF')#,"0")
