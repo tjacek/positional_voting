@@ -122,18 +122,12 @@ def gen_splits(data_i,n_splits=10):
         out_k,in_k=data_i.split(selector_k)
         yield in_k,out_k
 
-#def metric_exp(in_path,clf_alg):
-#    all_metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
-#    pair=[exp(in_path,clf_alg,metric_i) 
-#            for metric_i in all_metrics]
-#    for pair_i in pair:
-#        show_result(*pair_i)
-
 def multi_exp(in_path,clf_alg,metric=None,n_iters=2,opv_exp=None):
     if(opv_exp is None):
         opv_exp=OPVExp()
     all_base,all_opv=[],[]
     for i in range(n_iters):
+        print(i)
         base_i,opv_i=opv_exp(in_path,clf_alg,metric)
         all_base.append(base_i)
         all_opv.append(opv_i)
@@ -148,10 +142,11 @@ def show_result(result_base,result_opv=None):
 if __name__ == "__main__":
     clf_alg=clfs.rf_clf()
 #    selector=cv.SplitSelector(0,2)
-    selector=cv.BalancedSelector(0,2)
+    selector=cv.BalancedSelector(0,3)
     opv_exp=OPVExp(limit=12,selector=selector)
     output=multi_exp("cleveland",clf_alg,metric=None,
         n_iters=10,opv_exp=opv_exp)
-    output.save('balanced/2')
-#    output=read_output('mult_test_full_4')
-#    print( output.diff(True))
+    output.save('balanced/3')
+
+#    output=read_output('balanced/2')
+#    print( output.mean())
