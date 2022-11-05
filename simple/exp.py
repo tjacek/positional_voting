@@ -13,3 +13,10 @@ def cv_exp(in_path="cleveland",out_path='balanced',pairs=None,
         output=protocols.multi_exp(in_path,clf_alg,metric=None,
             n_iters=n_iters,opv_exp=opv_exp)
         output.save(f'{out_path}/{pair_i[1]}')
+
+def inspect(in_path):
+    for path_i in utils.get_paths(in_path):
+        out_i=protocols.read_output(path_i)
+        print(f"{path_i}mean:{out_i.mean()}diff{out_i.diff(True)}")
+
+inspect("balanced")
