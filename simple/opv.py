@@ -3,7 +3,7 @@ from sklearn.metrics import precision_recall_fscore_support,confusion_matrix
 from sklearn.metrics import classification_report,accuracy_score,f1_score
 from sklearn.metrics import roc_auc_score
 from scipy.optimize import differential_evolution
-import data,learn
+import data,learn,utils
 
 class PrefDict(data.DataDict):
     def n_cand(self):
@@ -75,23 +75,23 @@ class LossFun(object):
         y_true,y_pred,names=result.get_pred()
         return self.metric(y_true,y_pred)
 
+@utils.named_function('auc')
 def auc_metric(y_true,y_pred):
     y_true= learn.to_one_hot(y_true,n_cats=None)
     y_pred= learn.to_one_hot(y_pred,n_cats=None)
     auc_ovo=roc_auc_score(y_true,y_pred,multi_class="ovo")
     return -1.0*auc_ovo
 
+@utils.named_function('acc')
 def acc_metric(y_true,y_pred):
     return -1.0*accuracy_score(y_true,y_pred)
 
+@utils.named_function('f1')
 def f1_metric(y_true,y_pred):
     return -1.0*f1_score(y_true,y_pred,average='macro')
 
-def to_opv(loss,maxiter=100,init='latinhypercube'):
-    return [ OPV(loss_i,maxiter,init) for loss_i in loss]
+#def to_opv(loss,maxiter=100,init='latinhypercube'):
+#    return [ OPV(loss_i,maxiter,init) for loss_i in loss]
 
 if __name__ == "__main__":
-#    votes=learn.read_votes('cleveland_RF')
-#    pref=make_pref(votes)
-#    optim(pref)
-    to_opv([acc_metric,acc_metric,f1_metric])
+   print(str(f1_metric))

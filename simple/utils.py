@@ -20,3 +20,14 @@ def dir_exp(fun):
             out_i=f'{out_path}/{path_i}'
             fun(in_i,out_i)
     return helper
+
+def named_function(name):
+    def inner_function(fun):
+        class Inner(object):
+            def __call__(self, *args, **kwargs):
+                return fun(*args, **kwargs)
+
+            def __str__(self):
+                return name
+        return Inner() 
+    return inner_function
