@@ -65,10 +65,12 @@ class Protocol(object):
         self.metrics=metrics
         self.opv_exp=opv_exp
         
-    def  __call__(self,in_path,n_iters=2):
+    def  __call__(self,in_path,out_path,n_iters=2):
+        utils.make_dir(out_path)
         for clf_i in self.clf_algs:
             for metric_j in self.metrics:
                 output_ij=multi_exp(in_path,clf_i,metric_j,n_iters,self.opv_exp)
+                output_ij.save(f"{out_path}/{clf_i}_{metric_j}")
 
 def read_output(in_path):
     paths=utils.get_paths(in_path)
