@@ -17,7 +17,8 @@ def cv_exp(in_path="cleveland",out_path='balanced',pairs=None,
 def inspect(in_path):
     for path_i in utils.get_paths(in_path):
         out_i=protocols.read_output(path_i)
-        print(f"{path_i}mean:{out_i.mean()}diff{out_i.diff(True)}")
+        (base_i,opv_i),diff_i=out_i.mean(),out_i.diff(True)
+        print(f"{path_i}base:{base_i:2.2f},opv:{opv_i:2.2f},diff{diff_i:2.4f}")
 
 def make_protocol():
     selector=cv.BalancedSelector(0,4)
@@ -26,6 +27,6 @@ def make_protocol():
     metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
     return protocols.Protocol(clf_algs,metrics,opv_exp=opv_exp)
 
-protocol= make_protocol()
-protocol("cleveland",'full',n_iters=10)
-#inspect("balanced")
+#protocol= make_protocol()
+#protocol("cleveland",'full',n_iters=10)
+inspect("full")
