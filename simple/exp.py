@@ -27,6 +27,6 @@ def make_protocol():
     metrics=[opv.auc_metric,opv.acc_metric,opv.f1_metric]
     return protocols.Protocol(clf_algs,metrics,opv_exp=opv_exp)
 
-#protocol= make_protocol()
-#protocol("cleveland",'full',n_iters=10)
-inspect("full")
+protocol= make_protocol()
+protocol("datasets/cmc.json",'cmc',n_iters=10)
+#inspect("full")

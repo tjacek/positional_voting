@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn import preprocessing
+import random
 import json,random,os.path
 
 class DataDict(dict):
@@ -32,11 +33,14 @@ class DataDict(dict):
             names=self.names()
         return [ name_i.get_cat() for name_i in names]
 
-    def split(self,selector=None):
+    def split(self,selector=None,shuffle=True):
         if(selector is None):
             selector=lambda name_i: name_i[1]==0
+        names=self.names()
+        if(shuffle):
+            random.shuffle(names)
         train,test=[],[]
-        for name_i in self.names():#keys():
+        for name_i in names:
             pair_i=(name_i,self[name_i])
             if(selector(name_i)):
                 train.append(pair_i)
