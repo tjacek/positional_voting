@@ -4,9 +4,11 @@ class OutputDict(dict):
     def __init__(self, arg=[]):
         super(OutputDict, self).__init__(arg)
     
-    def show(self):
-        for name_i,out_i in self.keys():
-            print(f"{name_i},{str(out_i.diff())}")
+    def show(self,fun=None):
+        if(fun is None):
+            fun=lambda out_i:out_i.diff(True)
+        for name_i,out_i in self.items():
+            print(f"{name_i},{fun(out_i):2.4f}")
 
 def format_output(in_path):
     all_outputs={}	
