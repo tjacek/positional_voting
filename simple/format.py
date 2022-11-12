@@ -4,11 +4,16 @@ class OutputDict(dict):
     def __init__(self, arg=[]):
         super(OutputDict, self).__init__(arg)
     
-    def show(self,fun=None):
+    def show(self,show=True,fun=None):
         if(fun is None):
             fun=lambda out_i:f"{out_i.diff(True):2.4f}"
         for name_i,out_i in self.items():
-            print(f"{name_i},{fun(out_i)}")
+            desc_i=",".join(name_i.split("_"))
+            line=f"{desc_i},{fun(out_i)}"
+            if(show):
+                print(line)
+            else:
+                yield line
 
 def format_output(in_path):
     all_outputs={}	
@@ -26,4 +31,5 @@ def all_diff(output):
 #def line(name_i):
 
 d=format_output("cmc")
-all_diff(d)
+print(list(d.show(False)))
+#all_diff(d)
