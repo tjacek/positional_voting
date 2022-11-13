@@ -1,10 +1,11 @@
+import pandas as pd
 import protocols,utils
 
 class OutputDict(dict):
     def __init__(self, arg=[]):
         super(OutputDict, self).__init__(arg)
-    
-    def show(self,show=True,fun=None):
+
+    def as_lines(self,show=True,fun=None):
         if(fun is None):
             fun=lambda out_i:f"{out_i.diff(True):2.4f}"
         for name_i,out_i in self.items():
@@ -14,6 +15,10 @@ class OutputDict(dict):
                 print(line)
             else:
                 yield line
+
+    def as_df(self,fun=None):
+        lines=list(self.as_lines(show=False,fun=fun))
+        return pd.DataFrame(lines,columns=None)
 
 def format_output(in_path):
     all_outputs={}	
@@ -27,9 +32,8 @@ def all_diff(output):
         lines=[ "%.4f-%.4f" % (base_i,opv_i)
             for base_i,opv_i in zip(*out_i.get_acc())]
         return ",".join(lines)
-    return output.show(helper)	 
-#def line(name_i):
+    return output.as_lines(helper)	 
 
 d=format_output("cmc")
-print(list(d.show(False)))
+print(d.as_df())
 #all_diff(d)
