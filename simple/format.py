@@ -20,6 +20,16 @@ class OutputDict(dict):
         lines=list(self.as_lines(show=False,fun=fun))
         return pd.DataFrame(lines,columns=None)
 
+def full_output(in_path):
+    lines=[]
+    for path_i in utils.get_paths(in_path):
+        out_i=format_output(path_i)
+        name_i=path_i.split('/')[-1]
+        lines+=[ f"{name_i},{line_j}" 
+            for line_j in out_i.as_lines(show=False)]
+        print(len(lines))
+    return pd.DataFrame(lines,columns=None)
+
 def format_output(in_path):
     all_outputs={}	
     for path_i in utils.get_paths(in_path):	
@@ -34,6 +44,8 @@ def all_diff(output):
         return ",".join(lines)
     return output.as_lines(helper)	 
 
-d=format_output("cmc")
-print(d.as_df())
+d=full_output("full")
+
+#d=format_output("cmc")
+print(d)
 #all_diff(d)
