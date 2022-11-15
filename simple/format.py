@@ -20,7 +20,9 @@ class OutputDict(dict):
         lines=list(self.as_lines(show=False,fun=fun))
         return pd.DataFrame(lines,columns=None)
 
-def full_output(in_path):
+def full_output(in_path,cols=None):
+    if(cols is None):
+        cols=["Dataset","Clf","Metric"]
     lines=[]
     for path_i in utils.get_paths(in_path):
         out_i=format_output(path_i)
@@ -28,7 +30,9 @@ def full_output(in_path):
         lines+=[ f"{name_i},{line_j}" 
             for line_j in out_i.as_lines(show=False)]
         print(len(lines))
-    return pd.DataFrame(lines,columns=None)
+    cols+=['ac']
+    print(cols)
+    return pd.DataFrame(lines,columns=cols)
 
 def format_output(in_path):
     all_outputs={}	
