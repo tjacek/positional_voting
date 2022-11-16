@@ -27,7 +27,7 @@ def full_output(in_path,cols=None):
     for path_i in utils.get_paths(in_path):
         out_i=format_output(path_i)
         name_i=path_i.split('/')[-1]
-        lines+=[ f"{name_i},{line_j}" 
+        lines+=[ f"{name_i},{line_j}".split(',') 
             for line_j in out_i.as_lines(show=False)]
         print(len(lines))
     cols+=['ac']
