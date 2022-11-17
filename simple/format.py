@@ -7,7 +7,7 @@ class OutputDict(dict):
 
     def as_lines(self,show=True,fun=None):
         if(fun is None):
-            fun=lambda out_i:f"{out_i.diff(True):2.4f}"
+            fun=Stats() #lambda out_i:f"{out_i.diff(True):2.4f}"
         for name_i,out_i in self.items():
             desc_i=",".join(name_i.split("_"))
             line=f"{desc_i},{fun(out_i)}"
@@ -20,9 +20,18 @@ class OutputDict(dict):
         lines=list(self.as_lines(show=False,fun=fun))
         return pd.DataFrame(lines,columns=None)
 
-def full_output(in_path,cols=None):
+class Stats(object):
+    def __call__(self,out_i):
+        return out_i:f"{out_i.diff(True):2.4f}"
+
+    def cols(self):
+        return ['ac']
+
+def full_output(in_path,stats=None,cols=None):
     if(cols is None):
         cols=["Dataset","Clf","Metric"]
+    if(stats):
+        stats=Stats()
     lines=[]
     for path_i in utils.get_paths(in_path):
         out_i=format_output(path_i)
@@ -30,7 +39,7 @@ def full_output(in_path,cols=None):
         lines+=[ f"{name_i},{line_j}".split(',') 
             for line_j in out_i.as_lines(show=False)]
         print(len(lines))
-    cols+=['ac']
+    cols+= stats.cols()  #['ac']
     print(cols)
     return pd.DataFrame(lines,columns=cols)
 
