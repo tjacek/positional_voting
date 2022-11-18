@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import protocols,utils
 
 class OutputDict(dict):
@@ -22,24 +23,32 @@ class OutputDict(dict):
 
 class Stats(object):
     def __call__(self,out_i):
-        return out_i:f"{out_i.diff(True):2.4f}"
+        return f"{out_i.diff(True):2.4f}"
 
     def cols(self):
         return ['ac']
 
+class StatsBasic(object):
+    def __call__(self,out_i):
+        acc=out_i.diff(max=False)
+        return f"{np.mean(acc):2.4f},{np.std(acc):2.4f}"
+
+    def cols(self):
+        return ['mean','std']
+
 def full_output(in_path,stats=None,cols=None):
     if(cols is None):
         cols=["Dataset","Clf","Metric"]
-    if(stats):
-        stats=Stats()
+    if(stats is None):
+        stats=StatsBasic()
     lines=[]
     for path_i in utils.get_paths(in_path):
         out_i=format_output(path_i)
         name_i=path_i.split('/')[-1]
         lines+=[ f"{name_i},{line_j}".split(',') 
-            for line_j in out_i.as_lines(show=False)]
+            for line_j in out_i.as_lines(show=False,fun=stats)]
         print(len(lines))
-    cols+= stats.cols()  #['ac']
+    cols+= stats.cols()
     print(cols)
     return pd.DataFrame(lines,columns=cols)
 
