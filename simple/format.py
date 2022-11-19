@@ -21,20 +21,13 @@ class OutputDict(dict):
         lines=list(self.as_lines(show=False,fun=fun))
         return pd.DataFrame(lines,columns=None)
 
-class Stats(object):
-    def __call__(self,out_i):
-        return f"{out_i.diff(True):2.4f}"
-
-    def cols(self):
-        return ['ac']
-
 class StatsBasic(object):
     def __call__(self,out_i):
         acc=out_i.diff(max=False)
-        return f"{np.mean(acc):2.4f},{np.std(acc):2.4f}"
+        return f"{np.mean(acc):2.4f},{np.std(acc):2.4f},{np.amax(acc):2.4f}"
 
     def cols(self):
-        return ['mean','std']
+        return ['mean','std','max']
 
 def full_output(in_path,stats=None,cols=None):
     if(cols is None):
