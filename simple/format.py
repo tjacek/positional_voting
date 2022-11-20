@@ -57,10 +57,18 @@ def all_diff(output):
         lines=[ "%.4f-%.4f" % (base_i,opv_i)
             for base_i,opv_i in zip(*out_i.get_acc())]
         return ",".join(lines)
-    return output.as_lines(helper)	 
+    return output.as_lines(helper)
+
+def find_best(df):
+    datasets = df['Dataset'].unique() 
+    for data_i in datasets:
+        df_i= df[df['Dataset']==data_i]
+        line_i= df_i[df_i['mean'].max()==df_i['mean']]
+        print(line_i)
+#        print(datasets)
 
 d=full_output("full")
 
 #d=format_output("cmc")
-print(d)
+find_best(d)
 #all_diff(d)
