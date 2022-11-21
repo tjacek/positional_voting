@@ -8,7 +8,7 @@ class OutputDict(dict):
 
     def as_lines(self,show=True,fun=None):
         if(fun is None):
-            fun=Stats() #lambda out_i:f"{out_i.diff(True):2.4f}"
+            fun=Stats() 
         for name_i,out_i in self.items():
             desc_i=",".join(name_i.split("_"))
             line=f"{desc_i},{fun(out_i)}"
@@ -60,15 +60,18 @@ def all_diff(output):
     return output.as_lines(helper)
 
 def find_best(df):
+    best=[]
     datasets = df['Dataset'].unique() 
     for data_i in datasets:
         df_i= df[df['Dataset']==data_i]
         line_i= df_i[df_i['mean'].max()==df_i['mean']]
-        print(line_i)
+        best.append(line_i)
+    return pd.concat(best)
+#        print(type(line_i))
 #        print(datasets)
 
 d=full_output("full")
 
 #d=format_output("cmc")
-find_best(d)
+print(find_best(d))
 #all_diff(d)
