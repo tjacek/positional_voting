@@ -23,7 +23,8 @@ class OutputDict(dict):
 
 class StatsBasic(object):
     def __call__(self,out_i):
-        acc=out_i.diff(max=False)
+        acc=out_i.aggr_diff()
+        print(acc)
         return f"{np.mean(acc):2.4f},{np.std(acc):2.4f},{np.amax(acc):2.4f}"
 
     def cols(self):
@@ -67,11 +68,8 @@ def find_best(df):
         line_i= df_i[df_i['mean'].max()==df_i['mean']]
         best.append(line_i)
     return pd.concat(best)
-#        print(type(line_i))
-#        print(datasets)
 
 d=full_output("full")
-
-#d=format_output("cmc")
+print(d)
 print(find_best(d))
 #all_diff(d)

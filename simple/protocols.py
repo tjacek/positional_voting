@@ -20,6 +20,10 @@ class ExpOutput(object):
     def mean(self):
         base_acc,opv_acc=self.get_acc()
         return np.mean(base_acc),np.mean(opv_acc)
+
+    def std(self):
+        base_acc,opv_acc=self.get_acc()
+        return np.std(base_acc),np.std(opv_acc)
     
     def diff(self,max=False):
         base_acc,opv_acc=self.get_acc()
@@ -27,6 +31,13 @@ class ExpOutput(object):
         if(max):
             return np.amax(diff)
         return diff
+
+    def aggr_diff(self):
+        base_mean,opv_mean=self.mean()
+        mean=base_mean-opv_mean
+        base_std,opv_std=self.std()
+        std=base_std-opv_std
+        return mean,std
 
     def save(self,out_path):
         utils.make_dir(out_path)
