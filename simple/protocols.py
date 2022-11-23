@@ -6,16 +6,20 @@ class ExpOutput(object):
     def __init__(self,base_results,opv_results):
         self.base_results=base_results
         self.opv_results=opv_results
+        self.base_acc=None
+        self.opv_acc=None
 
     def __len__(self):
         return len(self.base_results)
 
     def get_acc(self):
-        base_acc=[base_i.get_acc() 
-            for base_i in self.base_results]
-        opv_acc=[opv_i.get_acc() 
-            for opv_i in self.opv_results]
-        return base_acc,opv_acc        
+        if(self.base_acc is None):
+            self.base_acc=[base_i.get_acc() 
+                    for base_i in self.base_results]
+        if(self.opv_acc is None):
+            self.opv_acc=[opv_i.get_acc() 
+                for opv_i in self.opv_results]
+        return self.base_acc,self.opv_acc        
 
     def mean(self):
         base_acc,opv_acc=self.get_acc()
