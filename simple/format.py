@@ -69,7 +69,12 @@ def find_best(df):
         best.append(line_i)
     return pd.concat(best)
 
+def comp(df):
+    df_best= find_best(df)
+    better= df_best[df_best['mean']>0]
+    print(better)
+
 d=full_output("full")
 print(d)
-print(find_best(d))
+print(comp(d))
 #all_diff(d)
