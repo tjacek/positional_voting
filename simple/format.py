@@ -71,6 +71,7 @@ def find_best(df):
 
 def comp(df):
     df_best= find_best(df)
+    df_best['mean']=pd.to_numeric( df_best['mean'])
     better= df_best[df_best['mean']>0]
     print(better)
 
