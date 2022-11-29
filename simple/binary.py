@@ -1,12 +1,17 @@
 from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
+from sklearn.base import BaseEstimator, ClassifierMixin
 import protocols,data,clfs
 
-class SimpleBinary(object):
+class SimpleBinary(BaseEstimator, ClassifierMixin):
     def __init__(self,n_hidden=25):
         self.n_hidden=n_hidden
         	
     def fit(self,data_i):
+        params={'dims':train.dim()[0],'n_cats':2}
+        models,accuracy=[],[]
+        for cat_i in range(n_cats):
+            model_i=SimpleNN(n_hidden=n_hidden)(params)
         return None
 
 
