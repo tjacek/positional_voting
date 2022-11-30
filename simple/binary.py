@@ -7,7 +7,7 @@ class SimpleBinary(BaseEstimator, ClassifierMixin):
     def __init__(self,n_hidden=25):
         self.n_hidden=n_hidden
         	
-    def fit(self,data_i):
+    def fit(self,data_i,targets):
         params={'dims':train.dim()[0],'n_cats':2}
         models,accuracy=[],[]
         for cat_i in range(n_cats):
@@ -35,7 +35,7 @@ def binary_clf():
     params={'n_hidden': [25,50,100]}
     return clfs.ClfAlg(clf,params,"binary")
 
-d=data.read_data("cleveland.json")
+d=data.read_data("datasets/cmc.json")
 train=d.split()[0]
 clf_alg=binary_clf()
 protocols.find_hyperparams(train,clf_alg)
