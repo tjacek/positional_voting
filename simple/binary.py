@@ -8,9 +8,10 @@ class SimpleBinary(BaseEstimator, ClassifierMixin):
         self.n_hidden=n_hidden
         	
     def fit(self,data_i,targets):
-        params={'dims':train.dim()[0],'n_cats':2}
+        params={'dims':data_i.shape[0],'n_cats':data_i.shape[1]}
+        raise Exception(params)
         models,accuracy=[],[]
-        for cat_i in range(n_cats):
+        for cat_i in range(params['n_cats']):
             model_i=SimpleNN(n_hidden=n_hidden)(params)
         return None
 
