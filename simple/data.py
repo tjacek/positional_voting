@@ -22,7 +22,7 @@ class DataDict(dict):
     def as_dataset(self):
         names=self.names()
         return self.get_X(names),self.get_labels(names),names
-    
+
     def get_X(self,names=None):
         if(names is None):
             names=self.names()
@@ -47,6 +47,12 @@ class DataDict(dict):
             else:
                 test.append(pair_i)
         return self.__class__(train),self.__class__(test)
+    
+    def subsample(self,k):
+        names=list(self.keys())[:k]
+#        raise Exception( self[names[0]])
+        raw_dict = { (name_i,self[name_i]) for name_i in names}    
+        return DataDict(raw_dict)
 
     def save(self,out_path):
         raw_dict={}

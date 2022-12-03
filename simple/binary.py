@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow.keras
 import tensorflow.keras
 from tensorflow.keras.models import Sequential
@@ -14,16 +15,21 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         self.models=[]
 
     def fit(self,data_i,targets):
-        params={'dims':data_i.shape[0],'n_cats':data_i.shape[1]}
-#        raise Exception(params)
+        params={'dims':data_i.shape[1],'n_cats':2}#data_i.shape[1]}
 #        accuracy=[],[]
         for cat_i in range(params['n_cats']):
             model_i=SimpleNN(n_hidden=self.n_hidden)(params)
             self.models.append(model_i)
         return None
 
-    def predict(self):
-        return None
+    def predict(self,X):
+        y=[]
+        for model_i in self.models:
+            y_i=model_i.predict(X)
+            y.append(y)
+        y=np.array(y)
+        target=np.array(y,axis=0)
+        return target
 
 
 class SimpleNN(object):
@@ -47,6 +53,8 @@ def binary_clf():
     return clfs.ClfAlg(clf,params,"binary")
 
 d=data.read_data("cleveland.json")
+d=d.subsample(100)
+print(len(d))
 train=d.split()[0]
-clf_alg=binary_clf()
-protocols.find_hyperparams(train,clf_alg)
+#clf_alg=binary_clf()
+#protocols.find_hyperparams(train,clf_alg)
