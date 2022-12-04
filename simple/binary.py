@@ -16,19 +16,18 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
 
     def fit(self,data_i,targets):
         params={'dims':data_i.shape[1],'n_cats':2}#data_i.shape[1]}
-#        accuracy=[],[]
         for cat_i in range(params['n_cats']):
             model_i=SimpleNN(n_hidden=self.n_hidden)(params)
             self.models.append(model_i)
-        return None
+        return self
 
     def predict(self,X):
         y=[]
         for model_i in self.models:
             y_i=model_i.predict(X)
-            y.append(y)
+            y.append(y_i)
         y=np.array(y)
-        target=np.array(y,axis=0)
+        target=np.sum(y,axis=0)
         return target
 
 
@@ -52,9 +51,13 @@ def binary_clf():
     params={'n_hidden': [25,50,100]}
     return clfs.ClfAlg(clf,params,"binary")
 
-d=data.read_data("cleveland.json")
-d=d.subsample(100)
-print(len(d))
+d=data.read_data("wine.json")
+#d=d.subsample(100)
+#print(len(d))
 train=d.split()[0]
-#clf_alg=binary_clf()
+clf_alg=BinaryEnsemble()#binary_clf()
+X,y,names=train.as_dataset()
+clf_alg.fit(X,y)
+y=clf_alg.predict(X)
+print(y)
 #protocols.find_hyperparams(train,clf_alg)
