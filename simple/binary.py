@@ -28,7 +28,7 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
             y.append(y_i)
         y=np.array(y)
         target=np.sum(y,axis=0)
-        return target
+        return np.argmax(target,axis=1)
 
 
 class SimpleNN(object):
@@ -55,9 +55,10 @@ d=data.read_data("wine.json")
 #d=d.subsample(100)
 #print(len(d))
 train=d.split()[0]
-clf_alg=BinaryEnsemble()#binary_clf()
-X,y,names=train.as_dataset()
-clf_alg.fit(X,y)
-y=clf_alg.predict(X)
-print(y)
-#protocols.find_hyperparams(train,clf_alg)
+#clf_alg=BinaryEnsemble()
+clf_alg=binary_clf()
+#X,y,names=train.as_dataset()
+#clf_alg.fit(X,y)
+#y=clf_alg.predict(X)
+#print(y)
+protocols.find_hyperparams(train,clf_alg)
