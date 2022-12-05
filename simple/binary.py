@@ -12,24 +12,39 @@ import protocols,data,clfs
 class BinaryEnsemble(BaseEstimator, ClassifierMixin):
     def __init__(self,n_hidden=25):
         self.n_hidden=n_hidden
-        self.models=[]
+        self.n_epochs=100
+        self.batch_size=32
+        self.extractors=[]
 
     def fit(self,data_i,targets):
-        params={'dims':data_i.shape[1],'n_cats':2}#data_i.shape[1]}
-        for cat_i in range(params['n_cats']):
+        n_cats=max(targets)+1
+        for cat_i in range(n_cats):
+            y_i=binarize(cat_i,targets)
+            params={'dims':data_i.shape[1],'n_cats':2}
             model_i=SimpleNN(n_hidden=self.n_hidden)(params)
-            self.models.append(model_i)
+            model_i.fit(data_i,y_i,epochs=self.n_epochs,batch_size=self.batch_size)
+            extractor_i=Model(inputs=model_i.input,
+                outputs=model_i.get_layer('hidden').output)  
+            self.extractors.append(extractor_i)
         return self
 
     def predict(self,X):
         y=[]
-        for model_i in self.models:
-            y_i=model_i.predict(X)
+        for extractor_i in self.extractors:
+            binary_i=extractor_i.predict(X)
+            concat_i=np.concatenate([X,binary_i],axis=1)
+            raise Exception(concat_i.shape)
             y.append(y_i)
         y=np.array(y)
-        target=np.sum(y,axis=0)
-        return np.argmax(target,axis=1)
+        target=np.sum(y,axis=1)
+        raise Exception(y.shape)
+        return np.argmax(target,axis=0)
 
+def binarize(cat_i,targets):
+    y_i=np.zeros((len(targets),2))
+    for j,target_j in enumerate(targets):
+        y_i[j][int(target_j==cat_i)]=1
+    return y_i
 
 class SimpleNN(object):
     def __init__(self,n_hidden=10):
@@ -55,10 +70,10 @@ d=data.read_data("wine.json")
 #d=d.subsample(100)
 #print(len(d))
 train=d.split()[0]
-#clf_alg=BinaryEnsemble()
-clf_alg=binary_clf()
-#X,y,names=train.as_dataset()
-#clf_alg.fit(X,y)
-#y=clf_alg.predict(X)
-#print(y)
-protocols.find_hyperparams(train,clf_alg)
+clf_alg=BinaryEnsemble()
+#clf_alg=binary_clf()
+X,y,names=train.as_dataset()
+clf_alg.fit(X,y)
+y=clf_alg.predict(X)
+print(y)
+#protocols.find_hyperparams(train,clf_alg)
