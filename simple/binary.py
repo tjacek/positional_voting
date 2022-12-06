@@ -29,16 +29,19 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self,X):
-        y=[]
-        for extractor_i in self.extractors:
-            binary_i=extractor_i.predict(X)
-            concat_i=np.concatenate([X,binary_i],axis=1)
-            raise Exception(concat_i.shape)
-            y.append(y_i)
+        binary= self.binary_features(X)
         y=np.array(y)
         target=np.sum(y,axis=1)
         raise Exception(y.shape)
         return np.argmax(target,axis=0)
+
+    def binary_features(X):
+        binary=[]
+        for extractor_i in self.extractors:
+            binary_i=extractor_i.predict(X)
+            concat_i=np.concatenate([X,binary_i],axis=1)
+            binary.append(y_i)
+        return binary
 
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))
