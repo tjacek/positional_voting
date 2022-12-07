@@ -7,6 +7,7 @@ from tensorflow.keras import regularizers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.linear_model import LogisticRegression
 import protocols,data,clfs
 
 class BinaryEnsemble(BaseEstimator, ClassifierMixin):
@@ -15,11 +16,15 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         self.n_epochs=100
         self.batch_size=32
         self.extractors=[]
+        self.clfs=[]
 
     def fit(self,X,targets):
         self.make_extractor(X,targets)
-        features= self.binary_features(X)
-        raise Exception(features[0].shape)
+        binary= self.binary_features(X)
+        LR=LogisticRegression(solver='liblinear')
+        for binary_i in binary:
+            clf_i=LR.fit(binary_i,targets)
+            self.clfs.append(clf_i)
         return self
 
     def make_extractor(self,X,targets):
@@ -36,15 +41,13 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
 
     def predict(self,X):
         binary= self.binary_features(X)
+        y=[]
+        for i,binary_i in enumerate(binary):
+            y_i=self.clfs[i].predict_proba(binary_i)
+            y.append(y_i)
         y=np.array(y)
-        target=np.sum(y,axis=1)
-        raise Exception(y.shape)
-        return np.argmax(target,axis=0)
-
-#    def full_features(self,X):
-#        binary= self.binary_features(X)
-#        return [np.concatenate([X,binary_i],axis=0) 
-#            for binary_i in binary]
+        target=np.sum(y,axis=0)
+        return np.argmax(target,axis=1)
     
     def binary_features(self,X):
         binary=[]
