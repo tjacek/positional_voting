@@ -16,17 +16,23 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         self.batch_size=32
         self.extractors=[]
 
-    def fit(self,data_i,targets):
+    def fit(self,X,targets):
+        self.make_extractor(X,targets)
+        features= self.binary_features(X)
+        raise Exception(features[0].shape)
+        return self
+
+    def make_extractor(self,X,targets):
         n_cats=max(targets)+1
         for cat_i in range(n_cats):
             y_i=binarize(cat_i,targets)
-            params={'dims':data_i.shape[1],'n_cats':2}
+            params={'dims':X.shape[1],'n_cats':2}
             model_i=SimpleNN(n_hidden=self.n_hidden)(params)
-            model_i.fit(data_i,y_i,epochs=self.n_epochs,batch_size=self.batch_size)
+            model_i.fit(X,y_i,epochs=self.n_epochs,batch_size=self.batch_size)
             extractor_i=Model(inputs=model_i.input,
                 outputs=model_i.get_layer('hidden').output)  
             self.extractors.append(extractor_i)
-        return self
+        return self.extractors        
 
     def predict(self,X):
         binary= self.binary_features(X)
@@ -35,12 +41,17 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         raise Exception(y.shape)
         return np.argmax(target,axis=0)
 
-    def binary_features(X):
+#    def full_features(self,X):
+#        binary= self.binary_features(X)
+#        return [np.concatenate([X,binary_i],axis=0) 
+#            for binary_i in binary]
+    
+    def binary_features(self,X):
         binary=[]
         for extractor_i in self.extractors:
             binary_i=extractor_i.predict(X)
             concat_i=np.concatenate([X,binary_i],axis=1)
-            binary.append(y_i)
+            binary.append(concat_i)
         return binary
 
 def binarize(cat_i,targets):
