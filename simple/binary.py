@@ -11,9 +11,9 @@ from sklearn.linear_model import LogisticRegression
 import protocols,data,clfs
 
 class BinaryEnsemble(BaseEstimator, ClassifierMixin):
-    def __init__(self,n_hidden=25):
+    def __init__(self,n_hidden=25,n_epochs=100):
         self.n_hidden=n_hidden
-        self.n_epochs=100
+        self.n_epochs=n_epochs
         self.batch_size=32
         self.extractors=[]
         self.clfs=[]
@@ -80,17 +80,26 @@ class SimpleNN(object):
 
 def binary_clf():
     clf = BinaryEnsemble   
-    params={'n_hidden': [25,50,100]}
+    params={'n_hidden': [25,50,100],
+            'n_epochs': [100,200,300]}
     return clfs.ClfAlg(clf,params,"binary")
 
+def test_bf(d):
+    clf_alg=BinaryEnsemble()
+    train,test=d.split()
+    X,y,names=train.as_dataset()
+    clf_alg.fit(X,y)
+    X,y,names=test.as_dataset()
+    y=clf_alg.predict(X)
+    print(y)
+
+def test_cv(d):
+    train=d.split()[0]
+    clf_alg=binary_clf()
+    best_params=protocols.find_hyperparams(train,clf_alg)
+    print(best_params)
+
 d=data.read_data("wine.json")
+test_cv(d)
 #d=d.subsample(100)
 #print(len(d))
-train=d.split()[0]
-clf_alg=BinaryEnsemble()
-#clf_alg=binary_clf()
-X,y,names=train.as_dataset()
-clf_alg.fit(X,y)
-y=clf_alg.predict(X)
-print(y)
-#protocols.find_hyperparams(train,clf_alg)
