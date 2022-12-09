@@ -8,7 +8,7 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import Input, Model
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
-import protocols,data,clfs
+import protocols,data,clfs,cv,opv
 
 class BinaryEnsemble(BaseEstimator, ClassifierMixin):
     def __init__(self,n_hidden=25,n_epochs=100):
@@ -16,7 +16,7 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         self.n_epochs=n_epochs
         self.batch_size=32
         self.extractors=[]
-        self.clfs=[]
+        self.estimators_=[]
 
     def fit(self,X,targets):
         self.make_extractor(X,targets)
@@ -24,7 +24,7 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         LR=LogisticRegression(solver='liblinear')
         for binary_i in binary:
             clf_i=LR.fit(binary_i,targets)
-            self.clfs.append(clf_i)
+            self.estimators_.append(clf_i)
         return self
 
     def make_extractor(self,X,targets):
@@ -40,15 +40,19 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         return self.extractors        
 
     def predict(self,X):
-        binary= self.binary_features(X)
-        y=[]
-        for i,binary_i in enumerate(binary):
-            y_i=self.clfs[i].predict_proba(binary_i)
-            y.append(y_i)
-        y=np.array(y)
+        y=self.predict_proba(X)
         target=np.sum(y,axis=0)
         return np.argmax(target,axis=1)
     
+    def predict_proba(self,X):
+        binary= self.binary_features(X)
+        y=[]
+        for i,binary_i in enumerate(binary):
+            y_i=self.estimators_[i].predict_proba(binary_i)
+            y.append(y_i)
+        y=np.array(y)
+        return y
+
     def binary_features(self,X):
         binary=[]
         for extractor_i in self.extractors:
@@ -99,7 +103,18 @@ def test_cv(d):
     best_params=protocols.find_hyperparams(train,clf_alg)
     print(best_params)
 
-d=data.read_data("wine.json")
-test_cv(d)
+def binary_protocol():
+    selector=cv.BalancedSelector(0,4)
+    opv_exp=protocols.OPVExp(limit=12,selector=selector)
+    clf_algs=[binary_clf()]#clfs.rf_clf(),clfs.bag_clf()]
+    metrics=[opv.acc_metric]#,opv.auc_metric,opv.f1_metric]
+    return protocols.Protocol(clf_algs,metrics,opv_exp=opv_exp)
+
+#d=data.read_data("wine.json")
+protocol= binary_protocol()
+protocol("wine.json",'wine_',n_iters=2)
+#test_cv(d)
+
+
 #d=d.subsample(100)
 #print(len(d))
