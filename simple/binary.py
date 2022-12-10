@@ -22,9 +22,10 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         self.make_extractor(X,targets)
         binary= self.binary_features(X)
         LR=LogisticRegression(solver='liblinear')
-        for binary_i in binary:
+        for binary_i,extractor_i in zip(binary,self.extractors):
             clf_i=LR.fit(binary_i,targets)
-            self.estimators_.append(clf_i)
+            facade_i=MulticlassFacade(clf_i,extractor_i)
+            self.estimators_.append(facade_i)
         return self
 
     def make_extractor(self,X,targets):
@@ -40,18 +41,14 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
         return self.extractors        
 
     def predict(self,X):
-        y=self.predict_proba(X)
-        target=np.sum(y,axis=0)
-        return np.argmax(target,axis=1)
-    
-    def predict_proba(self,X):
-        binary= self.binary_features(X)
         y=[]
-        for i,binary_i in enumerate(binary):
-            y_i=self.estimators_[i].predict_proba(binary_i)
+        for model_i in self.estimators_:
+#            raise Exception(X.shape)
+            y_i=model_i.predict_proba(X)
             y.append(y_i)
         y=np.array(y)
-        return y
+        target=np.sum(y,axis=0)
+        return np.argmax(target,axis=1)
 
     def binary_features(self,X):
         binary=[]
@@ -81,6 +78,17 @@ class SimpleNN(object):
         model.compile(loss='categorical_crossentropy',optimizer=self.optim, metrics=['accuracy'])
         model.summary()
         return model
+
+class MulticlassFacade(object):
+    def __init__(self,raw_clf,extractor):
+        self.raw_clf=raw_clf
+        self.extractor=extractor
+
+    def predict_proba(self,X):
+#        raise Exception(X.shape)
+        binary_i=self.extractor.predict(X)
+        concat_i=np.concatenate([X,binary_i],axis=1)
+        return self.raw_clf.predict_proba(concat_i)
 
 def binary_clf():
     clf = BinaryEnsemble   
