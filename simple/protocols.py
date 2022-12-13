@@ -72,6 +72,20 @@ class OPVExp(object):
         result_opv=learn.unify_results(partial_opv)
         return result_base,result_opv
 
+from datetime import datetime
+
+class ExpLog(object):
+    def __init__(self):
+        self.types={'clf':[],'metric':[]}
+        self.current={'clf':0,'metric':0}
+
+    def start(self,type_i):
+        self.current[type_i]=datetime.now()
+
+    def close(self,type_i):
+        time_i=datetime.now()-self.current[type_i]
+        self.current[type_i].append(time_i)
+
 class Protocol(object):
     def __init__(self,clf_algs,metrics,opv_exp=None):
         if(opv_exp is None):
