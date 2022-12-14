@@ -82,9 +82,12 @@ class ExpLog(object):
     def start(self,type_i):
         self.current[type_i]=datetime.now()
 
-    def close(self,type_i):
+    def close(self,type_i,name_i):
         time_i=datetime.now()-self.current[type_i]
-        self.current[type_i].append(time_i)
+        self.types[type_i].append((name_i,time_i))
+
+    def __str__(self):
+        return f'{self.types},{self.current}'
 
 class Protocol(object):
     def __init__(self,clf_algs,metrics,opv_exp=None):
@@ -93,13 +96,18 @@ class Protocol(object):
         self.clf_algs=clf_algs
         self.metrics=metrics
         self.opv_exp=opv_exp
+        self.exp_log=ExpLog()
         
     def  __call__(self,in_path,out_path,n_iters=2):
         utils.make_dir(out_path)
         for clf_i in self.clf_algs:
+            self.exp_log.start('clf')
             for metric_j in self.metrics:
+                self.exp_log.start('metric')
                 output_ij=multi_exp(in_path,clf_i,metric_j,n_iters,self.opv_exp)
                 output_ij.save(f"{out_path}/{clf_i}_{metric_j}")
+                self.exp_log.close('metric',str(metric_j))
+            self.exp_log.close('clf',str(clf_i))
 
 def read_output(in_path):
     paths=utils.get_paths(in_path)

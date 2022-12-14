@@ -85,7 +85,6 @@ class MulticlassFacade(object):
         self.extractor=extractor
 
     def predict_proba(self,X):
-#        raise Exception(X.shape)
         binary_i=self.extractor.predict(X)
         concat_i=np.concatenate([X,binary_i],axis=1)
         return self.raw_clf.predict_proba(concat_i)
@@ -121,7 +120,7 @@ def binary_protocol():
 #d=data.read_data("wine.json")
 protocol= binary_protocol()
 protocol("wine.json",'wine_',n_iters=2)
-#test_cv(d)
+print(protocol.exp_log)
 
 
 #d=d.subsample(100)
