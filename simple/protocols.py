@@ -77,10 +77,10 @@ from datetime import datetime
 class ExpLog(object):
     def __init__(self):
         self.types={'clf':[],'metric':[]}
-        self.current={'clf':0,'metric':0}
+        self.current={'clf':datetime.now(),'metric':datetime.now()}
 
     def start(self,type_i):
-        self.current[type_i]=datetime.now()
+        self.current[type_i]=datetime.now().second
 
     def close(self,type_i,name_i):
         time_i=datetime.now()-self.current[type_i]
