@@ -117,9 +117,10 @@ def binary_protocol():
     metrics=[opv.acc_metric]#,opv.auc_metric,opv.f1_metric]
     return protocols.Protocol(clf_algs,metrics,opv_exp=opv_exp)
 
+
 #d=data.read_data("wine.json")
 protocol= binary_protocol()
-protocol("wine.json",'wine_',n_iters=2)
+protocol("wine.json",'wine_2',n_iters=1)
 print(protocol.exp_log)
 
 

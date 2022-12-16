@@ -74,16 +74,19 @@ class OPVExp(object):
 
 from datetime import datetime
 
+def current_time():
+    return datetime.now().second
+
 class ExpLog(object):
     def __init__(self):
         self.types={'clf':[],'metric':[]}
-        self.current={'clf':datetime.now(),'metric':datetime.now()}
+        self.current={'clf':current_time(),'metric':current_time()}
 
     def start(self,type_i):
-        self.current[type_i]=datetime.now().second
+        self.current[type_i]=current_time()
 
     def close(self,type_i,name_i):
-        time_i=datetime.now()-self.current[type_i]
+        time_i=current_time()-self.current[type_i]
         self.types[type_i].append((name_i,time_i))
 
     def __str__(self):
