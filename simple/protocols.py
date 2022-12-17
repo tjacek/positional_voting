@@ -61,8 +61,12 @@ class OPVExp(object):
     def __call__(self,in_path,clf_alg,metric=None):
         partial_base,partial_opv=[],[]
         split_gen=gen_splits(in_path)
+
+        data_i=data.read_data(in_path)
+        hyper= find_hyperparams(data_i,clf_alg)
         for k,(in_k,out_k) in enumerate(split_gen,self.n_splits):
-            weights,ens_i=find_opv(in_k,clf_alg,metric,self.selector)  
+            weights,ens_i=find_opv(in_k,clf_alg,metric,
+                self.selector,hyper_i=hyper)  
             base_results,opv_result =evaluate_opv(weights,ens_i,out_k)
             partial_base.append(base_results)
             partial_opv.append(opv_result)
@@ -123,9 +127,11 @@ def read_output(in_path):
             opv.append(result_i)
     return ExpOutput(base,opv)
 
-def find_opv(in_i,clf_alg,metric=None,selector=None):
+def find_opv(in_i,clf_alg,metric=None,
+        selector=None,hyper_i=None):
     train_i,valid_i=in_i.split(selector)
-    hyper_i=find_hyperparams(train_i,clf_alg)
+    if(hyper_i is None):
+        hyper_i=find_hyperparams(train_i,clf_alg)
     ens_i=clf_alg.fit(train_i,hyper_i)
     votes=predict_votes(ens_i,valid_i)
     pref=opv.make_pref(votes)
