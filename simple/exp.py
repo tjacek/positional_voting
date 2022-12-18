@@ -29,4 +29,5 @@ def make_protocol():
 
 protocol= make_protocol()
 protocol("datasets/cmc.json",'cmc',n_iters=10)
+print(protocol.exp_log)
 #inspect("full")

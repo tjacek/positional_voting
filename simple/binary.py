@@ -43,7 +43,6 @@ class BinaryEnsemble(BaseEstimator, ClassifierMixin):
     def predict(self,X):
         y=[]
         for model_i in self.estimators_:
-#            raise Exception(X.shape)
             y_i=model_i.predict_proba(X)
             y.append(y_i)
         y=np.array(y)
@@ -102,7 +101,7 @@ def test_bf(d):
     clf_alg.fit(X,y)
     X,y,names=test.as_dataset()
     y=clf_alg.predict(X)
-    print(y)
+#    print(y)
 
 def test_cv(d):
     train=d.split()[0]

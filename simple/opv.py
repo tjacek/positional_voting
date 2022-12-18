@@ -33,7 +33,7 @@ def make_pref(votes:learn.Votes):
     for name_i in names:
         pref_i=[ np.argsort(result_j[name_i]) 
             for result_j in votes.results]
-        print(len(pref))
+#        print(len(pref))
         pref[name_i]=np.array(pref_i)
     return pref
 
