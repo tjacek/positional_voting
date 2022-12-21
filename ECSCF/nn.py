@@ -19,3 +19,7 @@ class SimpleNN(object):
         model.compile(loss='categorical_crossentropy',optimizer=self.optim, metrics=['accuracy'])
         model.summary()
         return model
+
+def get_extractor(model_i):
+    return Model(inputs=model_i.input,
+                outputs=model_i.get_layer('hidden').output)  
