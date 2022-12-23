@@ -1,4 +1,5 @@
-import data
+from sklearn import ensemble
+import data,exp
 
 class SplitGroup(list):
     def __init__(self, arg=[]):
@@ -18,5 +19,22 @@ def make_splits(raw_dataset,n_iters=2):
         splits.append(split_i)
     return splits
 
-splits=make_splits('wine.json')
+def read_splits(in_path):
+    splits=SplitGroup()
+    for path_i in data.top_files(in_path):
+        splits.append(data.read_data(path_i))
+    return splits
+
+def split_protocol(splits,alg=None):
+    if(type(splits)==str):
+    	splits=read_splits(splits)
+    if(alg is None):
+        alg=ensemble.RandomForestClassifier()	
+    acc=[exp.simple_exp(split_i,alg) 
+             for split_i in splits]
+    exp.stats(str(alg),acc)
+
+splits=make_splits('wine.json',n_iters=10)
 splits.save('wine')
+#splits=read_splits('wine')
+split_protocol('wine',alg=None)

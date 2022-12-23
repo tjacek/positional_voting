@@ -133,3 +133,8 @@ def read_data(in_path):
 def make_dir(path):
     if(not os.path.isdir(path)):
         os.mkdir(path)
+
+def top_files(path):
+    paths=[ path+'/'+file_i for file_i in os.listdir(path)]
+    paths=sorted(paths)#,key=natural_keys)
+    return paths
