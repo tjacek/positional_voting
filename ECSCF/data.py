@@ -48,11 +48,10 @@ class DataDict(dict):
                 test.append(pair_i)
         return self.__class__(train),self.__class__(test)
     
-    def subsample(self,k):
-        names=list(self.keys())[:k]
-#        raise Exception( self[names[0]])
-        raw_dict = { (name_i,self[name_i]) for name_i in names}    
-        return DataDict(raw_dict)
+#    def subsample(self,k):
+#        names=list(self.keys())[:k]
+#        raw_dict = { (name_i,self[name_i]) for name_i in names}    
+#        return DataDict(raw_dict)
 
     def save(self,out_path):
         raw_dict={}
@@ -60,6 +59,20 @@ class DataDict(dict):
             raw_dict[str(name_i)]=list(data_i)
         with open(out_path, 'w') as f:
             json.dump(raw_dict, f)
+
+    def rename(self,name_dict):
+        new_feats= self.__class__()
+        for name_i,name_j in name_dict.items():
+            new_feats[Name(name_j)]=self[name_i]
+        return new_feats
+
+    def random(self):
+        names=self.names()
+        half=int(len(names)/2)
+        rename_dict={
+           name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
+                for i,name_i in enumerate(names)}
+        return self.rename(rename_dict)
 
 class NameList(list):
     def __new__(cls, name_list=None):
@@ -116,3 +129,7 @@ def read_data(in_path):
         data_dict={ Name(name_i):np.array(data_i)
             for name_i,data_i in data_dict.items()}
         return DataDict(data_dict)
+
+def make_dir(path):
+    if(not os.path.isdir(path)):
+        os.mkdir(path)
