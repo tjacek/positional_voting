@@ -29,8 +29,6 @@ class ECSCF(BaseEstimator, ClassifierMixin):
             model_i=nn.SimpleNN(n_hidden=self.n_hidden)(params)
             model_i.fit(X,y_i,epochs=self.n_epochs,batch_size=self.batch_size)
             extractor_i= nn.get_extractor(model_i)
-#            extractor_i=Model(inputs=model_i.input,
-#                outputs=model_i.get_layer('hidden').output)  
             self.extractors.append(extractor_i)
         return self.extractors        
 
