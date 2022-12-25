@@ -68,17 +68,31 @@ class DataDict(dict):
 
     def random(self):
         names=self.names()
-        half=int(len(names)/2)
-        rename_dict={
-           name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
-                for i,name_i in enumerate(names)}
+        rename_dict={}
+        for cat_i,names_i in names.by_cat().items():
+            names_i.shuffle()
+            for j,name_j in enumerate(names_i):
+                new_name_j=f"{cat_i+1}_{j%2}_{len(rename_dict)}"
+                rename_dict[name_j]=new_name_j
         return self.rename(rename_dict)
+
+#    def random(self):
+#        names=self.names()
+#        half=int(len(names)/2)
+#        rename_dict={
+#           name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
+#                for i,name_i in enumerate(names)}
+#        return self.rename(rename_dict)
 
 class NameList(list):
     def __new__(cls, name_list=None):
         if(name_list is None):
             name_list=[]
         return list.__new__(cls,name_list)
+
+    def shuffle(self):
+        random.shuffle(self)
+        return self
 
     def n_cats(self):
         return len(self.unique_cats())
