@@ -11,6 +11,14 @@ class ECSCF(BaseEstimator, ClassifierMixin):
         self.extractors=[]
         self.estimators_=[]
 
+    def fit_dataset(self,data_dict):
+        train,test=data_dict.split()
+        X_train,y_train,names=train.as_dataset()
+        self.fit(X_train,y_train)
+        X_test,y_test,names=test.as_dataset()
+        y_pred=self.predict(X_test)
+        return y_test,y_pred
+
     def fit(self,X,targets):
         self.make_extractor(X,targets)
         binary= self.binary_features(X)

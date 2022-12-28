@@ -48,11 +48,6 @@ class DataDict(dict):
                 test.append(pair_i)
         return self.__class__(train),self.__class__(test)
     
-#    def subsample(self,k):
-#        names=list(self.keys())[:k]
-#        raw_dict = { (name_i,self[name_i]) for name_i in names}    
-#        return DataDict(raw_dict)
-
     def save(self,out_path):
         raw_dict={}
         for name_i,data_i in self.items():
@@ -75,14 +70,6 @@ class DataDict(dict):
                 new_name_j=f"{cat_i+1}_{j%2}_{len(rename_dict)}"
                 rename_dict[name_j]=new_name_j
         return self.rename(rename_dict)
-
-#    def random(self):
-#        names=self.names()
-#        half=int(len(names)/2)
-#        rename_dict={
-#           name_i:f"{name_i.get_cat()+1}_{int(i<half)}_{i}"
-#                for i,name_i in enumerate(names)}
-#        return self.rename(rename_dict)
 
 class NameList(list):
     def __new__(cls, name_list=None):
