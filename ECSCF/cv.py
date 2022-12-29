@@ -6,6 +6,24 @@ class CVFolds(object):
         self.data=data
         self.folds=folds
 
+    def __len__(self):
+        return len(self.folds)
+
+    def as_dataset(self,i):
+        test=self.folds[i]
+        train=[]
+        for j,fold_j in enumerate(self.folds):
+            if(i!=j):
+                train+=fold_j
+        new_names={}
+        for name_i in train:
+            name_i=data.Name(name_i)
+            new_names[name_i]=name_i.set_train(True)
+        for name_i in test:
+            name_i=data.Name(name_i)
+            new_names[name_i]=name_i.set_train(False)
+        return self.data.rename(new_names)
+
     def save(self,out_path):
         data.make_dir(out_path)
         self.data.save(f'{out_path}/data')
@@ -28,6 +46,7 @@ def read_folds(in_path):
         data_dict=data.read_data(f'{in_path}/data')
         return CVFolds(data_dict,folds)
 
-#folds=make_folds('wine.json',k_folds=10)
-#folds.save('wine_cv')
-read_folds('wine_cv')
+if __name__ == "__main__":
+    #folds=make_folds('wine.json',k_folds=10)
+    #folds.save('wine_cv')
+    read_folds('wine_cv')

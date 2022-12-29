@@ -1,7 +1,7 @@
 import numpy as np 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
-import nn
+import nn,learn
 
 class ECSCF(BaseEstimator, ClassifierMixin):
     def __init__(self,n_hidden=25,n_epochs=100):
@@ -17,7 +17,8 @@ class ECSCF(BaseEstimator, ClassifierMixin):
         self.fit(X_train,y_train)
         X_test,y_test,names=test.as_dataset()
         y_pred=self.predict(X_test)
-        return y_test,y_pred
+        return learn.make_result(names,y_pred)
+#        return y_test,y_pred
 
     def fit(self,X,targets):
         self.make_extractor(X,targets)
