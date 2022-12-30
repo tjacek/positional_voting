@@ -14,4 +14,10 @@ class Result(data.DataDict):
 def make_result(names,y_pred):
     result=[(name_i,pred_i) 
             for name_i,pred_i in zip(names,y_pred)]
-    return Result(result)  
+    return Result(result)
+
+def unify_results(results):
+    pairs=[]
+    for result_i in results:
+        pairs+=result_i.items()
+    return Result(pairs)
