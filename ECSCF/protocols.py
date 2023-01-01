@@ -21,17 +21,19 @@ def one_out_protocol(cv_folds):
     result=learn.unify_results(partial)
     print(result.get_acc())
 
-def one_out_save(cv_folds):
+def one_out_save(cv_folds,out_path):
     if(type(cv_folds)==str): 
         cv_folds=cv.read_folds(cv_folds)
+    data.make_dir(out_path)
     for i in range(len(cv_folds)):
         data_i=cv_folds.as_dataset(i)
         clf_i=ecscf.ECSCF()
         datasets=clf_i.fit_dataset(data_i,features=True)
+        datasets.save(f'{out_path}/{i}')
         print(len(datasets))
 
 #s=splits.make_splits('wine.json',n_iters=10)
 #s.save('wine')
 #splits=read_splits('wine')
 #split_protocol('wine',alg=None)
-one_out_save('wine_cv')
+one_out_save('wine_cv','wine_binary')

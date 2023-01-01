@@ -19,6 +19,10 @@ class DataDict(dict):
         for i,name_i in enumerate(names):
             self[name_i]=new_X[i]
 
+    def convert(self):
+        for name_i,x_i in self.items():
+            self[name_i]=x_i.astype(float)   
+
     def as_dataset(self):
         names=self.names()
         return self.get_X(names),self.get_labels(names),names
@@ -70,6 +74,19 @@ class DataDict(dict):
                 new_name_j=f"{cat_i+1}_{j%2}_{len(rename_dict)}"
                 rename_dict[name_j]=new_name_j
         return self.rename(rename_dict)
+
+class DataGroup(list):
+    def __new__(cls, name_list=None):
+        if(name_list is None):
+            name_list=[]
+        return list.__new__(cls,name_list)
+
+    def save(self,out_path):
+#        raise Exception(type(self[0]))
+        make_dir(out_path)
+        for i,data_i in enumerate(self):
+            data_i.convert()
+            data_i.save(f'{out_path}/{i}')
 
 class NameList(list):
     def __new__(cls, name_list=None):
