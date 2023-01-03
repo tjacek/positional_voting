@@ -42,7 +42,7 @@ class ECSCF(BaseEstimator, ClassifierMixin):
 
     def gen_features(self,data_dict):
         X,y,names=data_dict.as_dataset()
-        datasets=[]
+        datasets=data.DataGroup()
         for extractor_i in self.extractors:
             binary_i=extractor_i.predict(X)
             pairs= zip(names,binary_i)
@@ -83,3 +83,12 @@ def binarize(cat_i,targets):
     for j,target_j in enumerate(targets):
         y_i[j][int(target_j==cat_i)]=1
     return y_i
+
+def fit_lr(data_dict_i):
+    train,test= data_dict_i.split()
+    clf_i=LogisticRegression(solver='liblinear')
+    X_train,y_train,names=train.as_dataset()
+    clf_i.fit(X_train,y_train)
+    X_test,y_true,names=test.as_dataset()
+    y_pred=clf_i.predict(X_test)
+    return learn.make_result(names,y_pred)

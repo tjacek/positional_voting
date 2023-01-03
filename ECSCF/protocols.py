@@ -34,9 +34,12 @@ def one_out_save(cv_folds,out_path):
 
 def escf_exp(in_path):
     data_group=data.read_data_group(in_path)
+    results=[]
     for data_i in data_group:
         result_i=ecscf.fit_lr(data_i)
-        print(result_i.get_acc())
+        results.append(result_i)
+    full_results=learn.unify_results(results)
+    print(full_results.get_acc())
 
 #s=splits.make_splits('wine.json',n_iters=10)
 #s.save('wine')
