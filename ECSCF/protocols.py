@@ -13,39 +13,29 @@ def split_protocol(splits_group,alg=None):
 
 def one_out_protocol(in_path,out_path):
     data.make_dir(out_path)
-    binary_path=f'{out_path}/binary'
-    if(os.path.exists(binary_path)):
-        cv_folds=cv.read_folds(binary_path)
+    common,binary=f'{out_path}/common',f'{out_path}/binary'
+    data.make_dir(binary)
+    if(os.path.exists(common)):
+        cv_folds=cv.read_folds(common)
     else:    
         cv_folds=cv.make_folds(in_path,k_folds=10)
-        one_out_save(cv_folds,binary_path)
-    for data_i in cv_folds:
+        cv_folds.save(common)
+    for i,data_i in enumerate(cv_folds):
         clf_i=ecscf.ECSCF()
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_path}/binary/{i}')  
-#def one_out_protocol(cv_folds):
+
+#def one_out_save(cv_folds,out_path):
 #    if(type(cv_folds)==str): 
 #        cv_folds=cv.read_folds(cv_folds)
-#    partial=[]
+#    binary=f'{out_path}/binary'
+#    data.make_dir(out_path)
+#    data.make_dir(binary)
 #    for i in range(len(cv_folds)):
 #        data_i=cv_folds.as_dataset(i)
 #        clf_i=ecscf.ECSCF()
-#        partial.append( clf_i.fit_dataset(data_i))
-#    result=learn.unify_results(partial)
-#    print(result.get_acc())
-
-def one_out_save(cv_folds,out_path):
-    if(type(cv_folds)==str): 
-        cv_folds=cv.read_folds(cv_folds)
-    binary=f'{out_path}/binary'#,f'{out_path}/common'  
-    data.make_dir(out_path)
-    data.make_dir(binary)
-    for i in range(len(cv_folds)):
-        data_i=cv_folds.as_dataset(i)
-        clf_i=ecscf.ECSCF()
-        datasets=clf_i.fit_dataset(data_i,features=True)
-        datasets.save(f'{binary}/{i}')
-#        print(len(datasets))
+#        datasets=clf_i.fit_dataset(data_i,features=True)
+#        datasets.save(f'{binary}/{i}')
 
 def escf_exp(in_path):
     data_group=data.read_data_group(in_path)
@@ -56,4 +46,4 @@ def escf_exp(in_path):
     full_results=learn.unify_results(results)
     print(full_results.get_acc())
 
-#s=splits.make_splits('wine.json',n_iters=10)
+one_out_protocol('wine.json','wine_cv')
