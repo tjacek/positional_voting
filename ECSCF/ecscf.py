@@ -78,11 +78,26 @@ class MulticlassFacade(object):
         concat_i=np.concatenate([X,binary_i],axis=1)
         return self.raw_clf.predict_proba(concat_i)
 
+class Ensemble(object):
+    def __init__(self,feats):
+        self.feats=feats
+
+    def concat(self,common):
+        feats=[common.concat(feats_i)  
+            for feats_i in self.feats]
+        return data.DataGroup(feats)
+
+def read_ensemble(in_path):
+    feats=data.read_data_group(in_path)
+    return Ensemble(feats)
+
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))
     for j,target_j in enumerate(targets):
         y_i[j][int(target_j==cat_i)]=1
     return y_i
+
+
 
 def fit_lr(data_dict_i):
     train,test= data_dict_i.split()
