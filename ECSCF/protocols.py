@@ -13,29 +13,21 @@ def split_protocol(splits_group,alg=None):
 
 def one_out_protocol(in_path,out_path):
     data.make_dir(out_path)
-    common,binary=f'{out_path}/common',f'{out_path}/binary'
-    data.make_dir(binary)
-    if(os.path.exists(common)):
-        cv_folds=cv.read_folds(common)
+    fold_path=f'{out_path}/fold'
+    feat_path=f'{out_path}/feats'
+    if(os.path.exists(fold_path)):
+        cv_folds=cv.read_folds(fold_path)
     else:    
         cv_folds=cv.make_folds(in_path,k_folds=10)
-        cv_folds.save(common)
+        cv_folds.save(fold_path)
+    data.make_dir(feat_path)
     for i,data_i in enumerate(cv_folds):
+        out_i=f'{feat_path}/{i}'
+        data.make_dir(out_i)
         clf_i=ecscf.ECSCF()
+        data_i.save(f'{out_i}/common')
         datasets=clf_i.fit_dataset(data_i,features=True)
-        datasets.save(f'{out_path}/binary/{i}')  
-
-#def one_out_save(cv_folds,out_path):
-#    if(type(cv_folds)==str): 
-#        cv_folds=cv.read_folds(cv_folds)
-#    binary=f'{out_path}/binary'
-#    data.make_dir(out_path)
-#    data.make_dir(binary)
-#    for i in range(len(cv_folds)):
-#        data_i=cv_folds.as_dataset(i)
-#        clf_i=ecscf.ECSCF()
-#        datasets=clf_i.fit_dataset(data_i,features=True)
-#        datasets.save(f'{binary}/{i}')
+        datasets.save(f'{out_i}/binary')  
 
 def escf_exp(in_path):
     common_path=f'{in_path}/common/data'
@@ -53,5 +45,5 @@ def escf_exp(in_path):
 #    full_results=learn.unify_results(results)
 #    full_results.report()
 
-#one_out_protocol('wine.json','wine_cv')
-escf_exp('wine_cv')
+one_out_protocol('wine.json','wine_cv')
+#escf_exp('wine_cv')
