@@ -9,6 +9,18 @@ class CVFolds(object):
     def __len__(self):
         return len(self.folds)
 
+    def __iter__(self):
+        self.i = 0
+        return self
+
+    def __next__(self):
+        if self.i < len(self):
+            data_i=self.as_dataset(self.i)
+            self.i+= 1
+            return data_i
+        else:
+            raise StopIteration
+
     def as_dataset(self,i):
         test=self.folds[i]
         train=[]

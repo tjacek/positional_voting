@@ -30,14 +30,11 @@ def one_out_protocol(in_path,out_path):
         datasets.save(f'{out_i}/binary')  
 
 def escf_exp(in_path):
-    common_path=f'{in_path}/common/data'
-    binary_path=f'{in_path}/binary'
-    common=data.read_data(common_path)
-#    binary=data.read_data_group(binary_path)
+#    common=data.read_data(common_path)
     results=[]
-    for path_i in data.top_files(binary_path):
-        binary_i=ecscf.read_ensemble(path_i)
-        full_i=binary_i.concat(common)
+    for path_i in data.top_files(in_path):
+        ens_i=ecscf.read_binary_ensemble(path_i)
+        print(len(ens_i.feats))
 #        feats_i=common.concat(binary_i)
 #        result_i= ecscf.fit_lr(feats_i)
 #        result_i=ecscf.fit_lr(data_i)
@@ -45,5 +42,5 @@ def escf_exp(in_path):
 #    full_results=learn.unify_results(results)
 #    full_results.report()
 
-one_out_protocol('wine.json','wine_cv')
-#escf_exp('wine_cv')
+#one_out_protocol('wine.json','wine_cv')
+escf_exp('wine_cv/feats')

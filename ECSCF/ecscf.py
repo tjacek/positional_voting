@@ -82,14 +82,25 @@ class Ensemble(object):
     def __init__(self,feats):
         self.feats=feats
 
-    def concat(self,common):
-        feats=[common.concat(feats_i)  
-            for feats_i in self.feats]
-        return data.DataGroup(feats)
+#    def concat(self,common):
+#        feats=[common.concat(feats_i)  
+#            for feats_i in self.feats]
+#        return data.DataGroup(feats)
 
-def read_ensemble(in_path):
-    feats=data.read_data_group(in_path)
-    return Ensemble(feats)
+#def read_ensemble(in_path):
+#    feats=data.read_data_group(in_path)
+#    return Ensemble(feats)
+
+def read_binary_ensemble(in_path):
+    common_path=f'{in_path}/common'
+    binary_path=f'{in_path}/binary'
+    common=data.read_data(common_path)
+    binary=data.read_data_group(binary_path)
+    full=[common.concat(binary_i) 
+       for binary_i in binary]
+    return Ensemble(full)
+
+
 
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))

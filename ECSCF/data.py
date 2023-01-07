@@ -76,12 +76,10 @@ class DataDict(dict):
         return self.rename(rename_dict)
 
     def concat(self,other_dict):
-        print(other_dict.keys())
-        raise Exception(self.keys())
         concat_data=DataDict()
         for name_i,vec_i in self.items():
             other_i=other_dict[name_i]
-            concat_i=np.concat([other_i,vec_i])
+            concat_i=np.concatenate([other_i,vec_i])
             concat_data[name_i]=concat_i
         return concat_data    
 
