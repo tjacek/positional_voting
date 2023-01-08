@@ -82,14 +82,14 @@ class Ensemble(object):
     def __init__(self,feats):
         self.feats=feats
 
-#    def concat(self,common):
-#        feats=[common.concat(feats_i)  
-#            for feats_i in self.feats]
-#        return data.DataGroup(feats)
-
-#def read_ensemble(in_path):
-#    feats=data.read_data_group(in_path)
-#    return Ensemble(feats)
+    def evaluate(self):
+        results=[]
+        for feat_i in self.feats:
+            result_i=fit_lr(feat_i)
+            results.append(result_i)
+        results=[result_i.split()[1] 
+            for result_i in results]
+        return learn.voting(results)
 
 def read_binary_ensemble(in_path):
     common_path=f'{in_path}/common'
@@ -100,14 +100,11 @@ def read_binary_ensemble(in_path):
        for binary_i in binary]
     return Ensemble(full)
 
-
-
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))
     for j,target_j in enumerate(targets):
         y_i[j][int(target_j==cat_i)]=1
     return y_i
-
 
 
 def fit_lr(data_dict_i):
@@ -116,5 +113,5 @@ def fit_lr(data_dict_i):
     X_train,y_train,names=train.as_dataset()
     clf_i.fit(X_train,y_train)
     X_test,y_true,names=test.as_dataset()
-    y_pred=clf_i.predict(X_test)
+    y_pred=clf_i.predict_proba(X_test)
     return learn.make_result(names,y_pred)

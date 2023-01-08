@@ -1,5 +1,7 @@
 import json
-import data
+from sklearn.model_selection import RepeatedStratifiedKFold
+from skopt import BayesSearchCV
+import data,ecscf
 
 class CVFolds(object):
     def __init__(self,data,folds):
@@ -57,6 +59,31 @@ def read_folds(in_path):
         folds = json.load(f)
         data_dict=data.read_data(f'{in_path}/data')
         return CVFolds(data_dict,folds)
+
+class BayesOptim(object):
+    def __init__(self,clf_alg,search_spaces,n_split=5):
+        self.clf_alg=clf_alg 
+        self.n_split=n_split
+        self.search_spaces=search_spaces
+
+    def __call__(self,X_train,y_train):
+        cv_gen=RepeatedStratifiedKFold(n_splits=self.n_split, 
+                n_repeats=3, random_state=1)
+        search = BayesSearchCV(estimator=self.clf_alg(), 
+            search_spaces=self.search_spaces,n_jobs=-1,cv=cv_gen)
+        search.fit(X_train,y_train) 
+        best_params=search.cv_results_['params']
+#        return search.best_estimator_,
+        return best_params
+
+def find_hyperparams(train,n_split=2):
+    params={'n_hidden':[25,50,100],'n_epochs':[100,250,500]}
+    bayes_cf=BayesOptim(ecscf.ECSCF,params,n_split=n_split)
+    train_tuple=train.as_dataset()[:2]
+    best_estm,best_params= bayes_cf(*train_tuple)
+    return best_params
+
+
 
 if __name__ == "__main__":
     #folds=make_folds('wine.json',k_folds=10)
