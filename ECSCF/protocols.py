@@ -22,7 +22,6 @@ def one_out_protocol(in_path,out_path):
         cv_folds.save(fold_path)
     data.make_dir(feat_path)
     hyperparams=cv.find_hyperparams(cv_folds.data,n_split=2)
-    raise Exception(hyperparams)
     for i,data_i in enumerate(cv_folds):
         out_i=f'{feat_path}/{i}'
         data.make_dir(out_i)
@@ -41,5 +40,5 @@ def escf_exp(in_path):
     full_results=learn.unify_results(results)
     full_results.report()
 
-one_out_protocol('wine.json','wine_cv')
-#escf_exp('wine_cv/feats')
+#one_out_protocol('wine.json','wine_cv')
+escf_exp('wine_cv/feats')
