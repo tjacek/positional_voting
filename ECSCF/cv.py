@@ -72,15 +72,17 @@ class BayesOptim(object):
         search = BayesSearchCV(estimator=self.clf_alg(), 
             search_spaces=self.search_spaces,n_jobs=-1,cv=cv_gen)
         search.fit(X_train,y_train) 
-        best_params=search.cv_results_['params']
-#        return search.best_estimator_,
-        return best_params
+#        index=search.best_index_ #
+#        params=search.cv_results_[index]
+#        raise Exception(best_params)
+        best_estm=search.best_estimator_
+        return best_estm.get_params(deep=True)
 
 def find_hyperparams(train,n_split=2):
     params={'n_hidden':[25,50,100],'n_epochs':[100,250,500]}
     bayes_cf=BayesOptim(ecscf.ECSCF,params,n_split=n_split)
     train_tuple=train.as_dataset()[:2]
-    best_estm,best_params= bayes_cf(*train_tuple)
+    best_params= bayes_cf(*train_tuple)
     return best_params
 
 

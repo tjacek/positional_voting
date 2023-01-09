@@ -1,6 +1,6 @@
 from sklearn import ensemble
 import os.path
-import data,exp,splits,ecscf,cv,learn
+import data,exp,splits,ecscf,cv,learn,utils
 
 def split_protocol(splits_group,alg=None):
     if(type(splits_group)==str):
@@ -11,6 +11,7 @@ def split_protocol(splits_group,alg=None):
              for split_i in splits_group]
     exp.stats(str(alg),acc)
 
+@utils.iter_fun(n_iters=2)
 def one_out_protocol(in_path,out_path):
     data.make_dir(out_path)
     fold_path=f'{out_path}/fold'
@@ -40,5 +41,5 @@ def escf_exp(in_path):
     full_results=learn.unify_results(results)
     full_results.report()
 
-#one_out_protocol('wine.json','wine_cv')
-escf_exp('wine_cv/feats')
+one_out_protocol('wine.json','wine_cv2')
+#escf_exp('wine_cv/feats')
