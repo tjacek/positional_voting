@@ -11,7 +11,7 @@ def split_protocol(splits_group,alg=None):
              for split_i in splits_group]
     exp.stats(str(alg),acc)
 
-@utils.iter_fun(n_iters=2)
+@utils.iter_fun(n_iters=10)
 def one_out_protocol(in_path,out_path):
     data.make_dir(out_path)
     fold_path=f'{out_path}/fold'
@@ -41,5 +41,20 @@ def escf_exp(in_path):
     full_results=learn.unify_results(results)
     full_results.report()
 
-one_out_protocol('wine.json','wine_cv2')
+def check_alg(in_path):
+    results=[]
+    feats_path=f'{in_path}/feats'
+    for path_i in data.top_files(feats_path):
+        common_path_i=f'{path_i}/common'
+        data_i= data.read_data(common_path_i)
+        clf = ensemble.RandomForestClassifier()
+        result_i=learn.fit_lr(data_i,clf_i=clf)
+        print(common_path_i)
+        results.append(result_i)
+        print(result_i.get_acc())
+    full_results=learn.unify_results(results)
+    full_results.report()
+
+#one_out_protocol('wine.json','wine_cv2')
 #escf_exp('wine_cv/feats')
+check_alg('wine_cv2/1')
