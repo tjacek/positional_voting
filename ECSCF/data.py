@@ -12,6 +12,9 @@ class DataDict(dict):
         keys.sort()
         return NameList(keys)
 
+    def dim(self):
+        return list(self.values())[0].shape[0]
+
     def norm(self):
         names=list(self.keys())
         X=np.array([self[name_i] for name_i in names])
@@ -36,6 +39,9 @@ class DataDict(dict):
         if(names is None):
             names=self.names()
         return [ name_i.get_cat() for name_i in names]
+
+    def n_cats(self):
+        return np.argmax(self.get_labels())
 
     def split(self,selector=None,shuffle=True):
         if(selector is None):
