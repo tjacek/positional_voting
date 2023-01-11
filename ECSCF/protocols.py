@@ -22,11 +22,11 @@ def one_out_protocol(in_path,out_path):
         cv_folds=cv.make_folds(in_path,k_folds=10)
         cv_folds.save(fold_path)
     data.make_dir(feat_path)
-    hyperparams=cv.find_hyperparams(cv_folds.data,n_split=2)
+#    hyperparams=cv.find_hyperparams(cv_folds.data,n_split=2)
     for i,data_i in enumerate(cv_folds):
         out_i=f'{feat_path}/{i}'
         data.make_dir(out_i)
-        clf_i=ecscf.ECSCF(**hyperparams)
+        clf_i=ecscf.ECSCF()#(**hyperparams)
         data_i.save(f'{out_i}/common')
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
@@ -36,7 +36,9 @@ def escf_exp(in_path):
     for path_i in data.top_files(in_path):
         ens_i=ecscf.read_binary_ensemble(path_i)
         result_i=ens_i.evaluate()
+        print(result_i.names().cats_stats())
         results.append(result_i)
+        print(result_i.items())
         print(result_i.get_acc())
     full_results=learn.unify_results(results)
     full_results.report()
@@ -55,6 +57,6 @@ def check_alg(in_path):
     full_results=learn.unify_results(results)
     full_results.report()
 
-#one_out_protocol('wine.json','wine_cv2')
-#escf_exp('wine_cv/feats')
-check_alg('wine_cv2/1')
+#one_out_protocol('wine.json','wine_no_cv')
+escf_exp('wine_no_cv/1/feats')
+#check_alg('wine_no_cv/1')

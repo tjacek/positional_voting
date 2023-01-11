@@ -1,13 +1,18 @@
 import numpy as np
 from sklearn.metrics import classification_report,accuracy_score,f1_score
+from sklearn.linear_model import LogisticRegression
 import data
 
 class Result(data.DataDict):
     def get_pred(self):
         y_pred,y_true=[],[]
-        for name_i in self:
-            y_pred.append(np.argmax(self[name_i]))
+        for name_i,vote_i in self.items():
+            if(type(vote_i)==np.ndarray):
+                y_pred.append(np.argmax(vote_i))
+            else:
+                y_pred.append(vote_i)
             y_true.append(name_i.get_cat())
+        print(y_pred)
         return y_pred,y_true
     
     def get_acc(self):
@@ -41,6 +46,7 @@ def voting(results):
     return Result(pairs)
 
 def fit_lr(data_dict_i,clf_i=None):
+    data_dict_i.norm()
     train,test= data_dict_i.split()
     if(clf_i is None):
         clf_i=LogisticRegression(solver='liblinear')
