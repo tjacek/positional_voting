@@ -14,3 +14,16 @@ def iter_fun(n_iters=2):
             return None
         return iter_decorator
     return decor_fun
+
+def dir_fun(fun):
+    @wraps(fun)
+    def dir_decorator(*args, **kwargs):
+        in_path= args[0]
+        output=[]
+        for path_i in data.top_files(in_path):
+            new_args=list(args)
+            new_args[0]=path_i
+            out_i=fun(*new_args,**kwargs)
+            output.append(out_i)
+        return output
+    return dir_decorator
