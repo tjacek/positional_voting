@@ -81,22 +81,16 @@ class BayesOptim(object):
 def find_hyperparams(train,params,n_split=2):
     if(type(train)==str):
         train=data.read_data(train)
-#    params={'n_hidden':[25,50,100,200],'n_epochs':[100,250,500]}
     bayes_cf=BayesOptim(ecscf.ECSCF,params,n_split=n_split)
     train_tuple=train.as_dataset()[:2]
     best_params= bayes_cf(*train_tuple)
     return best_params
 
-#def eval(in_path,n_split=10):
-#    data_i=data.read_data(in_path)
-#    params=find_hyperparams(data_i,n_split=n_split)
-#    print(params)
-
-def prepare_folds(fold_path,n_split):
+def prepare_folds(in_path,fold_path,n_split):
     if(os.path.exists(fold_path)):
-        cv_folds=cv.read_folds(fold_path)
+        cv_folds=read_folds(fold_path)
     else:    
-        cv_folds=cv.make_folds(in_path,k_folds=n_split)
+        cv_folds=make_folds(in_path,k_folds=n_split)
         cv_folds.save(fold_path)
     return cv_folds
 

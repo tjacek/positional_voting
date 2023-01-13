@@ -2,23 +2,32 @@ from sklearn import ensemble
 import os.path
 import data,exp,splits,ecscf,cv,learn,utils
 
-def one_out_protocol(in_path,out_path,
-    n_split=10,n_iters=10,search_space=None):
-    if(search_space is None):
-        search_space={'n_hidden':[25,50,100,200],
-                      'n_epochs':[100,250,500]}    
-    hyperparams=cv.find_hyperparams(in_path,search_space,n_split=n_split)
-    oo_iter=utils.iter_fun(n_iters)(oo_iter)
-    oo_iter(in_path,out_path,hyperparams,n_split)
-    print(hyperparams)
+class Protocol(object):
+    def __init__(self,fun=None,search_space=None):
+        if(fun is None):
+            fun=one_out_iter
+        if(search_space is None):
+            search_space={'n_hidden':[25,50,100,200],
+                          'n_epochs':[100,250,500]}
+        self.search_space=search_space 
+        self.fun=fun
+
+    def __call__(self,in_path,out_path,
+                    n_split=2,n_iters=10):     
+        hyperparams=cv.find_hyperparams(in_path,
+            self.search_space,
+            n_split=n_split)
+        iters_fun=utils.iter_fun(n_iters)(self.fun)
+        iters_fun(in_path,out_path,hyperparams,n_split)
+        print(hyperparams)
 
 #    @utils.iter_fun(n_iters=10)
-def oo_iter(in_path,out_path,
+def one_out_iter(in_path,out_path,
     hyperparams,n_split=10):
     data.make_dir(out_path)
     fold_path=f'{out_path}/fold'
     feat_path=f'{out_path}/feats'
-    cv_folds=cv.prepare_folds(fold_path,n_split)
+    cv_folds=cv.prepare_folds(in_path,fold_path,n_split)
     data.make_dir(feat_path)
 #    hyperparams=cv.find_hyperparams(cv_folds.data,n_split=n_split)
     for i,data_i in enumerate(cv_folds):
@@ -28,15 +37,6 @@ def oo_iter(in_path,out_path,
         data_i.save(f'{out_i}/common')
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
-
-#def split_protocol(splits_group,alg=None):
-#    if(type(splits_group)==str):
-#    	splits_group=splits.read_splits(splits_group)
-#    if(alg is None):
-#        alg=ensemble.RandomForestClassifier()	
-#    acc=[exp.simple_exp(split_i,alg) 
-#             for split_i in splits_group]
-#    exp.stats(str(alg),acc)
 
 @utils.dir_fun
 def escf_exp(in_path):
@@ -66,7 +66,8 @@ def check_alg(in_path,clf=None):
     return full_results.get_acc()
 
 if __name__ == "__main__":
-    one_out_protocol('wine.json','wine_cv2')
+    protocol=Protocol()
+    protocol('wine.json','wine_cv2')
 #    out=escf_exp('wine_no_cv')
 #    out=check_alg('wine_no_cv')
 #    print(out)
