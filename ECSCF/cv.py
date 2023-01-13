@@ -1,4 +1,4 @@
-import json
+import json,os.path
 from sklearn.model_selection import RepeatedStratifiedKFold
 from skopt import BayesSearchCV
 import data,ecscf
@@ -32,10 +32,10 @@ class CVFolds(object):
         new_names={}
         for name_i in train:
             name_i=data.Name(name_i)
-            new_names[name_i]=name_i.set_train(True)
+            new_names[name_i]=name_i.set_train(False)
         for name_i in test:
             name_i=data.Name(name_i)
-            new_names[name_i]=name_i.set_train(False)
+            new_names[name_i]=name_i.set_train(True)
         return self.data.rename(new_names)
 
     def save(self,out_path):
@@ -48,10 +48,13 @@ def make_folds(data_dict,k_folds=10):
     if(type(data_dict)==str):
         data_dict=data.read_data(data_dict)
     names=data_dict.names()
-    names.shuffle()
+#    names.shuffle()
     folds=[[] for i in range(k_folds)]
-    for i,name_i in enumerate(names):
-        folds[i % k_folds].append(name_i)
+    cats=names.by_cat()
+    for cat_i in cats.values():
+        cat_i.shuffle()
+        for j,name_j in enumerate(cat_i):
+            folds[j % k_folds].append(name_j)
     return CVFolds(data_dict,folds)
 
 def read_folds(in_path):
@@ -72,22 +75,31 @@ class BayesOptim(object):
         search = BayesSearchCV(estimator=self.clf_alg(), 
             search_spaces=self.search_spaces,n_jobs=-1,cv=cv_gen)
         search.fit(X_train,y_train) 
-#        index=search.best_index_ #
-#        params=search.cv_results_[index]
-#        raise Exception(best_params)
         best_estm=search.best_estimator_
         return best_estm.get_params(deep=True)
 
-def find_hyperparams(train,n_split=2):
-    params={'n_hidden':[25,50,100],'n_epochs':[100,250,500]}
+def find_hyperparams(train,params,n_split=2):
+    if(type(train)==str):
+        train=data.read_data(train)
+#    params={'n_hidden':[25,50,100,200],'n_epochs':[100,250,500]}
     bayes_cf=BayesOptim(ecscf.ECSCF,params,n_split=n_split)
     train_tuple=train.as_dataset()[:2]
     best_params= bayes_cf(*train_tuple)
     return best_params
 
+#def eval(in_path,n_split=10):
+#    data_i=data.read_data(in_path)
+#    params=find_hyperparams(data_i,n_split=n_split)
+#    print(params)
 
+def prepare_folds(fold_path,n_split):
+    if(os.path.exists(fold_path)):
+        cv_folds=cv.read_folds(fold_path)
+    else:    
+        cv_folds=cv.make_folds(in_path,k_folds=n_split)
+        cv_folds.save(fold_path)
+    return cv_folds
 
 if __name__ == "__main__":
-    #folds=make_folds('wine.json',k_folds=10)
-    #folds.save('wine_cv')
-    read_folds('wine_cv')
+#    read_folds('wine_cv')
+    eval('wine.json',n_split=10)
