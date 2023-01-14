@@ -71,7 +71,7 @@ class BayesOptim(object):
 
     def __call__(self,X_train,y_train):
         cv_gen=RepeatedStratifiedKFold(n_splits=self.n_split, 
-                n_repeats=3, random_state=1)
+                n_repeats=1, random_state=1)
         search = BayesSearchCV(estimator=self.clf_alg(), 
             search_spaces=self.search_spaces,n_jobs=-1,cv=cv_gen)
         search.fit(X_train,y_train) 

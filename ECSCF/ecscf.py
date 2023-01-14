@@ -4,7 +4,7 @@ from sklearn.linear_model import LogisticRegression
 import nn,learn,data
 
 class ECSCF(BaseEstimator, ClassifierMixin):
-    def __init__(self,n_hidden=25,n_epochs=100):
+    def __init__(self,n_hidden=200,n_epochs=200):
         self.n_hidden=n_hidden
         self.n_epochs=n_epochs
         self.batch_size=32
@@ -32,6 +32,7 @@ class ECSCF(BaseEstimator, ClassifierMixin):
 
     def fit_dataset(self,data_dict,features=False):
         train,test=data_dict.split()
+#        raise Exception(len(test))
         X_train,y_train,names=train.as_dataset()
         self.fit(X_train,y_train)
         if(features):
@@ -85,7 +86,7 @@ class Ensemble(object):
     def evaluate(self):
         results=[]
         for feat_i in self.feats:
-            result_i=fit_lr(feat_i)
+            result_i=learn.fit_lr(feat_i)
             results.append(result_i)
         results=[result_i.split()[1] 
             for result_i in results]
@@ -96,8 +97,9 @@ def read_binary_ensemble(in_path):
     binary_path=f'{in_path}/binary'
     common=data.read_data(common_path)
     binary=data.read_data_group(binary_path)
-    full=[common.concat(binary_i) 
+    full=[ common.concat(binary_i) 
        for binary_i in binary]
+#    raise Exception(binary[0].dim())
     return Ensemble(full)
 
 def binarize(cat_i,targets):
@@ -105,13 +107,3 @@ def binarize(cat_i,targets):
     for j,target_j in enumerate(targets):
         y_i[j][int(target_j==cat_i)]=1
     return y_i
-
-
-def fit_lr(data_dict_i):
-    train,test= data_dict_i.split()
-    clf_i=LogisticRegression(solver='liblinear')
-    X_train,y_train,names=train.as_dataset()
-    clf_i.fit(X_train,y_train)
-    X_test,y_true,names=test.as_dataset()
-    y_pred=clf_i.predict_proba(X_test)
-    return learn.make_result(names,y_pred)
