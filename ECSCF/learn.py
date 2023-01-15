@@ -7,6 +7,13 @@ class Votes(object):
     def __init__(self,results):
         self.results=results
 
+    def names(self):
+        return self.results[0].names()
+
+    def get_classes(self,name_i):
+        return [ np.argmax(result_i[name_i]) 
+                for result_i in self.results]
+
     def vote(self):
         return voting(self.results)
 
