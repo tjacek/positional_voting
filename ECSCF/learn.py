@@ -3,6 +3,13 @@ from sklearn.metrics import classification_report,accuracy_score,f1_score
 from sklearn.linear_model import LogisticRegression
 import data
 
+class Votes(object):
+    def __init__(self,results):
+        self.results=results
+
+    def vote(self):
+        return voting(self.results)
+
 class Result(data.DataDict):
     def get_pred(self):
         y_pred,y_true=[],[]
@@ -12,7 +19,6 @@ class Result(data.DataDict):
             else:
                 y_pred.append(vote_i)
             y_true.append(name_i.get_cat())
-        print(y_pred)
         return y_pred,y_true
     
     def get_acc(self):

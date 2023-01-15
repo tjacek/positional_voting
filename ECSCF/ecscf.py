@@ -80,16 +80,19 @@ class MulticlassFacade(object):
         return self.raw_clf.predict_proba(concat_i)
 
 class Ensemble(object):
-    def __init__(self,feats):
-        self.feats=feats
+    def __init__(self,full,binary):
+        self.full=full
+        self.binary=binary 
 
-    def evaluate(self):
+    def evaluate(self,as_votes=False):
         results=[]
-        for feat_i in self.feats:
-            result_i=learn.fit_lr(feat_i)
+        for full_i in self.full:
+            result_i=learn.fit_lr(full_i)
             results.append(result_i)
         results=[result_i.split()[1] 
             for result_i in results]
+        if(as_votes):
+            return learn.Votes(results)
         return learn.voting(results)
 
 def read_binary_ensemble(in_path):
@@ -100,7 +103,7 @@ def read_binary_ensemble(in_path):
     full=[ common.concat(binary_i) 
        for binary_i in binary]
 #    raise Exception(binary[0].dim())
-    return Ensemble(full)
+    return Ensemble(full,binary)
 
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))
