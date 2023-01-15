@@ -5,11 +5,16 @@ def inliner_voting(in_path):
     ens_i=ecscf.read_binary_ensemble(in_path)
     votes_i= ens_i.evaluate(True)
     knn=get_knn(ens_i,k=3)
-    for name_i in votes_i.names():
-        print(votes_i.get_classes(name_i))
-        print(knn.get_classes(name_i))
-#    for feats_i in ens.feats:
-#        feats_i.split()
+    s_clf={}
+    for name_j in votes_i.names():
+        votes_j=votes_i.get_classes(name_j)
+        knn_j=knn.get_classes(name_j)
+        s_clf[name_j]=[t 
+                for t,(v,k) in enumerate(zip(votes_j,knn_j))
+                    if(v==k)]
+    inliner_result=votes_i.dynamic_voting(s_clf) 
+    print(inliner_result.get_acc())
+    print(votes_i.vote().get_acc())
 
 def get_knn(ens_i,k=3):
     clf= neighbors.KNeighborsClassifier(k)

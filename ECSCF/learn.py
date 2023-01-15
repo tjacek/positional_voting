@@ -14,6 +14,15 @@ class Votes(object):
         return [ np.argmax(result_i[name_i]) 
                 for result_i in self.results]
 
+    def dynamic_voting(self,s_dict):
+        result=Result()
+        for name_i,clfs_i in s_dict.items():
+            ballot_i=[self.results[s][name_i] 
+                for s in clfs_i]
+            count_i=np.sum(ballot_i ,axis=0)
+            result[name_i]=np.argmax(count_i)    
+        return result
+    
     def vote(self):
         return voting(self.results)
 
