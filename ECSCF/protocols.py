@@ -12,6 +12,7 @@ class Protocol(object):
         self.search_space=search_space 
         self.fun=fun
 
+    @utils.lazy_dir_fun
     def __call__(self,in_path,out_path,
                     n_split=2,n_iters=10):     
         hyperparams=cv.find_hyperparams(in_path,
@@ -21,7 +22,6 @@ class Protocol(object):
         iters_fun(in_path,out_path,hyperparams,n_split)
         print(hyperparams)
 
-#    @utils.iter_fun(n_iters=10)
 def one_out_iter(in_path,out_path,
     hyperparams,n_split=10):
     data.make_dir(out_path)
@@ -29,7 +29,6 @@ def one_out_iter(in_path,out_path,
     feat_path=f'{out_path}/feats'
     cv_folds=cv.prepare_folds(in_path,fold_path,n_split)
     data.make_dir(feat_path)
-#    hyperparams=cv.find_hyperparams(cv_folds.data,n_split=n_split)
     for i,data_i in enumerate(cv_folds):
         out_i=f'{feat_path}/{i}'
         data.make_dir(out_i)
@@ -67,7 +66,7 @@ def check_alg(in_path,clf=None):
 
 if __name__ == "__main__":
     protocol=Protocol()
-    protocol('wine.json','wine_cv2')
+    protocol('data','uci')
 #    out=escf_exp('wine_no_cv')
 #    out=check_alg('wine_no_cv')
 #    print(out)
