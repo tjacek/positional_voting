@@ -8,8 +8,8 @@ def multi_exp(in_path):
     all_lines=[]
     for name_i,lines_i in dict_output.items():
         for line_j in lines_i:
-            all_lines.append([name_i]+line_j)
-    print('\n'.join(lines))
+            all_lines.append(f'{name_i},{line_j}')
+    print('\n'.join(all_lines))
 
 def basic_exp(in_path):
 #    raise Exception(in_path)
