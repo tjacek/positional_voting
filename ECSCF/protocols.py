@@ -37,7 +37,7 @@ def one_out_iter(in_path,out_path,
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
 
-@utils.dir_fun
+@utils.dir_fun(False)
 def escf_exp(in_path):
     results=[]
     feats_path=f'{in_path}/feats'
@@ -50,7 +50,7 @@ def escf_exp(in_path):
     full_results=learn.unify_results(results)
     return full_results.get_acc()
 
-@utils.dir_fun
+@utils.dir_fun(False)
 def check_alg(in_path,clf=None):
     if(clf is None):
         clf=ensemble.RandomForestClassifier()
@@ -62,6 +62,7 @@ def check_alg(in_path,clf=None):
         result_i=learn.fit_lr(data_i,clf_i=clf)
         results.append(result_i)
     full_results=learn.unify_results(results)
+    print(in_path)
     return full_results.get_acc()
 
 if __name__ == "__main__":

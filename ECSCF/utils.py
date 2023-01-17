@@ -16,18 +16,26 @@ def iter_fun(n_iters=2):
         return iter_decorator
     return decor_fun
 
-def dir_fun(fun):
-    @wraps(fun)
-    def dir_decorator(*args, **kwargs):
-        in_path= args[0]
-        output=[]
-        for path_i in data.top_files(in_path):
-            new_args=list(args)
-            new_args[0]=path_i
-            out_i=fun(*new_args,**kwargs)
-            output.append(out_i)
-        return output
-    return dir_decorator
+def dir_fun(as_dict=False):    
+    def helper(fun):
+        @wraps(fun)
+        def dir_decorator(*args, **kwargs):
+            in_path= args[0]
+            if(as_dict):
+                output={}
+            else:
+                output=[]
+            for path_i in data.top_files(in_path):
+                new_args=list(args)
+                new_args[0]=path_i
+                out_i=fun(*new_args,**kwargs)
+                if(as_dict):
+                    output[path_i.split('/')[-1]]=out_i
+                else:
+                    output.append(out_i)
+            return output
+        return dir_decorator
+    return helper
 
 def lazy_dir_fun(fun):
     @wraps(fun)
