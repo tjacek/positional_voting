@@ -1,11 +1,11 @@
 from sklearn import neighbors
-import data,ecscf,learn
+import data,ecscf,learn,protocols
 
 class InlinerVoting(object):
     def __init__(self,k=3):
         self.k=k
 
-
+    @protocols.unify_cv
     def __call__(self,in_path):
         ens_i=ecscf.read_binary_ensemble(in_path)
         votes_i= ens_i.evaluate(True)
@@ -18,9 +18,7 @@ class InlinerVoting(object):
                     for t,(v,k) in enumerate(zip(votes_j,knn_j))
                         if(v==k)]
         inliner_result=votes_i.dynamic_voting(s_clf)
-        return inliner_voting
-#    print(inliner_result.get_acc())
-#    print(votes_i.vote().get_acc())
+        return inliner_result
 
 def get_knn(ens_i,k=3):
     clf= neighbors.KNeighborsClassifier(k)
@@ -28,4 +26,7 @@ def get_knn(ens_i,k=3):
                 for binary_j in ens_i.binary] 
     return learn.Votes(results)
 
-inliner_voting('wine_cv2/0/feats/0')
+#def inliner_voting(in_path):
+inliner_voting=InlinerVoting()
+acc=inliner_voting('wine_cv2/0/feats')
+print(acc)

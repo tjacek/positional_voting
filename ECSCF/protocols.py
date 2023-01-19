@@ -22,6 +22,21 @@ class Protocol(object):
         iters_fun(in_path,out_path,hyperparams,n_split)
         print(hyperparams)
 
+def unify_cv(fun):
+    def helper(*args, **kwargs):
+        results=[]
+        in_path=args[1]
+#        raise Exception(in_path)
+        for path_i in data.top_files(in_path):
+#            print(path_i)
+            args=list(args)
+            args[1]=path_i
+            result_i=fun(*args,**kwargs)
+            results.append(result_i)
+        full_results=learn.unify_results(results)
+        return full_results.get_acc()  
+    return helper
+
 def one_out_iter(in_path,out_path,
     hyperparams,n_split=10):
     data.make_dir(out_path)
@@ -64,6 +79,7 @@ def check_alg(in_path,clf=None):
     full_results=learn.unify_results(results)
     print(in_path)
     return full_results.get_acc()
+
 
 if __name__ == "__main__":
     protocol=Protocol()
