@@ -12,7 +12,6 @@ def multi_exp(in_path):
     print('\n'.join(all_lines))
 
 def basic_exp(in_path):
-#    raise Exception(in_path)
     lines=['ECSCF']+stats(protocols.escf_exp(in_path))
     lines=','.join(lines)
     lines=[lines]
@@ -27,11 +26,9 @@ def basic_exp(in_path):
     print('\n'.join(lines))
     return lines
 
-
-
 def stats(acc):
     return [f'{fun_i(acc):.4f}' 
         for fun_i in [np.mean,np.std]]
 
-multi_exp('uci')
-
+#multi_exp('uci')
+basic_exp('wine_cv2')

@@ -22,21 +22,6 @@ class Protocol(object):
         iters_fun(in_path,out_path,hyperparams,n_split)
         print(hyperparams)
 
-def unify_cv(fun):
-    def helper(*args, **kwargs):
-        results=[]
-        in_path=args[1]
-#        raise Exception(in_path)
-        for path_i in data.top_files(in_path):
-#            print(path_i)
-            args=list(args)
-            args[1]=path_i
-            result_i=fun(*args,**kwargs)
-            results.append(result_i)
-        full_results=learn.unify_results(results)
-        return full_results.get_acc()  
-    return helper
-
 def one_out_iter(in_path,out_path,
     hyperparams,n_split=10):
     data.make_dir(out_path)
@@ -52,18 +37,15 @@ def one_out_iter(in_path,out_path,
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
 
-@utils.dir_fun(False)
 def escf_exp(in_path):
-    results=[]
-    feats_path=f'{in_path}/feats'
-    for path_i in data.top_files(feats_path):
+    @utils.dir_fun(False)
+    @utils.unify_cv(dir_path='feats')
+    def escf_helper(path_i):
         ens_i=ecscf.read_binary_ensemble(path_i)
         result_i=ens_i.evaluate()
-        print(result_i.names().cats_stats())
-        results.append(result_i)
-        print(result_i.get_acc())
-    full_results=learn.unify_results(results)
-    return full_results.get_acc()
+#        print(result_i.names().cats_stats())
+        return result_i
+    return escf_helper(in_path)
 
 @utils.dir_fun(False)
 def check_alg(in_path,clf=None):
@@ -82,8 +64,8 @@ def check_alg(in_path,clf=None):
 
 
 if __name__ == "__main__":
-    protocol=Protocol()
-    protocol('data','uci')
-#    out=escf_exp('wine_no_cv')
+#    protocol=Protocol()
+#    protocol('data','uci')
+    out=escf_exp('wine_cv2')
 #    out=check_alg('wine_no_cv')
-#    print(out)
+    print(out)

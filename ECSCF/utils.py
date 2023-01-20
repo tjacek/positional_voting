@@ -1,6 +1,6 @@
 from functools import wraps
 import os.path
-import data
+import data,learn
 
 def iter_fun(n_iters=2):
     def decor_fun(fun):
@@ -50,6 +50,27 @@ def lazy_dir_fun(fun):
                 new_args[1]=in_i
                 new_args[2]=out_i
                 fun(*new_args,**kwargs)
-#                print(out_i)
         return None
     return helper
+
+def unify_cv(dir_path='feats'):
+    def helper(fun):
+        @wraps(fun)
+        def decor_fun(*args, **kwargs):
+            results=[]
+            k=is_object(args)
+            main_path=f'{args[k]}/{dir_path}'
+            for path_i in data.top_files(main_path):
+                args=list(args)
+                args[k]=path_i
+                result_i=fun(*args,**kwargs)
+                results.append(result_i)
+            full_results=learn.unify_results(results)
+            return full_results.get_acc()  
+        return decor_fun
+    return helper
+
+def is_object(args):
+    if(type(args[0])==str):
+        return 0
+    return 1
