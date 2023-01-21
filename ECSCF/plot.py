@@ -5,24 +5,24 @@ import pandas as pd
 def prepare_data(in_path,stats_path):
     result_df=pd.read_csv(in_path)
     stats_df=pd.read_csv(stats_path)
-    ecscf= result_df[result_df['clf']=='ECSCF']['acc']
-    rf= result_df[result_df['clf']=='RF']['acc']
-    clf_df=pd.DataFrame({
-        'Dataset': stats_df['Dataset'],#.reset_index(drop=True),
-    	'RF':rf.reset_index(drop=True), 
-    	'ECSCF':ecscf.reset_index(drop=True)})
+    clf_df= get_clf_df(result_df,stats_df)
     final_df=pd.merge(stats_df,clf_df,on='Dataset',how = 'inner')
     return final_df
 
+def get_clf_df(result_df,stats_df):
+    ecscf= result_df[result_df['clf']=='ECSCF']['acc']
+    rf= result_df[result_df['clf']=='RF']['acc']
+    clf_df=pd.DataFrame({
+        'Dataset': stats_df['Dataset'],
+        'RF':rf.reset_index(drop=True), 
+        'ECSCF':ecscf.reset_index(drop=True)})
+    return clf_df
 
 def scatter_plot(df,col='Classes',name='title'):
     diff= 100*(df['ECSCF']-df['RF']).to_numpy()
     ind_var=df[col].to_numpy()
-#    if(np.amax(ind_var)>10):
-#        ind_var=(10/np.amax(ind_var))*ind_var
     y=df['Dataset']
 
-    print(diff)
     plt.figure()
     ax = plt.subplot(111)
     for i,y_i in enumerate(y):    
@@ -58,8 +58,44 @@ def get_limit(series):
     if(s_min>0):
         s_min=0
     else:
-        s_min-=1
+        s_min-= 1 
     return [s_min,s_max+2]
 
-df=prepare_data('uci.csv','stats.csv')
-scatter_plot(df,col='Samples')
+def prepare_gini(in_path,imbalance_path):
+    result_df=pd.read_csv(in_path)
+    imb_df=pd.read_csv(imbalance_path)
+    datasets=imb_df['Dataset'].unique()
+    gini_df={}
+    for data_i in datasets:
+        row_i=imb_df[imb_df['Dataset']==data_i]
+        row_i=row_i.to_numpy()[0]
+        row_i=[float(c_j) for c_j in row_i
+                if(is_number(c_j)) ]
+#        row_i.sort()
+        gini_df[data_i]=10* gini(np.array(row_i))
+    gini_df=pd.DataFrame.from_dict(gini_df.items())
+    gini_df.columns= ['Dataset','gini index']
+    clf_df= get_clf_df(result_df,gini_df)
+    final_df=pd.merge(clf_df,gini_df,on='Dataset',how = 'inner')
+    return final_df
+
+def is_number(n):
+    try:
+        float(n)
+    except ValueError:
+        return False
+    return True
+
+def gini(x):
+    diffsum = 0
+    for i, xi in enumerate(x[:-1], 1):
+        diffsum += np.sum(np.abs(xi - x[i:]))
+    return diffsum / (len(x)**2 * np.mean(x))
+
+#df=prepare_data('uci.csv','stats.csv')
+#scatter_plot(df,col='Samples')
+
+gini_df=prepare_gini('uci.csv','imbalance.csv')
+#print(gini_df)
+scatter_plot(gini_df,col='gini index')
+#print(gini_df)
