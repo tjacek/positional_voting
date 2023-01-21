@@ -18,8 +18,8 @@ def prepare_data(in_path,stats_path):
 def scatter_plot(df,col='Classes',name='title'):
     diff= 100*(df['ECSCF']-df['RF']).to_numpy()
     ind_var=df[col].to_numpy()
-    if(np.amax(ind_var)>10):
-        ind_var=(10/np.amax(ind_var))*ind_var
+#    if(np.amax(ind_var)>10):
+#        ind_var=(10/np.amax(ind_var))*ind_var
     y=df['Dataset']
 
     print(diff)
@@ -33,11 +33,18 @@ def scatter_plot(df,col='Classes',name='title'):
     plt.xlim(get_limit(ind_var))
     
     start, stop = ax.get_ylim()
-    ticks = np.arange(int(start)-1, int(stop) + 1, 2)
+    ticks = np.arange(int(start), int(stop) + 1, 2)
     ax.set_yticks(ticks)
 
+
     start, stop = ax.get_xlim()
-    ticks = np.arange(int(start)-1, int(stop) + 1, 1)
+    print(stop)
+    if(stop>12):
+        delta= int((stop- start)/10)
+    else:
+        delta=1
+    print(delta)
+    ticks = np.arange(int(start), int(stop) + 3*delta, delta)
     ax.set_xticks(ticks)
     plt.grid()
     plt.ylabel("NECSCF-RF accuracy [%]")
