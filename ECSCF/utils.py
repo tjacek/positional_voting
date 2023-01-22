@@ -20,14 +20,17 @@ def dir_fun(as_dict=False):
     def helper(fun):
         @wraps(fun)
         def dir_decorator(*args, **kwargs):
-            in_path= args[0]
+            print(args)
+            k= is_object(args)
+            in_path= args[k]
             if(as_dict):
                 output={}
             else:
                 output=[]
             for path_i in data.top_files(in_path):
+                print(path_i)
                 new_args=list(args)
-                new_args[0]=path_i
+                new_args[k]=path_i
                 out_i=fun(*new_args,**kwargs)
                 if(as_dict):
                     output[path_i.split('/')[-1]]=out_i
@@ -53,7 +56,7 @@ def lazy_dir_fun(fun):
         return None
     return helper
 
-def unify_cv(dir_path='feats'):
+def unify_cv(dir_path='feats',show=False):
     def helper(fun):
         @wraps(fun)
         def decor_fun(*args, **kwargs):
@@ -66,7 +69,10 @@ def unify_cv(dir_path='feats'):
                 result_i=fun(*args,**kwargs)
                 results.append(result_i)
             full_results=learn.unify_results(results)
-            return full_results.get_acc()  
+            acc= full_results.get_acc()
+            if(show):
+                print(acc)
+            return acc  
         return decor_fun
     return helper
 
