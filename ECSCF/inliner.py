@@ -1,12 +1,14 @@
 from sklearn import neighbors
-import data,ecscf,learn,protocols
+import data,ecscf,learn,protocols,utils
 
 class InlinerVoting(object):
     def __init__(self,k=3):
         self.k=k
 
-    @protocols.unify_cv
+    @utils.dir_fun(False)
+    @utils.unify_cv(dir_path='feats',show=True)
     def __call__(self,in_path):
+        print(in_path)
         ens_i=ecscf.read_binary_ensemble(in_path)
         votes_i= ens_i.evaluate(True)
         knn=get_knn(ens_i,k=self.k)
@@ -28,5 +30,5 @@ def get_knn(ens_i,k=3):
 
 #def inliner_voting(in_path):
 inliner_voting=InlinerVoting()
-acc=inliner_voting('wine_cv2/0/feats')
+acc=inliner_voting('wine_cv2')
 print(acc)
