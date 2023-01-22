@@ -1,9 +1,12 @@
 import numpy as np
 from sklearn import ensemble
 import protocols,utils
+import inliner
 
-def multi_exp(in_path):
-    dec_fun=utils.dir_fun(as_dict=True)(basic_exp)
+def multi_exp(in_path,exp=None):
+    if(exp is None):
+        exp=basic_exp
+    dec_fun=utils.dir_fun(as_dict=True)(exp)
     dict_output=dec_fun(in_path)
     all_lines=[]
     for name_i,lines_i in dict_output.items():
@@ -30,5 +33,14 @@ def stats(acc):
     return [f'{fun_i(acc):.4f}' 
         for fun_i in [np.mean,np.std]]
 
+def inliner_exp(in_path):
+    inliner_voting=inliner.InlinerVoting()
+    acc_i=inliner_voting(in_path)
+    stats_i=','.join(stats(acc_i))
+    line_i=f'INLINER NECSCF,{stats_i}'
+    print(line_i)
+    return [line_i]
+
 #multi_exp('uci')
-basic_exp('wine_cv2')
+multi_exp('uci',inliner_exp)
+#basic_exp('wine_cv2')
