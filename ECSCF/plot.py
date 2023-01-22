@@ -92,10 +92,14 @@ def gini(x):
         diffsum += np.sum(np.abs(xi - x[i:]))
     return diffsum / (len(x)**2 * np.mean(x))
 
-#df=prepare_data('uci.csv','stats.csv')
-#scatter_plot(df,col='Samples')
+def exp(result_path,stats_path,imb_path):
+    var=['classes','samples','features']
+    var=[f'number of {var_i}' for var_i in var]
+    df=prepare_data(result_path,stats_path)
+    for var_i in var:
+        scatter_plot(df,col=var_i)
+    gini_df=prepare_gini(result_path,imb_path)
+    scatter_plot(gini_df,col='gini index')
 
-gini_df=prepare_gini('uci.csv','imbalance.csv')
-#print(gini_df)
-scatter_plot(gini_df,col='gini index')
+exp('uci.csv','stats.csv','imbalance.csv')
 #print(gini_df)
