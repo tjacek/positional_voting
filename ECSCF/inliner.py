@@ -2,8 +2,9 @@ from sklearn import neighbors
 import data,ecscf,learn,protocols,utils
 
 class InlinerVoting(object):
-    def __init__(self,k=3):
+    def __init__(self,k=3,threshold=3):
         self.k=k
+        self.threshold=threshold
 
     @utils.dir_fun(False)
     @utils.unify_cv(dir_path='feats',show=True)
@@ -16,9 +17,12 @@ class InlinerVoting(object):
         for name_j in votes_i.names():
             votes_j=votes_i.get_classes(name_j)
             knn_j=knn.get_classes(name_j)
-            s_clf[name_j]=[t 
+            s_clf_i=[t 
                     for t,(v,k) in enumerate(zip(votes_j,knn_j))
                         if(v==k)]
+            if(len(s_clf_i) < self.threshold ):
+                s_clf_i=None
+            s_clf[name_j]=s_clf_i
         inliner_result=votes_i.dynamic_voting(s_clf)
         return inliner_result
 
@@ -28,7 +32,8 @@ def get_knn(ens_i,k=3):
                 for binary_j in ens_i.binary] 
     return learn.Votes(results)
 
-#def inliner_voting(in_path):
-inliner_voting=InlinerVoting()
-acc=inliner_voting('wine_cv2')
-print(acc)
+if __name__ == "__main__":
+    #def inliner_voting(in_path):
+    inliner_voting=InlinerVoting()
+    acc=inliner_voting('wine_cv2')
+    print(acc)
