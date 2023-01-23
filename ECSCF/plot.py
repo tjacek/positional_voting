@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
+import gini
 
 def prepare_data(in_path,stats_path):
     result_df=pd.read_csv(in_path)
@@ -72,7 +73,7 @@ def prepare_gini(in_path,imbalance_path):
         row_i=[float(c_j) for c_j in row_i
                 if(is_number(c_j)) ]
 #        row_i.sort()
-        gini_df[data_i]=10* gini(np.array(row_i))
+        gini_df[data_i]=10* gini.gini_index(np.array(row_i))
     gini_df=pd.DataFrame.from_dict(gini_df.items())
     gini_df.columns= ['Dataset','gini index']
     clf_df= get_clf_df(result_df,gini_df)
@@ -85,12 +86,6 @@ def is_number(n):
     except ValueError:
         return False
     return True
-
-def gini(x):
-    diffsum = 0
-    for i, xi in enumerate(x[:-1], 1):
-        diffsum += np.sum(np.abs(xi - x[i:]))
-    return diffsum / (len(x)**2 * np.mean(x))
 
 def exp(result_path,stats_path,imb_path):
     var=['classes','samples','features']
