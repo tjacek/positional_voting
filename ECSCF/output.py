@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn import ensemble
 from sklearn.linear_model import LogisticRegression
-import protocols,utils
+import protocols,utils,ecscf
 import inliner
 
 def multi_exp(in_path,exp=None):
@@ -16,9 +16,12 @@ def multi_exp(in_path,exp=None):
     print('\n'.join(all_lines))
 
 class BasicExp(object):
-    def __init__(self,algs=['LR'],use_escf=True):
+    def __init__(self,algs=['LR'],use_escf=True,ens_factory=None):
+        if(ens_factory is None):
+            ens_factory=ecscf.EnsembleFactory()
         self.algs=get_algs( algs)
         self.use_escf=use_escf
+        self.escf_exp=protocols.ESCFExp(ens_factory)
 
     def __call__(self,in_path):
         lines=[]
@@ -33,7 +36,7 @@ class BasicExp(object):
         return lines
 
     def get_ecscf(in_path):
-        lines=['ECSCF']+stats(protocols.escf_exp(in_path))
+        lines=['ECSCF']+stats(self.escf_exp(in_path))
         return ','.join(lines) 
 
 def stats(acc):

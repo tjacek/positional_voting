@@ -77,6 +77,8 @@ def fit_lr(data_dict_i,clf_i=None):
     if(clf_i is None):
         clf_i=LogisticRegression(solver='liblinear')
     X_train,y_train,names=train.as_dataset()
+#    print(type(train))
+#    print(type(y_train))
     clf_i.fit(X_train,y_train)
     X_test,y_true,names=test.as_dataset()
     y_pred=clf_i.predict_proba(X_test)

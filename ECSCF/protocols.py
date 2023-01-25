@@ -37,15 +37,18 @@ def one_out_iter(in_path,out_path,
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
 
-def escf_exp(in_path):
+class ESCFExp(object):
+    def __init__(self,ensemble_factory=None):
+        if(ensemble_factory is None):
+            ensemble_factory=escf.EnsembleFactory()
+        self.ensemble_factory=ensemble_factory
+
     @utils.dir_fun(False)
     @utils.unify_cv(dir_path='feats')
     def escf_helper(path_i):
-        ens_i=ecscf.read_binary_ensemble(path_i)
+        ens_i=self.ensemble_factory(path_i)
         result_i=ens_i.evaluate()
-#        print(result_i.names().cats_stats())
         return result_i
-    return escf_helper(in_path)
 
 @utils.dir_fun(False)
 def check_alg(in_path,clf=None):

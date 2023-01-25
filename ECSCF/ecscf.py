@@ -32,7 +32,6 @@ class ECSCF(BaseEstimator, ClassifierMixin):
 
     def fit_dataset(self,data_dict,features=False):
         train,test=data_dict.split()
-#        raise Exception(len(test))
         X_train,y_train,names=train.as_dataset()
         self.fit(X_train,y_train)
         if(features):
@@ -80,14 +79,15 @@ class MulticlassFacade(object):
         return self.raw_clf.predict_proba(concat_i)
 
 class Ensemble(object):
-    def __init__(self,full,binary):
-        self.full=full
+    def __init__(self,full,binary,clf_type=None):
         self.binary=binary 
+        self.full=full
+        self.clf_type=clf_type
 
     def evaluate(self,as_votes=False):
         results=[]
         for full_i in self.full:
-            result_i=learn.fit_lr(full_i)
+            result_i=learn.fit_lr(full_i,self.clf_type)
             results.append(result_i)
         results=[result_i.split()[1] 
             for result_i in results]
@@ -95,15 +95,19 @@ class Ensemble(object):
             return learn.Votes(results)
         return learn.voting(results)
 
-def read_binary_ensemble(in_path):
-    common_path=f'{in_path}/common'
-    binary_path=f'{in_path}/binary'
-    common=data.read_data(common_path)
-    binary=data.read_data_group(binary_path)
-    full=[ common.concat(binary_i) 
-       for binary_i in binary]
-#    raise Exception(binary[0].dim())
-    return Ensemble(full,binary)
+
+class EnsembleFactory(object):
+    def __init__(self,clf_type=None):
+        self.clf_type=clf_type
+
+    def __call__(self,in_path):
+        common_path=f'{in_path}/common'
+        binary_path=f'{in_path}/binary'
+        common=data.read_data(common_path)
+        binary=data.read_data_group(binary_path)
+        full=[ common.concat(binary_i) 
+            for binary_i in binary]
+        return Ensemble(full,binary,self.clf_type)
 
 def binarize(cat_i,targets):
     y_i=np.zeros((len(targets),2))
