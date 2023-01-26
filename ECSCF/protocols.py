@@ -45,7 +45,7 @@ class ESCFExp(object):
 
     @utils.dir_fun(False)
     @utils.unify_cv(dir_path='feats')
-    def escf_helper(path_i):
+    def __call__(self,path_i):
         ens_i=self.ensemble_factory(path_i)
         result_i=ens_i.evaluate()
         return result_i

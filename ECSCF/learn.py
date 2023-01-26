@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.metrics import classification_report,accuracy_score,f1_score
 from sklearn.linear_model import LogisticRegression
+#from sklearn.utils import class_weight
 import data
 
 class Votes(object):
@@ -71,14 +72,20 @@ def voting(results):
         pairs.append((name_i,cat_i))
     return Result(pairs)
 
-def fit_lr(data_dict_i,clf_i=None):
+def fit_lr(data_dict_i,clf_i=None,balance=True):
     data_dict_i.norm()
     train,test= data_dict_i.split()
-    if(clf_i is None):
-        clf_i=LogisticRegression(solver='liblinear')
     X_train,y_train,names=train.as_dataset()
-#    print(type(train))
-#    print(type(y_train))
+    if(clf_i is None):
+        if(balance):
+ #           class_weights=class_weight.compute_class_weight('balanced',
+ #                                       np.unique(y_train),
+ #                                       y_train)
+            clf_i=LogisticRegression(solver='liblinear',
+                class_weight='balanced')
+        else:
+#        print(type(clf_i))
+            clf_i=LogisticRegression(solver='liblinear')
     clf_i.fit(X_train,y_train)
     X_test,y_true,names=test.as_dataset()
     y_pred=clf_i.predict_proba(X_test)

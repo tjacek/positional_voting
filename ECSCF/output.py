@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn import ensemble
 from sklearn.linear_model import LogisticRegression
-import protocols,utils,ecscf
+import protocols,utils,ecscf,ens
 import inliner
 
 def multi_exp(in_path,exp=None):
@@ -18,7 +18,7 @@ def multi_exp(in_path,exp=None):
 class BasicExp(object):
     def __init__(self,algs=['LR'],use_escf=True,ens_factory=None):
         if(ens_factory is None):
-            ens_factory=ecscf.EnsembleFactory()
+            ens_factory=ens.EnsembleFactory()#ensemble.RandomForestClassifier())
         self.algs=get_algs( algs)
         self.use_escf=use_escf
         self.escf_exp=protocols.ESCFExp(ens_factory)
@@ -26,7 +26,7 @@ class BasicExp(object):
     def __call__(self,in_path):
         lines=[]
         if(self.use_escf):
-            lines.append(self.get_ecscf())
+            lines.append(self.get_ecscf(in_path))
         for type_i,clf_i in self.algs.items():
             print(type_i)
             acc_i=protocols.check_alg(in_path,clf_i)
@@ -35,7 +35,7 @@ class BasicExp(object):
         print('\n'.join(lines))
         return lines
 
-    def get_ecscf(in_path):
+    def get_ecscf(self,in_path):
         lines=['ECSCF']+stats(self.escf_exp(in_path))
         return ','.join(lines) 
 
@@ -65,7 +65,7 @@ def inliner_exp(in_path):
     return [line_i]
 
 
-basic_exp=BasicExp(['LR','RF'],False)
+basic_exp=BasicExp(['LR','RF'],True)
 #lines=basic_exp('imb/wine-quality-red')
 multi_exp('imb',basic_exp)
 #print(lines)
