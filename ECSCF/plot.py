@@ -88,6 +88,11 @@ def is_number(n):
         return False
     return True
 
+def add_column(df):
+    new_col=df['number of samples']/df['number of classes']
+    df['samples per class']=new_col
+#    print(new_col)
+
 def exp(result_path,stats_path,imb_path):
     var=['classes','samples','features']
     var=[f'number of {var_i}' for var_i in var]
@@ -98,7 +103,11 @@ def exp(result_path,stats_path,imb_path):
     scatter_plot(gini_df,col='gini index')
 
 df= prepare_data('result.txt','stats.csv',['Ens','ECSCF(RF)','ECSCF(LR)'])
-print(df)
-scatter_plot(df,col='number of samples',algs=['ECSCF(LR)','ECSCF(RF)'])
+#print(df)
+add_column(df)
+#print(df)
+scatter_plot(df,col='samples per class',algs=['ECSCF(LR)','ECSCF(RF)'])
+
+
 #exp('uci.csv','stats.csv','imbalance.csv')
 #print(gini_df)
