@@ -72,7 +72,7 @@ def voting(results):
         pairs.append((name_i,cat_i))
     return Result(pairs)
 
-def fit_lr(data_dict_i,clf_i=None,balance=True):
+def fit_lr(data_dict_i,clf_i=None,balance=False):
     data_dict_i.norm()
     train,test= data_dict_i.split()
     X_train,y_train,names=train.as_dataset()

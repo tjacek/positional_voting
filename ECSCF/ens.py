@@ -29,3 +29,13 @@ class EnsembleFactory(object):
         full=[ common.concat(binary_i) 
             for binary_i in binary]
         return Ensemble(full,binary,self.clf_type)
+
+
+class RawBinary(object):
+    def __init__(self,clf_type=None):
+        self.clf_type=clf_type
+
+    def __call__(self,in_path):
+        binary_path=f'{in_path}/binary'
+        binary=data.read_data_group(binary_path)
+        return Ensemble(binary,binary,self.clf_type)
