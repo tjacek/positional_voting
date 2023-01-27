@@ -3,24 +3,25 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import gini
 
-def prepare_data(in_path,stats_path):
+def prepare_data(in_path,stats_path,comp):
     result_df=pd.read_csv(in_path)
     stats_df=pd.read_csv(stats_path)
-    clf_df= get_clf_df(result_df,stats_df)
+    clf_df= get_clf_df(result_df,stats_df,comp)
     final_df=pd.merge(stats_df,clf_df,on='Dataset',how = 'inner')
     return final_df
 
-def get_clf_df(result_df,stats_df):
-    ecscf= result_df[result_df['clf']=='ECSCF']['acc']
-    rf= result_df[result_df['clf']=='RF']['acc']
+def get_clf_df(result_df,stats_df,comp):
+    alg_type,alg1,alg2=comp
+    ecscf= result_df[result_df[alg_type]==alg1]['acc']
+    rf= result_df[result_df[alg_type]==alg2]['acc']
     clf_df=pd.DataFrame({
         'Dataset': stats_df['Dataset'],
-        'RF':rf.reset_index(drop=True), 
-        'ECSCF':ecscf.reset_index(drop=True)})
+        alg1:ecscf.reset_index(drop=True), 
+        alg2:rf.reset_index(drop=True)})
     return clf_df
 
-def scatter_plot(df,col='Classes',name='title'):
-    diff= 100*(df['ECSCF']-df['RF']).to_numpy()
+def scatter_plot(df,col='Classes',algs=['ECSCF','RF'],name='title'):
+    diff= 100*(df[algs[0]]-df[algs[1]]).to_numpy()
     ind_var=df[col].to_numpy()
     y=df['Dataset']
 
@@ -48,9 +49,9 @@ def scatter_plot(df,col='Classes',name='title'):
     ticks = np.arange(int(start), int(stop) + 3*delta, delta)
     ax.set_xticks(ticks)
     plt.grid()
-    plt.ylabel("NECSCF-RF accuracy [%]")
+    plt.ylabel(f"{algs[0]}-{algs[1]} accuracy [%]")
     plt.xlabel(f"{col}")    
-    plt.title(f'NECSCF-RF accuracy as function of {col}')
+    plt.title(f'{algs[0]}-{algs[1]} accuracy as function of {col}')
     plt.show()
 
 def get_limit(series):
@@ -96,5 +97,8 @@ def exp(result_path,stats_path,imb_path):
     gini_df=prepare_gini(result_path,imb_path)
     scatter_plot(gini_df,col='gini index')
 
-exp('uci.csv','stats.csv','imbalance.csv')
+df= prepare_data('result.txt','stats.csv',['Ens','ECSCF(RF)','ECSCF(LR)'])
+print(df)
+scatter_plot(df,col='number of samples',algs=['ECSCF(LR)','ECSCF(RF)'])
+#exp('uci.csv','stats.csv','imbalance.csv')
 #print(gini_df)
