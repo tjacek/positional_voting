@@ -14,7 +14,7 @@ class Protocol(object):
 
     @utils.lazy_dir_fun
     def __call__(self,in_path,out_path,
-                    n_split=2,n_iters=10):     
+                    n_split=10,n_iters=10):     
         hyperparams=cv.find_hyperparams(in_path,
             self.search_space,
             n_split=n_split)

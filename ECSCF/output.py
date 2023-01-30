@@ -15,8 +15,6 @@ def multi_exp(in_path,exp=None):
             all_lines.append(f'{name_i},{line_j}')
     print('\n'.join(all_lines))
 
-#)
-
 class BasicExp(object):
     def __init__(self,escf_algs=['LR','RF'],algs=['LR','RF']):
         self.escf_algs=get_escf_algs(escf_algs)
@@ -26,7 +24,7 @@ class BasicExp(object):
         lines=[]
         for type_i,ens_i in self.escf_algs.items():
             print(type_i)
-            line_i=[f'ECSCF({type_i})']+stats(ens_i(in_path))
+            line_i=[f'ESCF,{type_i}']+stats(ens_i(in_path))
             lines.append(','.join(line_i))
         for type_i,clf_i in self.algs.items():
             print(type_i)
@@ -43,25 +41,34 @@ def stats(acc):
 def get_algs(names):
     alg={}
     for name_i in names:
-        if(name_i=="LR"):
-            alg[name_i]=LogisticRegression(solver='liblinear')
-        if(name_i=="RF"):
-            alg[name_i]=ensemble.RandomForestClassifier()
-        if(name_i=='Bag'):
-            alg[name_i]=ensemble.BaggingClassifier()
-        if(name_i=='Grad'):
-            alg[name_i]=ensemble.GradientBoostingClassifier()
+        alg[name_i]=get_clf(name_i)
     return alg
+
+def get_clf(name_i):
+        if(name_i=="LR"):
+            return LogisticRegression(solver='liblinear')
+        if(name_i=="RF"):
+            return ensemble.RandomForestClassifier()
+        if(name_i=='Bag'):
+            return ensemble.BaggingClassifier()
+        if(name_i=='Grad'):
+            return ensemble.GradientBoostingClassifier()
 
 def get_escf_algs(names):
     alg={}
     for name_i in names:
-        if(name_i=="LR"):
-            ens_factory=ens.EnsembleFactory()
-#            alg[name_i]=
-        if(name_i=='RF'):
-            ens_factory=ens.EnsembleFactory(ensemble.RandomForestClassifier())  
-        alg[name_i]=protocols.ESCFExp(ens_factory)
+        raw_i=name_i.split('_')
+        if(raw_i[0]=='binary'):
+            clf_i=get_clf(raw_i[1])
+            ens_factory=ens.RawBinary
+        else:
+            clf_i=get_clf(raw_i[0])
+            ens_factory=ens.EnsembleFactory
+#        if(name_i=="LR"):
+#            ens_factory=ens.EnsembleFactory()
+#        if(name_i=='RF'):
+#            ens_factory=ens.EnsembleFactory(ensemble.RandomForestClassifier())  
+        alg[name_i]=protocols.ESCFExp(ens_factory(clf_i))
     return alg
 
 def inliner_exp(in_path):
@@ -73,7 +80,9 @@ def inliner_exp(in_path):
     return [line_i]
 
 
-basic_exp=BasicExp()#['LR','RF'],True)
+basic_exp=BasicExp(['LR','RF','Bag','Grad',
+                   'binary_LR','binary_RF','binary_Bag','binary_Grad'],
+                    ['LR','RF','Bag','Grad'])
 #lines=basic_exp('imb/wine-quality-red')
-multi_exp('uci',basic_exp)
+multi_exp('test',basic_exp)
 #print(lines)
