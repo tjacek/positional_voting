@@ -2,6 +2,7 @@ from sklearn import linear_model
 from sklearn import preprocessing
 import numpy as np
 import pandas as pd
+import plot
 
 class ExpStats(object):
     def __init__(self,results,stats):
@@ -25,7 +26,6 @@ class ExpStats(object):
                 raw_dict[col_j].append(f'{value_j:.4}')
         df=pd.DataFrame.from_dict(raw_dict)
         return df
-#        print(df)
 
     def get_y(self,base=('ECSCF','LR'),
     	      diff=('ECSCF','RF')):
@@ -43,7 +43,11 @@ class ExpStats(object):
 
 def prepare(in_path,stats_path):
     result_df=pd.read_csv(in_path)
-    stats_df=pd.read_csv(stats_path)
+#    stats_df=pd.read_csv(stats_path)
+    stats_df= plot.prepare_gini('stats.csv','imb.csv')
+    stats_df= stats_df.round(2)
+    print(stats_df.to_csv())
+    print(stats_df.to_latex())
     return ExpStats(result_df,stats_df)
 
 es=prepare('result.txt','stats.csv')
