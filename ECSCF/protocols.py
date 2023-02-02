@@ -65,10 +65,15 @@ def check_alg(in_path,clf=None):
     print(in_path)
     return full_results.get_acc()
 
+@utils.dir_fun(False)
+def check_dim(in_path):
+    binary_path=f'{in_path}/0/feats/0/binary/0'
+    d=data.read_data(binary_path)
+    print(d.dim())
 
 if __name__ == "__main__":
 #    protocol=Protocol()
 #    protocol('data','uci')
-    out=escf_exp('wine_cv2')
-#    out=check_alg('wine_no_cv')
+#    out=escf_exp('wine_cv2')
+    out=check_dim('uci')
     print(out)

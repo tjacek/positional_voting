@@ -104,9 +104,14 @@ def exp(result_path,stats_path,imb_path):
     gini_df=prepare_gini(result_path,imb_path)
     scatter_plot(gini_df,col='gini index')
 
+def to_latex(in_path):
+    df=pd.read_csv(in_path)
+    print(df.to_latex())
+
 if __name__ == "__main__":
-    df= prepare_data('result.txt','stats.csv',
-                     ['Ens','ECSCF(RF)','ECSCF(LR)'])
+#    df= prepare_data('result.txt','stats.csv',
+#                     ['Ens','ECSCF(RF)','ECSCF(LR)'])
+    to_latex('hidden_mlp.csv')
 #add_column(df)
 #print(df)
 #scatter_plot(df,col='samples per class',algs=['ECSCF(LR)','ECSCF(RF)'])
