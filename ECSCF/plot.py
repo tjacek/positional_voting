@@ -3,23 +3,34 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import gini
 
-def prepare_data(in_path,stats_path,comp):
+def prepare_data(in_path,stats_path,ens,clf):
     result_df=pd.read_csv(in_path)
-    print(result_df.to_latex())
+    by_clf_type(result_df,ens,clf)
     stats_df=pd.read_csv(stats_path)
     clf_df= get_clf_df(result_df,stats_df,comp)
     final_df=pd.merge(stats_df,clf_df,on='Dataset',how = 'inner')
     return final_df
 
-def get_clf_df(result_df,stats_df,comp):
-    alg_type,alg1,alg2=comp
-    ecscf= result_df[result_df[alg_type]==alg1]['acc']
-    rf= result_df[result_df[alg_type]==alg2]['acc']
-    clf_df=pd.DataFrame({
-        'Dataset': stats_df['Dataset'],
-        alg1:ecscf.reset_index(drop=True), 
-        alg2:rf.reset_index(drop=True)})
-    return clf_df
+def by_clf_type(result_df,ens,clf):
+    result_dict={}
+    for ens_i in ens:
+        ens_df=result_df[result_df['Ens']==ens_i]
+        for clf_j in clf:
+            id_ij='_'.join([ens_i,clf_j])
+            df_ij=ens_df[result_df['Clf']==clf_j]
+            df_ij.set_index('Dataset')
+            result_dict[id_ij]=df_ij
+    result_df    
+    raise Exception('OK')
+#def get_clf_df(result_df,stats_df,comp):
+#    alg_type,alg1,alg2=comp
+#    ecscf= result_df[result_df[alg_type]==alg1]['Acc']
+#    rf= result_df[result_df[alg_type]==alg2]['Acc']
+#    clf_df=pd.DataFrame({
+#        'Dataset': stats_df['Dataset'],
+#        alg1:ecscf.reset_index(drop=True), 
+#        alg2:rf.reset_index(drop=True)})
+#    return clf_df
 
 def scatter_plot(df,col='Classes',algs=['ECSCF','RF'],name='title'):
     diff= 100*(df[algs[0]]-df[algs[1]]).to_numpy()
@@ -77,7 +88,6 @@ def prepare_gini(in_path,imbalance_path):
         gini_df[data_i]=gini.gini_index(np.array(row_i))
     gini_df=pd.DataFrame.from_dict(gini_df.items())
     gini_df.columns= ['Dataset','gini index']
-#    clf_df= get_clf_df(result_df,gini_df)
     final_df=pd.merge(stats_df,gini_df,on='Dataset',how = 'inner')
     print(final_df)
 
@@ -109,9 +119,10 @@ def to_latex(in_path):
     print(df.to_latex())
 
 if __name__ == "__main__":
-#    df= prepare_data('result.txt','stats.csv',
-#                     ['Ens','ECSCF(RF)','ECSCF(LR)'])
-    to_latex('hidden_mlp.csv')
+    df= prepare_data('result.txt','stats.csv',['ECSCF','common','binary'],['RF','LR'])
+#                     ['Ens',('ECSCF','RF'),('ECSCF','LR')])
+    print(df)
+#    to_latex('hidden_mlp.csv')
 #add_column(df)
 #print(df)
 #scatter_plot(df,col='samples per class',algs=['ECSCF(LR)','ECSCF(RF)'])
