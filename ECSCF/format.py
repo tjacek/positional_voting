@@ -36,5 +36,13 @@ def format(df,out_path='out.csv'):
     final_df=final_df[['common','binary','ECSCF']]
     print(final_df.to_latex())
 
+def find_algs(in_path):
+    df=pd.read_csv(in_path)
+    names=df.columns()
+
+
+def to_number(raw)
+    mean,std= raw.split('±')
+
 df=find_best('result.txt')
 format(df)

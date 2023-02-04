@@ -11,8 +11,8 @@ class PlotFactory(object):
         x_name='gini index',title_name='Accuracy difference as function of gini',
         x_scale=10,y_scale=100):
         
-        y= (self.get_df(base)['Acc']-self.get_df(diff)['Acc'])
-        x= self.stats_df[x_name]
+        y= y_scale * (self.get_df(base)['Acc']-self.get_df(diff)['Acc'])
+        x= x_scale * self.stats_df[x_name]
         names=self.stats_df['Dataset']
         y_label=f'{base[0]}({base[1]})-{diff[0]}({diff[1]})'
         scatter_plot(x,y,names,x_name,y_label,title_name)
@@ -39,26 +39,32 @@ def by_clf_type(result_df,ens,clf):
     return result_dict    
 
 def scatter_plot(x,y,names,x_label,y_label,title_name):
+
     plt.figure()
     ax = plt.subplot(111)
     for i,name_i in enumerate(names):    
         plt.text(x[i], y[i], name_i,
                    fontdict={'weight': 'bold', 'size': 9})
     
-    plt.ylim(get_limit(y)) 
-    plt.xlim(get_limit(x))
+    ax.set_ylim(get_limit(y)) 
+    ax.set_xlim(get_limit(x))
     
     start, stop = ax.get_ylim()
 
-    delta_y= (stop-start)/10
 
-    ticks =  delta_y*np.arange(12)#np.arange(int(start), int(stop) + 1, 2)
+    ticks = np.arange(int(start), int(stop) + 1, 1)
     ax.set_yticks(ticks)
 
 
     start, stop = ax.get_xlim()
-    delta_x= (stop-start)/10
-    ticks = delta_x * np.arange(12) #np.arange(int(start), int(stop) + 3*delta, delta)
+    print(ax.get_xlim())
+    if(stop>12):
+        delta_x= int((stop- start)/10)
+    else:
+        delta_x=1
+    print(delta_x)
+    ticks = np.arange(int(start), int(stop) + 3*delta_x, delta_x)
+    
     ax.set_xticks(ticks)
     plt.grid()
     plt.ylabel(y_label)
@@ -73,7 +79,7 @@ def get_limit(series):
         s_min=0
     else:
         s_min-= 1 
-    return [s_min,s_max]
+    return [s_min,s_max+2]
 
 def add_column(df):
     new_col=df['number of samples']/df['number of classes']
