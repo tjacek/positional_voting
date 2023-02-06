@@ -44,7 +44,14 @@ def find_algs(in_path):
         row_i=df[df['Dataset']==data_i]
         row_i=row_i.to_dict()
         del row_i['Dataset']
-        print(row_i)
+        row_i=[ list(row_i[alg_j].values())[0] 
+                   for alg_j in algs]
+        mean_i,std_i=[],[]
+        for raw_j in row_i:
+            mean_j,std_j=to_number(raw_j)
+            mean_i.append(mean_j)
+            std_i.append(std_j)
+        print(mean_i)
 
 
 def to_number(raw):
