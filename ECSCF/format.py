@@ -38,11 +38,18 @@ def format(df,out_path='out.csv'):
 
 def find_algs(in_path):
     df=pd.read_csv(in_path)
-    names=df.columns()
+    algs=df.columns[1:]
+    datasets=df['Dataset'].unique()
+    for data_i in datasets:
+        row_i=df[df['Dataset']==data_i]
+        row_i=row_i.to_dict()
+        del row_i['Dataset']
+        print(row_i)
 
 
-def to_number(raw)
+def to_number(raw):
     mean,std= raw.split('±')
+    return float(mean),float(std)
 
-df=find_best('result.txt')
-format(df)
+df=find_algs('wozniak.csv')
+#format(df)
