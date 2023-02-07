@@ -40,6 +40,7 @@ def find_algs(in_path):
     df=pd.read_csv(in_path)
     algs=df.columns[1:]
     datasets=df['Dataset'].unique()
+    best_dict={data_i:[] for data_i in datasets}
     for data_i in datasets:
         row_i=df[df['Dataset']==data_i]
         row_i=row_i.to_dict()
@@ -51,8 +52,13 @@ def find_algs(in_path):
             mean_j,std_j=to_number(raw_j)
             mean_i.append(mean_j)
             std_i.append(std_j)
-        print(mean_i)
-
+        k= np.argmax(mean_i)
+        max_acc,max_std=mean_i[k],std_i[k]
+        for j,mean_j in enumerate(mean_i):
+            if((max_acc-mean_j) <= max_std):
+                best_dict[data_i].append(algs[j])
+    print(best_dict)
+        
 
 def to_number(raw):
     mean,std= raw.split('±')
