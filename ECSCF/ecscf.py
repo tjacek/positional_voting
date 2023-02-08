@@ -1,6 +1,7 @@
 import numpy as np 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
+from itertools import combinations
 import nn,learn,data
 
 class ECSCF(BaseEstimator, ClassifierMixin):
@@ -67,6 +68,14 @@ class ECSCF(BaseEstimator, ClassifierMixin):
             concat_i=np.concatenate([X,binary_i],axis=1)
             binary.append(concat_i)
         return binary
+
+class PairEnsemble(ECSCF):
+    def make_extractor(self,X,targets):
+        n_cats=max(targets)+1
+        pairs = list(combinations(range(n_cats),2))
+        for i,j in pairs:
+            y_ij=[ int(cat==i) for cat in targets
+                    if((cat==i) or (cat==j))]
 
 class MulticlassFacade(object):
     def __init__(self,raw_clf,extractor):
