@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
 from itertools import combinations
+import tensorflow as tf 
 import nn,learn,data
 
 class NeuralEnsemble(BaseEstimator, ClassifierMixin):
@@ -84,11 +85,15 @@ class OneVsOne(NeuralEnsemble):
         n_cats=max(targets)+1
         pairs = list(combinations(range(n_cats),2))
         for i,j in pairs:
-            y_ij=[ int(cat==i) for cat in targets
-                    if((cat==i) or (cat==j))]    
+            selected=[k for k,y_k in enumerate(targets)
+                        if((y_k==i) or (y_k==j))]
+            y_s=[ int(targets[k]==i) for k in selected]    
+            y_s= tf.keras.utils.to_categorical(y_s, num_classes = 2)
+            X_s=np.array([ X[k,:] for k in selected])
+#            raise Exception('OK')
             nn_params={'dims':X.shape[1],'n_cats':2}
             model_i=nn.SimpleNN(n_hidden=self.n_hidden)(nn_params)
-            model_i.fit(X,y_ij,
+            model_i.fit(X_s,y_s,
                 epochs=self.n_epochs,batch_size=self.batch_size)
             extractor_i= nn.get_extractor(model_i)
             self.extractors.append(extractor_i)

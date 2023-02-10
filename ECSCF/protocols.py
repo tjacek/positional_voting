@@ -15,15 +15,17 @@ class Protocol(object):
     @utils.lazy_dir_fun
     def __call__(self,in_path,out_path,
                     n_split=10,n_iters=10):     
+        ensemble_type=ecscf.OneVsOne
         hyperparams=cv.find_hyperparams(in_path,
-            self.search_space,
+            self.search_space,ensemble_type,
             n_split=n_split)
         iters_fun=utils.iter_fun(n_iters)(self.fun)
-        iters_fun(in_path,out_path,hyperparams,n_split)
+        iters_fun(in_path,out_path,hyperparams,
+            ensemble_type,n_split)
         print(hyperparams)
 
-def one_out_iter(in_path,out_path,
-    hyperparams,n_split=10):
+def one_out_iter(in_path,out_path,hyperparams,
+        ensemble_type=ecscf.OneVsAll,n_split=10):
     data.make_dir(out_path)
     fold_path=f'{out_path}/fold'
     feat_path=f'{out_path}/feats'
@@ -32,7 +34,7 @@ def one_out_iter(in_path,out_path,
     for i,data_i in enumerate(cv_folds):
         out_i=f'{feat_path}/{i}'
         data.make_dir(out_i)
-        clf_i=ecscf.ECSCF(**hyperparams)
+        clf_i=ensemble_type(**hyperparams)
         data_i.save(f'{out_i}/common')
         datasets=clf_i.fit_dataset(data_i,features=True)
         datasets.save(f'{out_i}/binary')  
@@ -72,8 +74,8 @@ def check_dim(in_path):
     print(d.dim())
 
 if __name__ == "__main__":
-#    protocol=Protocol()
-#    protocol('data','uci')
+    protocol=Protocol()
+    protocol('small','test',n_split=2,n_iters=2)
 #    out=escf_exp('wine_cv2')
-    out=check_dim('uci')
-    print(out)
+#    out=check_dim('uci')
+#    print(out)

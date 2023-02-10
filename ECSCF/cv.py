@@ -78,10 +78,12 @@ class BayesOptim(object):
         best_estm=search.best_estimator_
         return best_estm.get_params(deep=True)
 
-def find_hyperparams(train,params,n_split=2):
+def find_hyperparams(train,params,ensemble_type=ecscf.OneVsAll,n_split=2):
     if(type(train)==str):
         train=data.read_data(train)
-    bayes_cf=BayesOptim(ecscf.ECSCF,params,n_split=n_split)
+
+#    ensemble_factory= ecscf.OneVsAll
+    bayes_cf=BayesOptim(ensemble_type,params,n_split=n_split)
     train_tuple=train.as_dataset()[:2]
     best_params= bayes_cf(*train_tuple)
     return best_params
