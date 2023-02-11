@@ -64,10 +64,6 @@ def get_escf_algs(names):
         else:
             clf_i=get_clf(raw_i[0])
             ens_factory=ens.EnsembleFactory
-#        if(name_i=="LR"):
-#            ens_factory=ens.EnsembleFactory()
-#        if(name_i=='RF'):
-#            ens_factory=ens.EnsembleFactory(ensemble.RandomForestClassifier())  
         alg[name_i]=protocols.ESCFExp(ens_factory(clf_i))
     return alg
 
@@ -79,10 +75,10 @@ def inliner_exp(in_path):
     print(line_i)
     return [line_i]
 
-
-basic_exp=BasicExp(['LR','RF','Bag','Grad',
-                   'binary_LR','binary_RF','binary_Bag','binary_Grad'],
-                    ['LR','RF','Bag','Grad'])
-#lines=basic_exp('imb/wine-quality-red')
-multi_exp('test',basic_exp)
-#print(lines)
+if __name__ == "__main__":
+    basic_exp=BasicExp(['LR','RF','Bag','Grad',
+                       'binary_LR','binary_RF','binary_Bag','binary_Grad'],
+                       ['LR','RF','Bag','Grad'])
+    #lines=basic_exp('imb/wine-quality-red')
+    multi_exp('test',basic_exp)
+    #print(lines)

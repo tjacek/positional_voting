@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
+import utils,protocols,output
 
 class PlotFactory(object):
     def __init__(self,result_dict,stats_df):
@@ -20,6 +21,17 @@ class PlotFactory(object):
     def get_df(self,base):
         df_id='_'.join(base)
         return self.result_dict[df_id]
+
+class BoxPlot(object):
+    def __init__(self,alg=None):
+        if(alg is None):
+            alg=output.get_escf_algs(['LR'])['LR']
+        self.alg=alg
+
+    def __call__(self,in_path):
+        eff_fun=utils.dir_fun(as_dict=True)(self.alg)
+        acc_dict=eff_fun(in_path)
+        print(acc_dict)
 
 def prepare_data(in_path,stats_path,ens,clf):
     result_df=pd.read_csv(in_path)
@@ -81,6 +93,14 @@ def get_limit(series):
         s_min-= 1 
     return [s_min,s_max+2]
 
+def box_test():
+    a=[1,2,3,4,5]
+    b=[1,4,9,16,25]
+    c=[1,16,81,256,625]
+    fig, ax = plt.subplots()
+    ax.boxplot([a,b,c])
+    plt.show()
+
 def add_column(df):
     new_col=df['number of samples']/df['number of classes']
     df['samples per class']=new_col
@@ -90,10 +110,8 @@ def to_latex(in_path):
     print(df.to_latex())
 
 if __name__ == "__main__":
-    pf= prepare_data('result.txt','full_stats.csv',
-        ['ECSCF','common','binary'],['RF','LR'])
-    pf()
-#    to_latex('hidden_mlp.csv')
-#add_column(df)
-#print(df)
-#scatter_plot(df,col='samples per class',algs=['ECSCF(LR)','ECSCF(RF)'])
+#    pf= prepare_data('result.txt','full_stats.csv',
+#        ['ECSCF','common','binary'],['RF','LR'])
+#    pf()
+    box_plot=BoxPlot()
+    box_plot('imb')
