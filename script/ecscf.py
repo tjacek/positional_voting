@@ -2,7 +2,36 @@ import numpy as np
 from sklearn import ensemble
 from sklearn.linear_model import LogisticRegression
 #import protocols,utils,ecscf,ens
-import ens
+import ens,utils,data,learn
+import sys
+
+class ESCFExp(object):
+    def __init__(self,ensemble_factory=None):
+        if(ensemble_factory is None):
+            ensemble_factory=escf.EnsembleFactory()
+        self.ensemble_factory=ensemble_factory
+
+    @utils.dir_fun(False)
+    @utils.unify_cv(dir_path='feats')
+    def __call__(self,path_i):
+        ens_i=self.ensemble_factory(path_i)
+        result_i=ens_i.evaluate()
+        return result_i
+
+@utils.dir_fun(False)
+def check_alg(in_path,clf=None):
+    if(clf is None):
+        clf=ensemble.RandomForestClassifier()
+    results=[]
+    feats_path=f'{in_path}/feats'
+    for path_i in data.top_files(feats_path):
+        common_path_i=f'{path_i}/common'
+        data_i= data.read_data(common_path_i)
+        result_i=learn.fit_lr(data_i,clf_i=clf)
+        results.append(result_i)
+    full_results=learn.unify_results(results)
+    print(in_path)
+    return full_results.get_acc()
 
 def multi_exp(in_path,exp=None):
     if(exp is None):
@@ -28,7 +57,7 @@ class BasicExp(object):
             lines.append(','.join(line_i))
         for type_i,clf_i in self.algs.items():
             print(type_i)
-            acc_i=protocols.check_alg(in_path,clf_i)
+            acc_i=check_alg(in_path,clf_i)
             stats_i=','.join(stats(acc_i))
             lines.append(f'{type_i},{stats_i}')	
         print('\n'.join(lines))
@@ -64,15 +93,19 @@ def get_escf_algs(names):
         else:
             clf_i=get_clf(raw_i[0])
             ens_factory=ens.EnsembleFactory
-        alg[name_i]=protocols.ESCFExp(ens_factory(clf_i))
+        alg[name_i]=ESCFExp(ens_factory(clf_i))
     return alg
 
 
 if __name__ == "__main__":
-    basic_exp=BasicExp(['LR','RF','Bag',#,'Grad',
-                       'binary_LR','binary_RF','binary_Bag'],#,'binary_Grad'],
-                       ['LR','RF','Bag'])#,'Grad'])
+    if(len(sys.argv)>1):
+        data_dir= sys.argv[1]
+    else:
+        data_dir='imb'
+    print(data_dir)
+    basic_exp=BasicExp(['LR','RF',#'Bag','Grad',
+                       'binary_LR','binary_RF'],#,'binary_Bag','binary_Grad'],
+                       ['LR','RF'])#,'Bag','Grad'])
     #lines=basic_exp('imb/wine-quality-red')
-    in_path='../ECSCF/imb'
-    multi_exp('test',basic_exp)
+    multi_exp(data_dir,basic_exp)
     #print(lines)
