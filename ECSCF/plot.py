@@ -4,9 +4,17 @@ import pandas as pd
 import utils,protocols,output
 
 class PlotFactory(object):
-    def __init__(self,result_dict,stats_df):
+    def __init__(self,result_dict,stats_df,rename=None):
+        if(rename is None):
+            rename={'led7digit':'L7D','mfeat-fourier':'MF',
+            'mfeat-karh':'MK','satimage':'SI','cleveland':'CL',
+            'dermatology':'DERM','newthyroid':'NT','lymphography':'LM',
+            'wall-following':'WF','wine-quality-red':'WQR',
+            'solar-flare-1':'SF'}
         self.result_dict=result_dict
         self.stats_df=stats_df
+        self.rename=rename
+
 
     def __call__(self,base=('ECSCF','LR'),diff=('ECSCF','RF'),
         x_name='gini index',title_name='Accuracy difference as function of gini',
@@ -15,12 +23,19 @@ class PlotFactory(object):
         y= y_scale * (self.get_df(base)['Acc']-self.get_df(diff)['Acc'])
         x= x_scale * self.stats_df[x_name]
         names=self.stats_df['Dataset']
+        names=[self.get_label(name_i) for name_i in names]
+#        raise Exception(names)
         y_label=f'{base[0]}({base[1]})-{diff[0]}({diff[1]})'
         scatter_plot(x,y,names,x_name,y_label,title_name)
 
     def get_df(self,base):
         df_id='_'.join(base)
         return self.result_dict[df_id]
+
+    def get_label(self,name_i):
+        if(name_i in self.rename):
+            return self.rename[name_i]
+        return name_i
 
 class BoxPlot(object):
     def __init__(self,alg=None):
@@ -32,6 +47,10 @@ class BoxPlot(object):
         eff_fun=utils.dir_fun(as_dict=True)(self.alg)
         acc_dict=eff_fun(in_path)
         print(acc_dict)
+        fig, ax = plt.subplots()
+        ax.boxplot(list(acc_dict.values()))
+        plt.xticks(range(1,len(acc_dict)+1),acc_dict.keys())
+        plt.show()
 
 def prepare_data(in_path,stats_path,ens,clf):
     result_df=pd.read_csv(in_path)
@@ -51,7 +70,6 @@ def by_clf_type(result_df,ens,clf):
     return result_dict    
 
 def scatter_plot(x,y,names,x_label,y_label,title_name):
-
     plt.figure()
     ax = plt.subplot(111)
     for i,name_i in enumerate(names):    
@@ -97,9 +115,7 @@ def box_test():
     a=[1,2,3,4,5]
     b=[1,4,9,16,25]
     c=[1,16,81,256,625]
-    fig, ax = plt.subplots()
-    ax.boxplot([a,b,c])
-    plt.show()
+    
 
 def add_column(df):
     new_col=df['number of samples']/df['number of classes']
@@ -110,8 +126,8 @@ def to_latex(in_path):
     print(df.to_latex())
 
 if __name__ == "__main__":
-#    pf= prepare_data('result.txt','full_stats.csv',
-#        ['ECSCF','common','binary'],['RF','LR'])
-#    pf()
-    box_plot=BoxPlot()
-    box_plot('imb')
+    pf= prepare_data('result.txt','full_stats.csv',
+        ['ECSCF','common','binary'],['RF','LR'])
+    pf()
+#    box_plot=BoxPlot()
+#    box_plot('imb')
