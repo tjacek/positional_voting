@@ -58,10 +58,12 @@ class DataDict(dict):
                 test.append(pair_i)
         return self.__class__(train),self.__class__(test)
     
-    def save(self,out_path):
+    def save(self,out_path=None):
         raw_dict={}
         for name_i,data_i in self.items():
             raw_dict[str(name_i)]=list(data_i)
+        if(out_path is None):
+            return raw_dict
         with open(out_path, 'w') as f:
             json.dump(raw_dict, f)
 
