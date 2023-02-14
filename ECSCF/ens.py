@@ -19,6 +19,9 @@ class Ensemble(object):
 
 class EnsembleFactory(object):
     def __init__(self,clf_type=None):
+        if(clf_type is None):
+            import output
+            clf_type=output.get_clf('LR')
         self.clf_type=clf_type
 
     def __call__(self,in_path):
@@ -30,7 +33,6 @@ class EnsembleFactory(object):
             for binary_i in binary]
         return Ensemble(full,binary,self.clf_type)
 
-
 class RawBinary(object):
     def __init__(self,clf_type=None):
         self.clf_type=clf_type
@@ -39,3 +41,8 @@ class RawBinary(object):
         binary_path=f'{in_path}/binary'
         binary=data.read_data_group(binary_path)
         return Ensemble(binary,binary,self.clf_type)
+
+if __name__ == "__main__":
+    in_path='imb/wall-following/0/feats/0'
+    ens_factory=EnsembleFactory()
+    ens_factory(in_path)
