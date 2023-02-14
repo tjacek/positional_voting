@@ -73,7 +73,8 @@ def scatter_plot(x,y,names,x_label,y_label,title_name):
     plt.figure()
     ax = plt.subplot(111)
     for i,name_i in enumerate(names):    
-        plt.text(x[i], y[i], name_i,
+        color_i= np.random.rand(3)
+        plt.text(x[i], y[i], name_i,color=color_i,
                    fontdict={'weight': 'bold', 'size': 9})
     
     ax.set_ylim(get_limit(y)) 
