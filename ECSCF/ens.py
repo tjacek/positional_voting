@@ -43,6 +43,23 @@ class EnsembleFactory(object):
         full=common
         return Ensemble(full,binary,self.clf_type)
 
+
+class GzipFactory(object):
+    def __init__(self,clf_type=None):
+        if(clf_type is None):
+            import output
+            clf_type=output.get_clf('LR')
+        self.clf_type=clf_type
+
+    def __call__(self,in_path):
+        with gzip.open(in_path, 'r') as f:        
+            json_bytes = f.read()                      
+            json_str = json_bytes.decode('utf-8')           
+            raw_dict = json.loads(json_str)
+            common=raw_dict['common']
+            binary=raw_dict['binary']
+            return Ensemble(common,binary,self.clf_type)
+
 class RawBinary(object):
     def __init__(self,clf_type=None):
         self.clf_type=clf_type
@@ -54,6 +71,8 @@ class RawBinary(object):
 
 if __name__ == "__main__":
     in_path='imb/wall-following/0/feats/0'
-    ens_factory=EnsembleFactory()
-    ens_i=ens_factory(in_path)
-    ens_i.as_gzip('test.gzip')
+ #   ens_factory=EnsembleFactory()
+ #   ens_i=ens_factory(in_path)
+ #   ens_i.as_gzip('test.gzip')
+    s=GzipFactory()('test.gzip')
+    print(type(s))
