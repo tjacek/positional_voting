@@ -1,5 +1,5 @@
 import os
-import utils,data
+import utils,data,ens
 
 def show_size(in_path):
     total_size=0
@@ -12,9 +12,13 @@ def show_size(in_path):
     print(total_size/1000)
 
 @utils.dir_map(2)
-#@utils.unify_cv(dir_path='feats')
 def to_gzip(in_path,out_path):
-#    print(data.top_files(in_path))
-     print(in_path,out_path)
+    factory=ens.EnsembleFactory()
+    paths=data.top_files(f'{in_path}/feats')
+    for i,path_i in enumerate(paths):
+        out_i=f'{out_path}/{i}'
+        ens_i=factory(path_i)
+        ens_i.as_gzip(out_i)
+        print(out_i)
 
 to_gzip('imb','imb_gzip')
