@@ -62,7 +62,10 @@ def unify_cv(dir_path='feats',show=False):
         def decor_fun(*args, **kwargs):
             results=[]
             k=is_object(args)
-            main_path=f'{args[k]}/{dir_path}'
+            if(dir_path is None):
+                main_path=args[k]
+            else:
+                main_path=f'{args[k]}/{dir_path}'
             for path_i in data.top_files(main_path):
                 args=list(args)
                 args[k]=path_i

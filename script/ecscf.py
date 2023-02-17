@@ -12,7 +12,7 @@ class ESCFExp(object):
         self.ensemble_factory=ensemble_factory
 
     @utils.dir_fun(False)
-    @utils.unify_cv(dir_path='feats')
+    @utils.unify_cv(dir_path=None)
     def __call__(self,path_i):
         ens_i=self.ensemble_factory(path_i)
         result_i=ens_i.evaluate()
@@ -87,25 +87,19 @@ def get_escf_algs(names):
     alg={}
     for name_i in names:
         raw_i=name_i.split('_')
-        if(raw_i[0]=='binary'):
-            clf_i=get_clf(raw_i[1])
-            ens_factory=ens.RawBinary
-        else:
-            clf_i=get_clf(raw_i[0])
-            ens_factory=ens.EnsembleFactory
+        clf_i=get_clf(raw_i[0])
+        ens_factory=ens.GzipFactory
         alg[name_i]=ESCFExp(ens_factory(clf_i))
     return alg
-
 
 if __name__ == "__main__":
     if(len(sys.argv)>1):
         data_dir= sys.argv[1]
     else:
-        data_dir='imb'
+        data_dir='../ECSCF/imb_gzip'
     print(data_dir)
-    basic_exp=BasicExp(['LR','RF',#'Bag','Grad',
-                       'binary_LR','binary_RF'],#,'binary_Bag','binary_Grad'],
-                       ['LR','RF'])#,'Bag','Grad'])
+    basic_exp=BasicExp(['LR','RF'],algs=[])#'Bag','Grad',
+#                       ['LR','RF'])#,'Bag','Grad'])
     #lines=basic_exp('imb/wine-quality-red')
     multi_exp(data_dir,basic_exp)
     #print(lines)

@@ -24,7 +24,7 @@ class Ensemble(object):
         return learn.voting(results)
 
     def as_gzip(self,in_path):
-        raw_dict={'common':self.full.save(),
+        raw_dict={'common':self.common.save(),
             'binary':[binary_i.save() for binary_i in self.binary]}
         with gzip.open(in_path, 'wb') as f:
             json_str = json.dumps(raw_dict) + "\n"               # 2. string (i.e. JSON)
@@ -41,6 +41,7 @@ class EnsembleFactory(object):
     def __call__(self,in_path):
         common_path=f'{in_path}/common'
         binary_path=f'{in_path}/binary'
+        print(common_path)
         common=data.read_data(common_path)
         binary=data.read_data_group(binary_path)
 #        full=[ common.concat(binary_i) 

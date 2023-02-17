@@ -10,7 +10,13 @@ class DataDict(dict):
     def names(self):
         keys=list(self.keys())
         keys.sort()
-        return NameList(keys)
+        all_names=[]
+        for name_i in keys:
+            if(type(name_i)==Name):
+                all_names.append(name_i)
+            else:
+                all_names.append(Name(name_i))
+        return NameList(all_names)
 
     def dim(self):
         return list(self.values())[0].shape[0]
@@ -58,10 +64,12 @@ class DataDict(dict):
                 test.append(pair_i)
         return self.__class__(train),self.__class__(test)
     
-    def save(self,out_path):
+    def save(self,out_path=None):
         raw_dict={}
         for name_i,data_i in self.items():
             raw_dict[str(name_i)]=list(data_i)
+        if(out_path is None):
+            return raw_dict
         with open(out_path, 'w') as f:
             json.dump(raw_dict, f)
 
@@ -157,7 +165,7 @@ class Name(str):
     def set_train(self,trainset:bool):
         raw=self.split('_')
         raw[1]=str(int(trainset))
-        return Name('_'.join(raw))	
+        return Name('_'.join(raw))  
 
 def read_data(in_path):
     with open(in_path, 'r') as f:
