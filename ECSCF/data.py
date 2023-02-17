@@ -10,7 +10,13 @@ class DataDict(dict):
     def names(self):
         keys=list(self.keys())
         keys.sort()
-        return NameList(keys)
+        all_names=[]
+        for name_i in keys:
+            if(type(name_i)==Name):
+                all_names.append(name_i)
+            else:
+                all_names.append(Name(name_i))
+        return NameList(all_names)
 
     def dim(self):
         return list(self.values())[0].shape[0]

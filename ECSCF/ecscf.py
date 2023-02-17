@@ -90,7 +90,6 @@ class OneVsOne(NeuralEnsemble):
             y_s=[ int(targets[k]==i) for k in selected]    
             y_s= tf.keras.utils.to_categorical(y_s, num_classes = 2)
             X_s=np.array([ X[k,:] for k in selected])
-#            raise Exception('OK')
             nn_params={'dims':X.shape[1],'n_cats':2}
             model_i=nn.SimpleNN(n_hidden=self.n_hidden)(nn_params)
             model_i.fit(X_s,y_s,

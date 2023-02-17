@@ -15,7 +15,7 @@ class Protocol(object):
     @utils.lazy_dir_fun
     def __call__(self,in_path,out_path,
                     n_split=10,n_iters=10):     
-        ensemble_type=ecscf.OneVsOne
+        ensemble_type=ecscf.OneVsAll
         hyperparams=cv.find_hyperparams(in_path,
             self.search_space,ensemble_type,
             n_split=n_split)
@@ -46,8 +46,9 @@ class ESCFExp(object):
         self.ensemble_factory=ensemble_factory
 
     @utils.dir_fun(False)
-    @utils.unify_cv(dir_path='feats')
+    @utils.unify_cv(dir_path=None)#'feats')
     def __call__(self,path_i):
+        print(path_i)
         ens_i=self.ensemble_factory(path_i)
         result_i=ens_i.evaluate()
         return result_i
@@ -75,7 +76,7 @@ def check_dim(in_path):
 
 if __name__ == "__main__":
     protocol=Protocol()
-    protocol('small','test',n_split=2,n_iters=2)
+    protocol('small','test',n_split=10,n_iters=10)
 #    out=escf_exp('wine_cv2')
 #    out=check_dim('uci')
 #    print(out)

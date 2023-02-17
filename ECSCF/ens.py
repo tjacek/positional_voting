@@ -2,12 +2,17 @@ import json,gzip
 import learn,data
 
 class Ensemble(object):
-    def __init__(self,full,binary,clf_type=None):
+    def __init__(self,common,binary,clf_type=None):
+        self.common=common
         self.binary=binary 
-        self.full=full
+        self.full=None
         self.clf_type=clf_type
 
     def evaluate(self,as_votes=False):
+        if(self.full is None):
+            self.full=[ self.common.concat(binary_i) 
+                for binary_i in self.binary]
+        print(len(self.full))
         results=[]
         for full_i in self.full:
             result_i=learn.fit_lr(full_i,self.clf_type)
@@ -40,8 +45,8 @@ class EnsembleFactory(object):
         binary=data.read_data_group(binary_path)
 #        full=[ common.concat(binary_i) 
 #            for binary_i in binary]
-        full=common
-        return Ensemble(full,binary,self.clf_type)
+#        full=common
+        return Ensemble(common,binary,self.clf_type)
 
 
 class GzipFactory(object):
@@ -56,8 +61,10 @@ class GzipFactory(object):
             json_bytes = f.read()                      
             json_str = json_bytes.decode('utf-8')           
             raw_dict = json.loads(json_str)
-            common=raw_dict['common']
-            binary=raw_dict['binary']
+            common=data.DataDict(raw_dict['common'])
+            binary=[ data.DataDict(binary_i)
+                for binary_i in raw_dict['binary']]
+#            raise Exception(type(common))
             return Ensemble(common,binary,self.clf_type)
 
 class RawBinary(object):

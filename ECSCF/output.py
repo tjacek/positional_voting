@@ -58,12 +58,14 @@ def get_escf_algs(names):
     alg={}
     for name_i in names:
         raw_i=name_i.split('_')
-        if(raw_i[0]=='binary'):
-            clf_i=get_clf(raw_i[1])
-            ens_factory=ens.RawBinary
-        else:
-            clf_i=get_clf(raw_i[0])
-            ens_factory=ens.EnsembleFactory
+#        if(raw_i[0]=='binary'):
+#            clf_i=get_clf(raw_i[1])
+#            ens_factory=ens.RawBinary
+#        else:
+#            clf_i=get_clf(raw_i[0])
+#            ens_factory=ens.EnsembleFactory
+        clf_i=get_clf(raw_i[0])
+        ens_factory=ens.GzipFactory
         alg[name_i]=protocols.ESCFExp(ens_factory(clf_i))
     return alg
 
@@ -76,9 +78,7 @@ def inliner_exp(in_path):
     return [line_i]
 
 if __name__ == "__main__":
-    basic_exp=BasicExp(['LR','RF','Bag','Grad',
-                       'binary_LR','binary_RF','binary_Bag','binary_Grad'],
-                       ['LR','RF','Bag','Grad'])
-    #lines=basic_exp('imb/wine-quality-red')
-    multi_exp('test',basic_exp)
-    #print(lines)
+    basic_exp=BasicExp(['LR','RF','Bag'],algs=[])#,'Grad'],
+#                       'binary_LR','binary_RF','binary_Bag','binary_Grad'],)
+#                       ['LR','RF','Bag','Grad'])
+    multi_exp('imb_gzip',basic_exp)
